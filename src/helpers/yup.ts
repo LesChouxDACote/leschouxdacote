@@ -1,4 +1,4 @@
-import { yupResolver } from "@hookform/resolvers/yup/dist/yup.umd"
+import { yupResolver } from "@hookform/resolvers/yup/dist/yup"
 import { USER_ROLE } from "src/constants"
 import { MIN_PASSWORD_LENGTH, validatePassword, validatePhoneNumber, validateSiret } from "src/helpers/validators"
 import { object, string } from "yup"

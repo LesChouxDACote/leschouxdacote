@@ -30,14 +30,15 @@
     "serve": "next start",
     "email-alerts": "ts-node --files -r dotenv/config src/scripts/alerts.ts",
     "email-expired": "ts-node --files -r dotenv/config src/scripts/expired.ts",
-    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts"
+    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts",
+    "postinstall": "vercel env pull"
   },
   "dependencies": {
     "@bugsnag/js": "^7.5.1",
     "@bugsnag/plugin-react": "^7.3.5",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
-    "@hookform/resolvers": "^2.7.0",
+    "@hookform/resolvers": "^2.9.11",
     "@mapbox/mapbox-gl-language": "^1.0.0",
     "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
@@ -95,6 +96,7 @@
     "husky": "^7.0.2",
     "lint-staged": "^11.2.3",
     "prettier": "^2.2.1",
-    "prettier-plugin-organize-imports": "^2.3.4"
+    "prettier-plugin-organize-imports": "^2.3.4",
+    "vercel": "^28.17.0"
   }
 }
