@@ -24,14 +24,14 @@
   },
   "scripts": {
     "prepare": "husky install",
+    "env": "vercel env pull",
     "dev": "next dev",
     "lint": "lint-staged",
     "build": "next build",
     "serve": "next start",
     "email-alerts": "ts-node --files -r dotenv/config src/scripts/alerts.ts",
     "email-expired": "ts-node --files -r dotenv/config src/scripts/expired.ts",
-    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts",
-    "postinstall": "vercel env pull"
+    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts"
   },
   "dependencies": {
     "@bugsnag/js": "^7.5.1",
