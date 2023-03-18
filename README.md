@@ -1,4 +1,4 @@
-# Les Choux d'à Côté
+# Les Choux d'à Côté 🚀
 
 Classified food ads.
 [leschouxdacote.fr](https://leschouxdacote.fr/)
