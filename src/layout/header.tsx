@@ -82,6 +82,8 @@ const Cta = styled(ButtonLink)`
   margin-right: 16px;
 `
 
+const ENV = process.env.NEXT_PUBLIC_VERCEL_ENV || "development"
+
 const Header = () => {
   const { pathname, events } = useRouter()
   const [openMenu, setOpen] = useState(false)
@@ -99,7 +101,7 @@ const Header = () => {
     <Container>
       <Desktop>
         {isHome ? (
-          <Spacer />
+          <Spacer>{ENV !== "production" ? ENV : null}</Spacer>
         ) : (
           <>
             <Link href="/">
