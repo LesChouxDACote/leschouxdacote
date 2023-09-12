@@ -40,7 +40,7 @@ const MobileSwitches = styled.div`
 
 const getOptions = (radius: number, latlng?: string, bio?: "1") => {
   const options: Mutable<SearchOptions> = {
-    numericFilters: `expires > ${Date.now()}`,
+    // numericFilters: `expires > ${Date.now()}`,
   }
   if (latlng) {
     options.aroundLatLng = latlng
