@@ -1,7 +1,7 @@
 import { lighten } from "polished"
 
 export const CONTACT_EMAIL = "contact@leschouxdacote.fr"
-export const MAX_PUBLICATION_DAYS = 30
+export const MAX_PUBLICATION_DAYS = 90
 
 const BASE_COLORS = {
   white: "#ffffff",
