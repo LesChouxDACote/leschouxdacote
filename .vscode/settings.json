@@ -8,7 +8,7 @@
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "json"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "[yaml]": {
     "editor.formatOnSave": true
