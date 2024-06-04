@@ -5,7 +5,13 @@
   "files.exclude": {
     "node_modules/": true
   },
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "json"],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json"
+  ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
@@ -13,5 +19,10 @@
   "[yaml]": {
     "editor.formatOnSave": true
   },
-  "typescript.preferences.importModuleSpecifier": "non-relative"
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "cSpell.words": [
+    "firestore",
+    "signin",
+    "signout"
+  ]
 }

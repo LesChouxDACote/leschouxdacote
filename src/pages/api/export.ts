@@ -8,7 +8,9 @@ import type { Producer, Product } from "src/types/model"
 const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
   const query = req.query.q
 
-  if (req.method === "GET" && query === "producers") {
+  if (req.method === "GET" && (query === "producers" || query === "buyers")) {
+    const role = query === "producers" ? USER_ROLE.PRODUCER : USER_ROLE.BUYER
+
     const productsSnapshot = await firestore.collection("products").get()
     const sums: Record<string, number> = {}
     productsSnapshot.forEach((doc) => {
@@ -20,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
       }
     })
 
-    const producersSnapshot = await firestore.collection("users").where("role", "==", USER_ROLE.PRODUCER).get()
+    const producersSnapshot = await firestore.collection("users").where("role", "==", role).get()
     const producers = producersSnapshot.docs.map((doc) => {
       const producer = getObject(doc) as Producer
       return [
