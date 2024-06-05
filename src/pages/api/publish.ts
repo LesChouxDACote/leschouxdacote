@@ -1,4 +1,7 @@
+import { stringify } from "@effect/schema/FastCheck"
 import { addDays } from "date-fns"
+import { pipe } from "effect"
+import * as T from "effect/Effect"
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
@@ -9,11 +12,15 @@ const getDate = (ts?: number | null) => (ts ? new Date(ts) : null)
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<RegisteringProduct>>) => {
   const { id, days } = req.body as Publish
+
   const ref = firestore.collection("products").doc(id)
+
   const doc = await ref.get()
+
   if (!doc.exists) {
     return badRequest(res, 404)
   }
+
   const product = getObject(doc) as Product
 
   const token = await getToken(req)
@@ -25,6 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
 
   // add days
   if (req.method === "POST") {
+    console.log("days", days)
     if (!days) {
       return badRequest(res, 400)
     }
@@ -35,28 +43,44 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     product.published = published && published.getTime()
     product.expires = expires.getTime()
 
-    await Promise.all([
-      ref.update({
-        updated: now,
-        published,
-        expires,
+    pipe(
+      T.tryPromise({
+        try: () =>
+          Promise.all([
+            ref.update({
+              updated: now,
+              published,
+              expires,
+            }),
+            productsIndex.saveObject(product),
+          ]),
+        catch: stringify,
       }),
-      productsIndex.saveObject(product),
-    ])
+      T.tapError(T.logError),
+      T.runPromise
+    )
 
     return respond(res)
   }
 
   // unpublish
   if (req.method === "PUT") {
-    await Promise.all([
-      ref.update({
-        updated: now,
-        published: null,
-        expires: null,
+    pipe(
+      T.tryPromise({
+        try: () =>
+          Promise.all([
+            ref.update({
+              updated: now,
+              published: null,
+              expires: null,
+            }),
+            productsIndex.deleteObject(product.objectID),
+          ]),
+        catch: stringify,
       }),
-      productsIndex.deleteObject(product.objectID),
-    ])
+      T.tapError(T.logError),
+      T.runPromise
+    )
 
     return respond(res)
   }
