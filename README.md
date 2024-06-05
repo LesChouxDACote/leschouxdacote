@@ -59,6 +59,8 @@ Ask to Anthony for the Mapbox key
 
 Ask to Anthony for the Insee key
 
+## Github repository ask to Jerome or Charles for the right to push on the repository
+
 ## Deployment
 
 The project is deployed on Vercel. Every commit on branch "develop" is deployed on the dev environment. Every commit on branch "production" is deployed on the production environment.
