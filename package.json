@@ -83,7 +83,7 @@
     "yup": "^0.32.9"
   },
   "engines": {
-    "node": ">=12.22"
+    "node": ">= 20"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.2.0",
