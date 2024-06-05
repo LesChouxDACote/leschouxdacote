@@ -26,6 +26,7 @@
     "lastname",
     "signin",
     "signout",
-    "siret"
+    "siret",
+    "Vaultwarden"
   ]
 }

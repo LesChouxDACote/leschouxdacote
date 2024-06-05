@@ -41,6 +41,12 @@ NEXT_PUBLIC_FIREBASE_MESSAGING is messagingSenderId
 NEXT_PUBLIC_FIREBASE_ID is appId
 NEXT_PUBLIC_FIREBASE_MEASURE is measurementId
 
+FIREBASE_PRIVATE_KEY => See Vaultwarden
+
+## Vaultwarden
+
+Ask to Charles to access to the Vaultwarden
+
 ## Algolia
 
 You can find you API keys in the Algolia dashboard. <https://dashboard.algolia.com/account/api-keys/all?applicationId=RGBETVVUMX>
