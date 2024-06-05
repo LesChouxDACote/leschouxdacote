@@ -79,18 +79,18 @@
     "standard-http-error": "^2.0.1",
     "ts-node": "^10.4.0",
     "tsconfig-paths": "^3.11.0",
-    "typescript": "^4.1.2",
+    "typescript": "5.4.5",
     "yup": "^0.32.9"
   },
   "engines": {
-    "node": ">= 20"
+    "node": ">= 18"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.2.0",
     "@next/eslint-plugin-next": "^12.0.1",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
-    "eslint": "^8.0.1",
+    "@typescript-eslint/eslint-plugin": "<7.0.0",
+    "@typescript-eslint/parser": "<7.0.0",
+    "eslint": "<8.0.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.26.1",
