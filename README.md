@@ -59,6 +59,8 @@ Ask to Anthony for the Mapbox key
 
 Ask to Anthony for the Insee key
 
+For other env variable go the Github repository and Security > Secrets and Variables > Actions
+
 ## Github repository ask to Jerome or Charles for the right to push on the repository
 
 ## Deployment
