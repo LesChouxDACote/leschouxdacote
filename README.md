@@ -71,4 +71,9 @@ For other env variable go the Github repository and Security > Secrets and Varia
 
 ## Deployment
 
-The project is deployed on Vercel. Every commit on branch "develop" is deployed on the dev environment. Every commit on branch "production" is deployed on the production environment.
+The project is deployed on Vercel for preprod and prod.
+Every commit on branch "develop" is deployed on the dev environment.
+Every commit on branch "production" is deployed on the production environment.
+
+For dev environment, it is deploy on coolify.ilieff.fr
+Ask Charles to access to the Coolify project.
