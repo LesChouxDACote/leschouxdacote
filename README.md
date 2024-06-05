@@ -18,6 +18,8 @@ Classified food ads.
 - `yarn lint`: check linting (Eslint + Prettier)
 - `yarn build`: make production bundle
 
+Copy the `.env.example` file to `.env` and fill in the required values.
+
 ## Environment variables
 
 NEXT_PUBLIC_BUGSNAG is the key for the bugsnag service
@@ -56,3 +58,7 @@ Ask to Anthony for the Mapbox key
 ## Insee
 
 Ask to Anthony for the Insee key
+
+## Deployment
+
+The project is deployed on Vercel. Every commit on branch "develop" is deployed on the dev environment. Every commit on branch "production" is deployed on the production environment.
