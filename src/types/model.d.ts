@@ -43,6 +43,10 @@ interface BaseUser extends Identified {
 interface Buyer extends BaseUser {
   role: USER_ROLE.BUYER
 }
+
+interface Admin extends BaseUser {
+  role: USER_ROLE.ADMIN
+}
 interface Producer extends BaseUser {
   role: USER_ROLE.PRODUCER
   siret: string
@@ -53,7 +57,7 @@ interface Producer extends BaseUser {
   followers?: Record<string, Follower>
   alertsExpired?: boolean
 }
-type User = Buyer | Producer
+type User = Buyer | Producer | Admin
 
 interface RegisteringUser extends Registering<Producer> {
   created: Date

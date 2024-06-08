@@ -8,6 +8,7 @@ import { getName } from "src/helpers/user"
 import type { AuthUser, User } from "src/types/model"
 
 const ANONYMOUS_ROUTES = ["/connexion", "/inscription", "/confirmation", "/mot-de-passe-oublie"]
+const ADMIN_ROUTES = ["/csv-export"]
 
 export interface IUserContext<T extends User = User> {
   loading: boolean
@@ -91,8 +92,15 @@ export const UserProvider: FC = ({ children }) => {
     if (authUser && user?.role === USER_ROLE.BUYER && ANONYMOUS_ROUTES.includes(pathname)) {
       return destination || "/"
     }
+    if (authUser && user?.role === USER_ROLE.ADMIN && ANONYMOUS_ROUTES.includes(pathname)) {
+      return "/csv-export"
+    }
+
     if (!authUser && isPrivateRoute) {
       return "/connexion?next=" + asPath
+    }
+    if (authUser && user?.role !== USER_ROLE.ADMIN && ADMIN_ROUTES.includes(pathname)) {
+      return "/"
     }
   })()
 
