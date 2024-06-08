@@ -42,6 +42,7 @@ export const COLORS = {
 export enum USER_ROLE {
   PRODUCER = "PRODUCER",
   BUYER = "BUYER",
+  ADMIN = "ADMIN",
 }
 
 export const BIO = "_bio"

@@ -6,7 +6,7 @@ import { getAbsoluteUrl } from "src/helpers/text"
 import Layout from "src/layout"
 import { Register } from "src/pages/connexion"
 
-const LostPasswordPage = () => {
+export const LostPasswordPage = () => {
   const [sent, setSent] = useState(false)
 
   const handleSubmit: Submit<LostPassword> = async (data) => {

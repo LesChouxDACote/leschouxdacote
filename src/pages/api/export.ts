@@ -1,13 +1,18 @@
 import { formatISO9075 } from "date-fns"
 import type { NextApiRequest, NextApiResponse } from "next"
 import { USER_ROLE } from "src/constants"
+
 import getCsv from "src/helpers-api/csv"
-import { firestore, getObject } from "src/helpers-api/firebase"
+import { firestore, getObject, getToken } from "src/helpers-api/firebase"
 import type { Producer, Product } from "src/types/model"
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
   const query = req.query.q
+  const token = await getToken(req)
 
+  if (!token || token.email !== "cilieff@gmail.com") {
+    return res.status(403).json("Not Authorized")
+  }
   if (req.method === "GET" && (query === "producers" || query === "buyers")) {
     const role = query === "producers" ? USER_ROLE.PRODUCER : USER_ROLE.BUYER
 
@@ -50,9 +55,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
         "Date d'inscription",
         "Nombre d'annonces",
       ])
-      const date = new Date().toISOString().substr(0, 10)
+
       res.setHeader("Content-Type", "text/csv")
-      res.setHeader("Content-Disposition", `attachment; filename="producers-${date}.csv"`)
+
       res.status(200).send(output)
     } catch (err) {
       console.error(err)

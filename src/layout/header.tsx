@@ -112,11 +112,17 @@ const Header = () => {
             </Middle>
           </>
         )}
-        {user?.role !== USER_ROLE.BUYER && (
+        {user?.role === USER_ROLE.BUYER && (
           <Cta href="/compte/producteur/annonce" $variant="green">
             Créer une annonce
           </Cta>
         )}
+        {user?.role === USER_ROLE.ADMIN && (
+          <Cta href="/csv-export" $variant="red">
+            Export des CSVs
+          </Cta>
+        )}
+
         <UserZone />
       </Desktop>
       <Mobile>
