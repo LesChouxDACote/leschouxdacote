@@ -2,8 +2,8 @@ import { connect, Email } from "node-mailjet"
 import { CONTACT_EMAIL } from "src/constants"
 
 export enum MailjetTemplate {
-  alert = 3162690,
-  expired = 3331613,
+  alert = 5997948,
+  expired = 5997949,
 }
 
 export const sendTemplateEmail = async (
