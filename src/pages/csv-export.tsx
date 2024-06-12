@@ -51,7 +51,7 @@ export const CSVExport = () => {
         <button onClick={() => handleGetCSV("buyers")}>{"Acheteurs"}</button>
       </Link>
       <Link>
-        <button onClick={() => handleGetCSV("producers")}>{"Producers"}</button>
+        <button onClick={() => handleGetCSV("producers")}>{"Producteurs"}</button>
       </Link>
     </Layout>
   )
