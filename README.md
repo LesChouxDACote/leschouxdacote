@@ -77,3 +77,8 @@ Every commit on branch "production" is deployed on the production environment.
 
 For dev environment, it is deploy on coolify.ilieff.fr
 Ask Charles to access to the Coolify project.
+
+## Alerts Emails for new products and expired product
+
+Two schedule actions in Github actions : "Alerts for expired product" and "Alerts for new products" are used for dev and prod environment.
+Maybe we should change this for Vercel Cron ?
