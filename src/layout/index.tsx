@@ -38,6 +38,7 @@ interface Props {
   bgImage?: boolean
   fullWidth?: boolean
   loading?: boolean
+  children: React.ReactNode
 }
 
 const Layout: FC<Props & SEOProps> = ({ bgImage, fullWidth, loading, children, ...props }) => {

@@ -47,6 +47,7 @@ const Content = styled.div`
 
 export interface Props {
   onClose: () => void
+  children: React.ReactNode
 }
 
 const Modal: FC<Props> = ({ onClose, children }) => {

@@ -37,7 +37,7 @@ const RegisterPage = () => {
 
   const role = watch("role")
 
-  const onSubmit: SubmitHandler<RegisteringUser> = async (values) => {
+  const onSubmit: SubmitHandler<RegisteriogsngUser> = async (values) => {
     values.nocheck = Boolean(query.nocheck)
     try {
       await api.post("user", values)

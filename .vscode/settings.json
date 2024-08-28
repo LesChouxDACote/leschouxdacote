@@ -3,7 +3,7 @@
     "yarn.lock": true
   },
   "files.exclude": {
-    "node_modules/": true
+    "node_modules/": false
   },
   "eslint.validate": [
     "javascript",
