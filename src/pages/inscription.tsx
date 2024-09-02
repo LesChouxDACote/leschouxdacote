@@ -37,7 +37,21 @@ const RegisterPage = () => {
 
   const role = watch("role")
 
-  const onSubmit: SubmitHandler<RegisteriogsngUser> = async (values) => {
+  interface FormRegisteringUser {
+    address?: string | undefined
+    siret?: string | undefined
+    name?: string | undefined
+    description?: string | undefined
+    phone?: string | undefined
+    role: USER_ROLE
+    firstname: string
+    lastname: string
+    email: string
+    password: string
+    nocheck?: boolean
+  }
+
+  const onSubmit: SubmitHandler<FormRegisteringUser> = async (values) => {
     values.nocheck = Boolean(query.nocheck)
     try {
       await api.post("user", values)
