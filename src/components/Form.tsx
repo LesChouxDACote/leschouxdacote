@@ -9,7 +9,7 @@ import {
   TextareaHTMLAttributes,
   useEffect,
 } from "react"
-import { DefaultValues, FieldValues, FormProvider, useForm, useFormContext } from "react-hook-form"
+import { DefaultValues, FieldValues, FormProvider, UnpackNestedValue, useForm, useFormContext } from "react-hook-form"
 import { Button } from "src/components/Button"
 import { COLORS, LAYOUT } from "src/constants"
 import { handleError } from "src/helpers/errors"
@@ -40,15 +40,15 @@ const Required = styled.p`
   margin: -1em 0 1em;
 `
 
-interface FormProps<T extends FieldValues> extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> {
+interface FormProps<A extends FieldValues,T extends UnpackNestedValue<A>> extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> {
   title?: string
   hasRequired?: boolean
-  onSubmit: Submit<T>
+  onSubmit: Submit<A>
   defaultValues?: DefaultValues<T>
   resetOnChange?: any
 }
 
-export function Form<T extends FieldValues>({
+export function Form<A extends FieldValues,T extends UnpackNestedValue<A>>({
   title,
   hasRequired,
   onSubmit,
@@ -56,7 +56,7 @@ export function Form<T extends FieldValues>({
   resetOnChange,
   children,
   ...delegated
-}: FormProps<T>) {
+}: FormProps<A,T>) {
   const form = useForm<T>({ defaultValues })
 
   useEffect(() => {
@@ -173,7 +173,7 @@ const BaseInput = forwardRef(
           <Tag ref={handleRef} {...tagProps} {...props} />
           {suffix && <Suffix>{suffix}</Suffix>}
         </Row>
-        {error && <ErrorMessage>{error.message}</ErrorMessage>}
+        {error && <ErrorMessage>{error.message?.toString()}</ErrorMessage>}
       </Label>
     )
   }
@@ -199,6 +199,7 @@ export const StyledButton = styled(Button)<{ $fullWidth?: boolean }>`
 
 interface SubmitButtonProps {
   fullWidth?: boolean
+  children?: string
 }
 
 export const SubmitButton: FC<SubmitButtonProps> = ({ fullWidth = false, children = "Valider" }) => {

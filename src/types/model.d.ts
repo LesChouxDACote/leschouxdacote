@@ -61,7 +61,7 @@ type User = Buyer | Producer | Admin
 
 interface RegisteringUser extends Registering<Producer> {
   created: Date
-  password?: string
+  password: string
   nocheck?: boolean
 }
 

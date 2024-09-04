@@ -23,7 +23,7 @@ export interface IUserContext<T extends User = User> {
 
 const UserContext = createContext<IUserContext>({} as IUserContext)
 
-export const UserProvider: FC = ({ children }) => {
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
