@@ -59,6 +59,7 @@ const CloseButton = styled.button`
 interface SuccessProps {
   title?: string
   type: MessageType
+  children: React.ReactNode
 }
 
 const Message: React.FC<SuccessProps> = ({ title, type, children }) => {

@@ -62,6 +62,7 @@ const StyledIconButton = styled.button`
 interface IconButtonProps {
   iconUrl: string
   alt?: string
+  children: React.ReactNode
 }
 
 export const IconButton: React.FC<IconButtonProps> = ({ iconUrl, alt, children }) => {

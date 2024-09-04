@@ -7,28 +7,28 @@ const registerSchema = object().shape({
   role: string().required("Champs requis").oneOf([USER_ROLE.BUYER, USER_ROLE.PRODUCER], "Choisir une valeur"),
   siret: string().when("role", {
     is: USER_ROLE.PRODUCER,
-    then: string()
+    then: () => string()
       .required("Champs requis")
       .test("is-valid-siret", "SIRET invalide", (value) => (value ? validateSiret(value) === true : false)),
   }),
   name: string().when("role", {
     is: USER_ROLE.PRODUCER,
-    then: string().max(180, "Ne doit pas dépasser 180 caractères").required("Champs requis"),
+    then: () => string().max(180, "Ne doit pas dépasser 180 caractères").required("Champs requis"),
   }),
   address: string().when("role", {
     is: USER_ROLE.PRODUCER,
-    then: string().required("Champs requis"),
+    then: () => string().required("Champs requis"),
   }),
   description: string().when("role", {
     is: USER_ROLE.PRODUCER,
-    then: string()
+    then: () => string()
       .min(15, "Doit contenir au moins 15 caractères")
       .max(4000, "Ne doit pas dépasser 4000 caractères")
       .required("Champs requis"),
   }),
   phone: string().when("role", {
     is: USER_ROLE.PRODUCER,
-    then: string()
+    then: () => string()
       .required("Champs requis")
       .test("is-valid-phone", "Désolé, le numéro de téléphone est invalide", (value) =>
         value ? validatePhoneNumber(value) === true : false

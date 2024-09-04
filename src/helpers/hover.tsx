@@ -12,7 +12,7 @@ const HoverContext = createContext<IHoverContext>({
   },
 })
 
-export const HoverProvider: FC = ({ children }) => {
+export const HoverProvider = ({ children }: { children: React.ReactNode }) => {
   const [productId, setProduct] = useState<string | null>(null)
   return <HoverContext.Provider value={{ productId, setProduct }}>{children}</HoverContext.Provider>
 }

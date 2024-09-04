@@ -1,4 +1,4 @@
-import { FC, MutableRefObject, useEffect, useRef } from "react"
+import { FC, MutableRefObject, ReactNode, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 
 const usePortal = (): HTMLDivElement => {
@@ -25,7 +25,7 @@ const usePortal = (): HTMLDivElement => {
   return container.current
 }
 
-const Portal: FC = ({ children }) => {
+const Portal  = ({ children }:{children:ReactNode}) => {
   const target = usePortal()
   return createPortal(children, target)
 }
