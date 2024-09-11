@@ -8,7 +8,7 @@ import { normalizeNumber } from "src/helpers/validators"
 import type { Producer, RegisteringUser, UpdatingUser } from "src/types/model"
 
 const checkCompany = async (siret: string, nocheck = false) => {
-  const response = await fetch("https://api.insee.fr/entreprises/sirene/V3/siret/" + siret, {
+  const response = await fetch("https://api.insee.fr/entreprises/sirene/siret/" + siret, {
     headers: {
       Authorization: `Bearer ${process.env.INSEE_TOKEN}`,
     },
