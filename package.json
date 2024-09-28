@@ -34,6 +34,7 @@
     "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts"
   },
   "dependencies": {
+    "@algolia/client-search": "^4.24.0",
     "@bugsnag/js": "^7.25.0",
     "@bugsnag/plugin-react": "^7.25.0",
     "@effect/schema": "^0.67.18",
@@ -92,13 +93,14 @@
     "@typescript-eslint/parser": "<7.0.0",
     "eslint": "<8.0.0",
     "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.1.5",
     "lint-staged": "^11.2.6",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
+    "resolvers": "link:@types/@hookform/resolvers",
     "vercel": "^28.20.0"
   }
 }
