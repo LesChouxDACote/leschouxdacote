@@ -1,4 +1,4 @@
-import { createContext, FC, useContext, useState } from "react"
+import { createContext, useContext, useState } from "react"
 
 interface IHoverContext {
   productId: string | null
