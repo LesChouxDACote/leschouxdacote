@@ -23,7 +23,9 @@ export const Wrapper = styled.div`
   justify-content: center;
 `
 const Card = styled.div`
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 1px 2px rgba(0, 0, 0, 0.24);
   background: #fff;
   display: inline-block;
   padding: 2rem 3rem;

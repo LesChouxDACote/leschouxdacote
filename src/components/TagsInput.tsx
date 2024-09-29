@@ -58,7 +58,7 @@ const TagsInput = ({ label }: Props) => {
   const remove = (value: string) => {
     setValue(
       "_tags",
-      values.filter((val) => val !== value)
+      values.filter((val) => val !== value),
     )
   }
   const reset = () => {

@@ -10,7 +10,7 @@ export const sendTemplateEmail = async (
   recipient: string,
   templateId: MailjetTemplate,
   variables: Record<string, any>,
-  subject?: string
+  subject?: string,
 ) => {
   const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
 

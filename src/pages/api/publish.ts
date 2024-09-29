@@ -57,7 +57,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
         catch: stringify,
       }),
       T.tapError(T.logError),
-      T.runPromise
+      T.runPromise,
     )
 
     return respond(res)
@@ -79,7 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
         catch: stringify,
       }),
       T.tapError(T.logError),
-      T.runPromise
+      T.runPromise,
     )
 
     return respond(res)
