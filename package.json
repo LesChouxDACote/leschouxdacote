@@ -84,7 +84,8 @@
     "yup": "^1.4.0"
   },
   "engines": {
-    "node": ">= 20"
+    "node": ">= 20",
+    "yarn": "4.5.0"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.12.0",
