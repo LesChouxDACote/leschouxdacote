@@ -24,7 +24,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.yarn
 
 # local env files
 .env
@@ -40,4 +39,7 @@ yarn-error.log*
 .firebaserc
 
 # typescript cache
-*.tsbuildinfo
+*.tsbuildinfoz
+
+# yarn 
+.yarn/unplugged/

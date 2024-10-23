@@ -52,7 +52,7 @@ interface QueryProps<T> {
 export const useQuery = function <T extends Identified>(
   collection: string,
   where?: WhereClause | false,
-  live?: boolean
+  live?: boolean,
 ): QueryProps<T> {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<T[]>([])
@@ -94,7 +94,7 @@ interface ObjectQueryProps<T> {
 export const useObjectQuery = function <T extends Identified>(
   collection: string,
   id?: ID,
-  live?: boolean
+  live?: boolean,
 ): ObjectQueryProps<T> {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<T>()

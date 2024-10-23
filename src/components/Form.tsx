@@ -40,7 +40,8 @@ const Required = styled.p`
   margin: -1em 0 1em;
 `
 
-interface FormProps<A extends FieldValues,T extends UnpackNestedValue<A>> extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> {
+interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>>
+  extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> {
   title?: string
   hasRequired?: boolean
   onSubmit: Submit<A>
@@ -48,7 +49,7 @@ interface FormProps<A extends FieldValues,T extends UnpackNestedValue<A>> extend
   resetOnChange?: any
 }
 
-export function Form<A extends FieldValues,T extends UnpackNestedValue<A>>({
+export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
   title,
   hasRequired,
   onSubmit,
@@ -56,7 +57,7 @@ export function Form<A extends FieldValues,T extends UnpackNestedValue<A>>({
   resetOnChange,
   children,
   ...delegated
-}: FormProps<A,T>) {
+}: FormProps<A, T>) {
   const form = useForm<T>({ defaultValues })
 
   useEffect(() => {
@@ -176,7 +177,7 @@ const BaseInput = forwardRef(
         {error && <ErrorMessage>{error.message?.toString()}</ErrorMessage>}
       </Label>
     )
-  }
+  },
 )
 BaseInput.displayName = "BaseInput"
 

@@ -325,7 +325,7 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
 
   const { docs } = await firestore.collection("products").where("uid", "==", product.uid).get()
   props.otherProducts = (docs.map(getObject) as Product[]).filter(
-    ({ objectID }) => objectID !== product.objectID // && expires && expires > Date.now()
+    ({ objectID }) => objectID !== product.objectID, // && expires && expires > Date.now()
   )
 
   return { props, revalidate: ISR_REVALIDATE }
