@@ -104,5 +104,5 @@
     "resolvers": "link:@types/@hookform/resolvers",
     "vercel": "^28.20.0"
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }
