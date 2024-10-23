@@ -7,6 +7,6 @@ export const handleError = (error: Error) => {
     `Une erreur est survenue. Vérifiez votre connexion ou réessayez plus tard.
 Si le problème persiste, contactez-nous à cette adresse : ${CONTACT_EMAIL}
 
-Message d'erreur technique : ${error.message}`
+Message d'erreur technique : ${error.message}`,
   )
 }

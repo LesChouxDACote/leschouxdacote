@@ -33,7 +33,7 @@ See :
 
 And get the keys for the project as :
 
-In .env  
+In .env
 
 NEXT_PUBLIC_FIREBASE_KEY is apiKey
 NEXT_PUBLIC_FIREBASE_PROJECT is les-choux-da-cote

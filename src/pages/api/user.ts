@@ -103,7 +103,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
       throw error
     }
 
-    //@ts-expect-error
+    //@ts-expect-error yes
     delete user.password
 
     if (user.role !== USER_ROLE.PRODUCER) {

@@ -1,6 +1,6 @@
 import Bugsnag from "@bugsnag/js"
 import { useRouter } from "next/router"
-import React, { createContext, FC, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useEffect, useState } from "react"
 import { USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
 import { auth, firestore, getObject } from "src/helpers/firebase"
