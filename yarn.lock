@@ -1544,17 +1544,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@effect/schema@npm:^0.67.18":
-  version: 0.67.24
-  resolution: "@effect/schema@npm:0.67.24"
-  dependencies:
-    fast-check: "npm:^3.17.2"
-  peerDependencies:
-    effect: ^3.3.3
-  checksum: 10c0/700fec1a3491e9404dcfb9731744f2cdf66c1d57e80e7968d2835a88f6edbc3416775bfa92021182d34e57994cd880efcaf3220c3f07033d8f004e3ff3222d19
-  languageName: node
-  linkType: hard
-
 "@emotion/babel-plugin@npm:^11.12.0":
   version: 11.12.0
   resolution: "@emotion/babel-plugin@npm:11.12.0"
@@ -3640,6 +3629,13 @@ __metadata:
   version: 4.6.0
   resolution: "@sindresorhus/is@npm:4.6.0"
   checksum: 10c0/33b6fb1d0834ec8dd7689ddc0e2781c2bfd8b9c4e4bacbcb14111e0ae00621f2c264b8a7d36541799d74888b5dccdf422a891a5cb5a709ace26325eedc81e22e
+  languageName: node
+  linkType: hard
+
+"@standard-schema/spec@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@standard-schema/spec@npm:1.0.0"
+  checksum: 10c0/a1ab9a8bdc09b5b47aa8365d0e0ec40cc2df6437be02853696a0e377321653b0d3ac6f079a8c67d5ddbe9821025584b1fb71d9cc041a6666a96f1fadf2ece15f
   languageName: node
   linkType: hard
 
@@ -6498,12 +6494,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"effect@npm:^3.2.8":
-  version: 3.10.1
-  resolution: "effect@npm:3.10.1"
+"effect@npm:^3.13.10":
+  version: 3.13.10
+  resolution: "effect@npm:3.13.10"
   dependencies:
-    fast-check: "npm:^3.21.0"
-  checksum: 10c0/9ab5229b873a44b6d56800267e9991f5675a5a3a942ef83fafa02d59a8e509e938a2d6333392b8581e432c3f192e0a0a3573070b7d86caeea01d929f0564e08d
+    "@standard-schema/spec": "npm:^1.0.0"
+    fast-check: "npm:^3.23.1"
+  checksum: 10c0/ab13f445e70f5d98cb13c72d8216bc3f6801a46a978af1961c9da7a46ff024c1aae7365b1ca0e3b385dc7e4a45371ad2f832abe9ef4ab9b14f5d391161d118f7
   languageName: node
   linkType: hard
 
@@ -7672,12 +7669,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-check@npm:^3.17.2, fast-check@npm:^3.21.0":
-  version: 3.22.0
-  resolution: "fast-check@npm:3.22.0"
+"fast-check@npm:^3.23.1":
+  version: 3.23.2
+  resolution: "fast-check@npm:3.23.2"
   dependencies:
     pure-rand: "npm:^6.1.0"
-  checksum: 10c0/15c70f83df655f9bdcec4f8ed7e3207a933bf6e22c220a4fafc7ea17a28a009bc5d0a85588689f5726e3514796745cb5b35e7295ce469ac286992548fd55cc1d
+  checksum: 10c0/16fcff3c80321ee765e23c3aebd0f6427f175c9c6c1753104ec658970162365dc2d56bda046d815e8f2e90634c07ba7d6f0bcfd327fbd576d98c56a18a9765ed
   languageName: node
   linkType: hard
 
@@ -9676,7 +9673,6 @@ __metadata:
     "@algolia/client-search": "npm:^4.24.0"
     "@bugsnag/js": "npm:^7.25.0"
     "@bugsnag/plugin-react": "npm:^7.25.0"
-    "@effect/schema": "npm:^0.67.18"
     "@emotion/babel-plugin": "npm:^11.12.0"
     "@emotion/react": "npm:^11.13.3"
     "@emotion/styled": "npm:^11.13.0"
@@ -9704,7 +9700,7 @@ __metadata:
     csv-stringify: "npm:^5.6.5"
     date-fns: "npm:^2.30.0"
     dotenv: "npm:^16.4.5"
-    effect: "npm:^3.2.8"
+    effect: "npm:^3.13.10"
     eslint: "npm:<8.0.0"
     eslint-config-prettier: "npm:^8.10.0"
     eslint-plugin-prettier: "npm:^5.2.1"
