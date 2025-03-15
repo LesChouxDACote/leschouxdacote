@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
 import ProductEndDate from "src/components/ProductEndDate"
+import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
 import { MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
@@ -193,6 +194,7 @@ const EditProductPage = () => {
           suffix="jour(s)"
         />
         <ProductEndDate />
+        <SlotsForm />
         <SubmitButton />
       </Form>
     </Layout>

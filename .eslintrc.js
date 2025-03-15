@@ -15,7 +15,6 @@ module.exports = {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-no-target-blank": ["error", { allowReferrer: true }],
-    "no-shadow": "error",
   },
   settings: {
     react: {
@@ -30,7 +29,6 @@ module.exports = {
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"],
       },
     },
   ],
