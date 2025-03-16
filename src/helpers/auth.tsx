@@ -68,8 +68,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const signin = (email: string, password: string) => auth.signInWithEmailAndPassword(email, password)
 
   const isPrivateRoute = pathname.startsWith("/compte")
-  const isProducerRoute = false
-  //pathname.startsWith("/compte/producteur")
+  const isProducerRoute = pathname.startsWith("/compte/producteur")
 
   const signout = () => {
     if (isPrivateRoute) {
