@@ -7,7 +7,7 @@ import { getFormData } from "src/helpers-api/form"
 import { resize, upload } from "src/helpers-api/image"
 import { normalizeNumber } from "src/helpers/validators"
 import type { Producer, Product, ProductPayload, RegisteringProduct } from "src/types/model"
-
+//T
 const checkRequired = (data: Record<string, any>, fields: string[]) => {
   const found = fields.find((field) => !data[field])
   if (found) {
