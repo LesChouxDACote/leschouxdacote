@@ -8,11 +8,12 @@ import { normalizeNumber } from "src/helpers/validators"
 import type { Producer, RegisteringUser, UpdatingUser } from "src/types/model"
 
 const checkCompany = async (siret: string, nocheck = false) => {
-  const response = await fetch("https://api.insee.fr/entreprises/sirene/siret/" + siret, {
+  const response = await fetch("https://api.insee.fr/api-sirene/3.11/siret/" + siret, {
     headers: {
-      Authorization: `Bearer ${process.env.INSEE_TOKEN}`,
+      "X-INSEE-Api-Key-Integration": `${process.env.INSEE_TOKEN}`,
     },
   })
+  console.log("INSEE API", response.status, response.statusText)
   if (response.status === 404) {
     return "Numéro de SIRET introuvable"
   }
