@@ -4,28 +4,16 @@ import React from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { ParseResult, pipe, Schema as Sc, Either as E } from "effect"
+import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 
-const SlotSchema = Sc.Struct({
-  date: Sc.Date.annotations({
-    message: () => "Veuillez entrer une date.",
-    override: true,
-  }).pipe(Sc.filter((date) => date >= new Date() || "La date doit être dans le futur")),
-  heureDebut: Sc.String,
-  heureFin: Sc.String,
-}).pipe(
-  Sc.filter((slot) => {
-    const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
-    const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
-    return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin"
-  }),
-)
+interface SlotsFormProps {
+  slots: readonly Slot[]
+  setSlots: React.Dispatch<React.SetStateAction<readonly Slot[]>>
+}
 
-type Slot = typeof SlotSchema.Type
-
-const SlotsForm = () => {
+const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
   const { control } = useForm()
 
-  const [slots, setSlots] = React.useState<Slot[]>([])
   const [error, setError] = React.useState<string | null>(null)
 
   return (

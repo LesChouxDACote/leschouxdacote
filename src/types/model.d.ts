@@ -1,4 +1,5 @@
 import { USER_ROLE } from "src/constants"
+import { Slot } from "src/pages/compte/producteur/annonce"
 
 interface AuthUser {
   uid: string
@@ -91,6 +92,7 @@ interface Product extends Identified {
   views: number | null
   // data fan-out:
   producer: string // producer.name
+  slots: Slot[]
 }
 
 interface RegisteringProduct extends Registering<Product> {
