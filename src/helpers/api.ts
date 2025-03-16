@@ -38,10 +38,12 @@ const request = async <T>(method: string, path: string, params?: Payload | Query
   }
 
   init.headers = headers
-
+  console.log("responseText", init)
   const response = await fetch("/api/" + path, init)
 
   const statusText: string = response.statusText || ERROR_CODES[response.status]
+
+  console.log("response URL", response.url)
 
   if (response.status >= 400) {
     throw new HttpError(response.status, statusText)

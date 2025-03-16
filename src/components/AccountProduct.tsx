@@ -15,6 +15,8 @@ import api from "src/helpers/api"
 import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
 import { formatAmount, formatQuantity } from "src/helpers/text"
 import type { Product } from "src/types/model"
+import { Schema as Sc } from "effect"
+import { SlotSchema } from "src/pages/compte/producteur/annonce"
 
 const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
@@ -130,7 +132,7 @@ const BottomActions = styled.div`
   }
 `
 const Status = styled.div<{ $active: boolean }>`
-  @media (min-width: ${LAYOUT.mobile}px) {
+  formatDate @media (min-width: ${LAYOUT.mobile}px) {
     position: absolute;
     top: 0;
     right: 0;
@@ -200,6 +202,8 @@ const AccountProduct = ({ product, odd }: Props) => {
   const productShareData: ShareData = {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
+  console.log(product.slots)
+  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchema))(product.slots) : []
 
   return (
     <Container $odd={odd}>
@@ -210,6 +214,17 @@ const AccountProduct = ({ product, odd }: Props) => {
         <Infos>
           <h4>{product.title}</h4>
           <div>{infos.filter((info) => info).join(" | ")}</div>
+          {slots.length > 0 && (
+            <div>
+              <h5>Créneaux</h5>
+              {slots.map(({ date, heureDebut, heureFin }) => (
+                <p key={date.toString()}>
+                  Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
+                </p>
+              ))}
+            </div>
+          )}
+
           <Days>
             Annonce créée le {formatDate(product.created)}
             {product.updated && <> et modifiée le {formatDate(product.updated)}</>}

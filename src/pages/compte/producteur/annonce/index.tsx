@@ -1,5 +1,7 @@
 import styled from "@emotion/styled"
 import { differenceInCalendarDays } from "date-fns"
+import { Schema as Sc } from "effect"
+import { stringify } from "effect/FastCheck"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
@@ -16,13 +18,30 @@ import { formatPricePerUnit } from "src/helpers/text"
 import { validatePhoneNumber } from "src/helpers/validators"
 import Layout from "src/layout"
 import type { AuthUser, Producer, Product, ProductPayload, Unit } from "src/types/model"
-
 // https://sharp.pixelplumbing.com/#formats
 const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff"]
 
 const Photo = styled.img`
   width: 100%;
 `
+const SlotDate = Sc.Date.annotations({
+  message: () => "Veuillez entrer une date.",
+  override: true,
+}).pipe(Sc.filter((date) => date >= new Date() || "La date doit être dans le futur"))
+
+export const SlotSchema = Sc.Struct({
+  date: SlotDate,
+  heureDebut: Sc.String,
+  heureFin: Sc.String,
+}).pipe(
+  Sc.filter((slot) => {
+    const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
+    const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
+    return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin"
+  }),
+)
+
+export type Slot = typeof SlotSchema.Type
 
 const PriceInfos = () => {
   const { watch } = useFormContext()
@@ -37,6 +56,7 @@ const PriceInfos = () => {
 
 const EditProductPage = () => {
   const { authUser, user } = useUser<Producer>()
+  const [slots, setSlots] = useState<readonly Slot[]>([])
   const { query, push } = useRouter()
 
   const productId = Array.isArray(query.id) ? undefined : query.id
@@ -48,6 +68,9 @@ const EditProductPage = () => {
   useEffect(() => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
+
+      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchema))(data.slots) : []
+      setSlots(slots)
     }
   }, [place, data])
 
@@ -62,7 +85,6 @@ const EditProductPage = () => {
 
   const handleSubmit: Submit<ProductPayload> = async (values, target) => {
     const payload = new FormData(target)
-
     if (!payload.get("email") && !payload.get("phone")) {
       throw new ValidationError("email", "Vous devez au moins spécifier une adresse e-mail ou un numéro de téléphone")
     }
@@ -84,6 +106,7 @@ const EditProductPage = () => {
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
+    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)
@@ -194,7 +217,7 @@ const EditProductPage = () => {
           suffix="jour(s)"
         />
         <ProductEndDate />
-        <SlotsForm />
+        <SlotsForm setSlots={setSlots} slots={slots} />
         <SubmitButton />
       </Form>
     </Layout>

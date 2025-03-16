@@ -114,6 +114,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
       views: existing?.views || 0,
       // data fan-out:
       producer: producer.name ?? "",
+      slots: JSON.parse(fields.slots.toString()),
     }
 
     if (existing) {
