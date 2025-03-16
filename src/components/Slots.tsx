@@ -3,16 +3,30 @@ import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/mate
 import React from "react"
 import { Controller, useForm } from "react-hook-form"
 
-interface Slot {
-  date: Date
-  heureDebut: string
-  heureFin: string
-}
+import { ParseResult, pipe, Schema as Sc, Either as E } from "effect"
+
+const SlotSchema = Sc.Struct({
+  date: Sc.Date.annotations({
+    message: () => "Veuillez entrer une date.",
+    override: true,
+  }).pipe(Sc.filter((date) => date >= new Date() || "La date doit être dans le futur")),
+  heureDebut: Sc.String,
+  heureFin: Sc.String,
+}).pipe(
+  Sc.filter((slot) => {
+    const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
+    const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
+    return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin"
+  }),
+)
+
+type Slot = typeof SlotSchema.Type
 
 const SlotsForm = () => {
   const { control } = useForm()
 
   const [slots, setSlots] = React.useState<Slot[]>([])
+  const [error, setError] = React.useState<string | null>(null)
 
   return (
     <Stack spacing={2} alignItems="start">
@@ -40,6 +54,11 @@ const SlotsForm = () => {
           </Box>
         </Stack>
       ))}
+      {error && (
+        <Typography color="error" variant="body1">
+          {error}
+        </Typography>
+      )}
 
       <Stack direction="row" spacing={2} alignItems="center" width={"100%"}>
         <Box width="37%">
@@ -94,13 +113,21 @@ const SlotsForm = () => {
             variant="contained"
             color="primary"
             onClick={() => {
-              console.log("click", control._formValues)
-              const newSlot = {
-                date: new Date(control._formValues.date),
-                heureDebut: control._formValues.heureDebut,
-                heureFin: control._formValues.heureFin,
-              }
-              setSlots([...slots, newSlot])
+              pipe(
+                Sc.decodeUnknownEither(SlotSchema)({
+                  date: control._formValues.date,
+                  heureDebut: control._formValues.heureDebut,
+                  heureFin: control._formValues.heureFin,
+                }),
+
+                E.map((newSlot) => {
+                  setError(null)
+                  setSlots([...slots, newSlot])
+                }),
+
+                E.mapLeft((error) => ParseResult.ArrayFormatter.formatErrorSync(error)),
+                E.mapLeft((error) => setError(error[0].message)),
+              )
             }}
           >
             <AddCircleOutline />
