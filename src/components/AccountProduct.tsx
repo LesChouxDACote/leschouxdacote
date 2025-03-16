@@ -132,7 +132,7 @@ const BottomActions = styled.div`
   }
 `
 const Status = styled.div<{ $active: boolean }>`
-  formatDate @media (min-width: ${LAYOUT.mobile}px) {
+  @media (min-width: ${LAYOUT.mobile}px) {
     position: absolute;
     top: 0;
     right: 0;
@@ -202,7 +202,7 @@ const AccountProduct = ({ product, odd }: Props) => {
   const productShareData: ShareData = {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
-  console.log(product.slots)
+
   const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchema))(product.slots) : []
 
   return (

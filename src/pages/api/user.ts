@@ -13,7 +13,7 @@ const checkCompany = async (siret: string, nocheck = false) => {
       "X-INSEE-Api-Key-Integration": `${process.env.INSEE_TOKEN}`,
     },
   })
-  console.log("INSEE API", response.status, response.statusText)
+
   if (response.status === 404) {
     return "Numéro de SIRET introuvable"
   }
