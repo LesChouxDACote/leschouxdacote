@@ -1,0 +1,128 @@
+{
+  "Exit": {
+    "prefix": "+Ex",
+    "body": [
+      "import * as Ex from 'effect/Exit'"
+    ],
+    "description": "Exit as Ex"
+  },
+  "Cause": {
+    "prefix": "+C",
+    "body": [
+      "import * as C from 'effect/Cause'"
+    ],
+    "description": "Cause as C"
+  },
+  "Fiber": {
+    "prefix": "+F",
+    "body": [
+      "import * as F from 'effect/Fiber'"
+    ],
+    "description": "Fiber as F"
+  },
+  "Tuple": {
+    "prefix": "+Tp",
+    "body": [
+      "import * as Tp from 'effect/Tuple'"
+    ],
+    "description": "Tuple as Tp"
+  },
+  "Array": {
+    "prefix": "+A",
+    "body": [
+      "import * as A from 'effect/Array'"
+    ],
+    "description": "Array as A"
+  },
+  "Option": {
+    "prefix": "+O",
+    "body": [
+      "import * as O from 'effect/Option'"
+    ],
+    "description": "Option as O"
+  },
+  "Effect": {
+    "prefix": "+T",
+    "body": [
+      "import * as T from 'effect/Effect'"
+    ],
+    "description": "Effect as T"
+  },
+  "Record": {
+    "prefix": "+R",
+    "body": [
+      "import * as R from 'effect/Record'"
+    ],
+    "description": "Record as R"
+  },
+  "Layer": {
+    "prefix": "+L",
+    "body": [
+      "import * as L from 'effect/Layer'"
+    ],
+    "description": "Record as R"
+  },
+  "Context": {
+    "prefix": "+C",
+    "body": [
+      "import * as Context from 'effect/Context'"
+    ],
+    "description": "Context as Context"
+  },
+  "Stream": {
+    "prefix": "+SN",
+    "body": [
+      "import * as S from 'effect/Stream'"
+    ],
+    "description": "Stream as S"
+  },
+  "Schema": {
+    "prefix": "+SC",
+    "body": [
+      "import {Schema as Sc}  from 'effect'"
+    ],
+    "description": "Schema as Sc"
+  },
+  "Either": {
+    "prefix": "+EN",
+    "body": [
+      "import * as E from 'effect/Either'"
+    ],
+    "description": "Either as E"
+  },
+  "Chunk": {
+    "prefix": "+C",
+    "body": [
+      "import * as C from 'effect/Chunk'"
+    ],
+    "description": "Chunk as E"
+  },
+  "Hashmap": {
+    "prefix": "+HM",
+    "body": [
+      "import * as HM from 'effect/HashMap'"
+    ],
+    "description": "HashMap as HM"
+  },
+  "List": {
+    "prefix": "+L",
+    "body": [
+      "import * as List from 'effect/List'"
+    ],
+    "description": "List as List"
+  },
+  "Duration": {
+    "prefix": "+D",
+    "body": [
+      "import * as D from 'effect/Duration'"
+    ],
+    "description": "Duration as D"
+  },
+  "Queue": {
+    "prefix": "+QN",
+    "body": [
+      "import * as Q from 'effect/Queue'"
+    ],
+    "description": "Queue as Q"
+  },
+}

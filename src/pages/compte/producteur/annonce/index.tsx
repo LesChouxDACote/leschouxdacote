@@ -24,10 +24,10 @@ const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff
 const Photo = styled.img`
   width: 100%;
 `
-const SlotDate = Sc.Date.annotations({
+const SlotDate = Sc.DateFromString.annotations({
   message: () => "Veuillez entrer une date.",
   override: true,
-}).pipe(Sc.filter((date) => date >= new Date() || "La date doit être dans le futur"))
+})
 
 export const SlotSchema = Sc.Struct({
   date: SlotDate,

@@ -1,7 +1,8 @@
 import styled from "@emotion/styled"
+import { pipe, Schema as Sc } from "effect"
+import * as O from "effect/Option"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
-import { useEffect } from "react"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
@@ -12,10 +13,10 @@ import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
 import { COLORS, ISR_REVALIDATE, LAYOUT, SIZES } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
-import api from "src/helpers/api"
 import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
 import ErrorPage from "src/pages/_error"
+import { SlotSchema } from "src/pages/compte/producteur/annonce"
 import type { Producer, Product } from "src/types/model"
 
 const Wrapper = styled.div`
@@ -91,6 +92,16 @@ const ProductInfo = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-around;
+`
+
+const ProductSlots = styled.div`
+  padding: 20px;
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
 `
 
 const ProductTitle = styled.h1`
@@ -187,11 +198,11 @@ interface Props {
 }
 
 const ProductPage = ({ product, producer, otherProducts }: Props) => {
-  useEffect(() => {
-    if (product) {
-      api.post("view", { id: product.objectID })
-    }
-  }, [product])
+  // useEffect(() => {
+  //   if (product) {
+  //     api.post("view", { id: product.objectID })
+  //   }
+  // }, [product])
 
   if (!product) {
     return <ErrorPage statusCode={404} title="Produit introuvable" />
@@ -208,6 +219,11 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
   const productShareData: ShareData = {
     url: productUrl,
   }
+  const productSlots = pipe(
+    product.slots,
+    Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
+    O.getOrElse(() => []),
+  )
 
   return (
     <Layout
@@ -251,6 +267,13 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                   </Text>
                 </Address>
               </ProductInfo>
+              <ProductSlots>
+                {productSlots.map((slot, index) => (
+                  <div key={index}>
+                    Le {slot.date.toLocaleDateString()} de {slot.heureDebut} à {slot.heureFin}
+                  </div>
+                ))}
+              </ProductSlots>
             </ProductSection>
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
