@@ -41,6 +41,8 @@ yarn-error.log*
 # typescript cache
 *.tsbuildinfoz
 
-# yarn 
+# yarn
 .yarn/unplugged/
 .yarn/install-state.gz
+
+tsconfig.tsbuildinfo
