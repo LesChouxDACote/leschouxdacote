@@ -1,10 +1,11 @@
-import { AddCircleOutline, Close } from "@mui/icons-material"
+import { RemoveCircle } from "@mui/icons-material"
 import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/material"
-import React from "react"
+import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
-import { ParseResult, pipe, Schema as Sc, Either as E } from "effect"
+import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
+import Modal from "src/components/Modal"
 
 interface SlotsFormProps {
   slots: readonly Slot[]
@@ -12,6 +13,28 @@ interface SlotsFormProps {
 }
 
 const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const [slotToDelete, setSlotToDelete] = useState<Slot | null>(null)
+
+  const handleDeleteClick = (slot: Slot) => {
+    setSlotToDelete(slot)
+    setIsModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (slotToDelete) {
+      setSlots(slots.filter((slot) => slot !== slotToDelete))
+      setIsModalOpen(false)
+      setSlotToDelete(null)
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setIsModalOpen(false)
+    setSlotToDelete(null)
+  }
+
   const { control } = useForm()
 
   const [error, setError] = React.useState<string | null>(null)
@@ -34,10 +57,10 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
           <Box width="17%">
             <IconButton
               onClick={() => {
-                setSlots((prevSlots) => prevSlots.filter((_, index) => index !== 0))
+                handleDeleteClick(slot)
               }}
             >
-              <Close color="error" />
+              <RemoveCircle color="error" />
             </IconButton>
           </Box>
         </Stack>
@@ -102,7 +125,30 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
             color="primary"
             onClick={() => {
               pipe(
-                Sc.decodeUnknownEither(SlotSchema)({
+                Sc.decodeUnknownEither(
+                  pipe(
+                    SlotSchema,
+                    Sc.filter((slot) => {
+                      const currentDate = new Date()
+                      const slotDate = new Date(slot.date)
+                      const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
+                      console.log(slotDate, currentDate, heureDebut)
+                      if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
+                        return "La date doit être après la date actuelle."
+                      }
+
+                      const now = new Date()
+                      const currentHour = now.toTimeString().slice(0, 5)
+                      if (heureDebut < new Date(`1970-01-01T${currentHour}:00`)) {
+                        return "L'heure de début doit être après l'heure actuelle."
+                      }
+
+                      const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
+
+                      return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin."
+                    }),
+                  ),
+                )({
                   date: control._formValues.date,
                   heureDebut: control._formValues.heureDebut,
                   heureFin: control._formValues.heureFin,
@@ -118,9 +164,20 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
               )
             }}
           >
-            <AddCircleOutline />
+            Valider
           </Button>
         </Box>
+        {isModalOpen && slotToDelete && (
+          <Modal onClose={handleCancelDelete}>
+            <>
+              <p>{`Supprimer le créneau du ${slotToDelete.date.toLocaleDateString()} de ${slotToDelete.heureDebut} à ${slotToDelete.heureFin} ?`}</p>
+              <Button color="error" onClick={handleCancelDelete}>
+                Non
+              </Button>
+              <Button onClick={handleConfirmDelete}>Oui</Button>
+            </>
+          </Modal>
+        )}
       </Stack>
     </Stack>
   )

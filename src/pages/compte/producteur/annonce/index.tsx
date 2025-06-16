@@ -33,13 +33,7 @@ export const SlotSchema = Sc.Struct({
   date: SlotDate,
   heureDebut: Sc.String,
   heureFin: Sc.String,
-}).pipe(
-  Sc.filter((slot) => {
-    const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
-    const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
-    return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin"
-  }),
-)
+})
 
 export type Slot = typeof SlotSchema.Type
 
@@ -106,7 +100,7 @@ const EditProductPage = () => {
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
-    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
+    payload.append("slots", stringify(Sc.decodeUnknownSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)
