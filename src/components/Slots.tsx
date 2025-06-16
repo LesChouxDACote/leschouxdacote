@@ -132,7 +132,7 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
                       const currentDate = new Date()
                       const slotDate = new Date(slot.date)
                       const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
-                      console.log(slotDate, currentDate, heureDebut)
+
                       if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
                         return "La date doit être après la date actuelle."
                       }
