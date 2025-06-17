@@ -139,7 +139,11 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
 
                       const now = new Date()
                       const currentHour = now.toTimeString().slice(0, 5)
-                      if (heureDebut < new Date(`1970-01-01T${currentHour}:00`)) {
+                      const today = new Date().toISOString().split("T")[0]
+                      if (
+                        slotDate.toISOString().split("T")[0] === today &&
+                        heureDebut < new Date(`1970-01-01T${currentHour}:00`)
+                      ) {
                         return "L'heure de début doit être après l'heure actuelle."
                       }
 

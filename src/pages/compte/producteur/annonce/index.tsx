@@ -100,7 +100,7 @@ const EditProductPage = () => {
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
-    payload.append("slots", stringify(Sc.decodeUnknownSync(Sc.Array(SlotSchema))(slots)))
+    payload.append("slots", stringify(slots))
 
     if (productId) {
       payload.append("id", productId)
