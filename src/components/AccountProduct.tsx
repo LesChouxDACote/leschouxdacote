@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import { IconButton } from "@mui/material"
+import { Schema as Sc } from "effect"
 import { useState } from "react"
 import PointerIcon from "src/assets/pointer.svg"
 import { Button } from "src/components/Button"
@@ -14,9 +15,8 @@ import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
 import { formatAmount, formatQuantity } from "src/helpers/text"
+import { SlotSchemaFirebase } from "src/pages/compte/producteur/annonce"
 import type { Product } from "src/types/model"
-import { Schema as Sc } from "effect"
-import { SlotSchema } from "src/pages/compte/producteur/annonce"
 
 const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
@@ -203,8 +203,8 @@ const AccountProduct = ({ product, odd }: Props) => {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
 
-  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchema))(product.slots) : []
-
+  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirebase))(product.slots) : []
+  //const slots = []
   return (
     <Container $odd={odd}>
       <Ad>
