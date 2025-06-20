@@ -6,7 +6,9 @@ import { firestore, GeoPoint, getObject, getToken } from "src/helpers-api/fireba
 import { getFormData } from "src/helpers-api/form"
 import { resize, upload } from "src/helpers-api/image"
 import { normalizeNumber } from "src/helpers/validators"
+import { Schema as Sc } from "effect"
 import type { Producer, Product, ProductPayload, RegisteringProduct } from "src/types/model"
+import { SlotSchema } from "src/pages/compte/producteur/annonce"
 
 const checkRequired = (data: Record<string, any>, fields: string[]) => {
   const found = fields.find((field) => !data[field])
@@ -89,8 +91,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     }
 
     const now = new Date()
-
+    const slots = Sc.decodeUnknownSync(Sc.Array(SlotSchema))(JSON.parse(fields.slots.toString()))
     const position = { lat: Number(fields.lat), lng: Number(fields.lng) }
+    console.log(slots.map((a) => a))
 
     const product: RegisteringProduct = {
       created: existing ? new Date(existing.created) : now,
@@ -114,7 +117,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
       views: existing?.views || 0,
       // data fan-out:
       producer: producer.name ?? "",
-      slots: JSON.parse(fields.slots.toString()),
+      slots,
     }
 
     if (existing) {
@@ -124,6 +127,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     const record: Product = {
       ...product,
       objectID: ref.id,
+      slots,
       created: product.created.getTime(),
       updated: product.updated?.getTime(),
       published: existing?.expires && existing.expires > now.getTime() ? existing.published : now.getTime(),

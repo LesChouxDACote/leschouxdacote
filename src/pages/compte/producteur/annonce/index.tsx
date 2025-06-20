@@ -37,6 +37,24 @@ export const SlotSchema = Sc.Struct({
 
 export type Slot = typeof SlotSchema.Type
 
+export const SlotDateFirestore = Sc.transform(
+  Sc.Struct({
+    seconds: Sc.Int,
+  }),
+  Sc.DateFromSelf,
+
+  {
+    decode: (timestamp) => new Date(timestamp.seconds * 1000),
+    encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
+    strict: true,
+  },
+)
+export const SlotSchemaFirebase = Sc.Struct({
+  date: SlotDateFirestore,
+  heureDebut: Sc.String,
+  heureFin: Sc.String,
+})
+
 const PriceInfos = () => {
   const { watch } = useFormContext()
   const quantity = Number(watch("quantity"))
@@ -63,7 +81,8 @@ const EditProductPage = () => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
 
-      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchema))(data.slots) : []
+      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirebase))(data.slots) : []
+      //const slots = []
       setSlots(slots)
     }
   }, [place, data])
@@ -94,13 +113,14 @@ const EditProductPage = () => {
       }
     }
 
+    // TODO: validate slots
     payload.append("placeId", place.id)
     payload.append("lat", String(place.lat))
     payload.append("lng", String(place.lng))
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
-    payload.append("slots", stringify(slots))
+    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)

@@ -92,7 +92,7 @@ interface Product extends Identified {
   views: number | null
   // data fan-out:
   producer: string // producer.name
-  slots: Slot[]
+  slots: readonly Slot[]
 }
 
 interface RegisteringProduct extends Registering<Product> {
