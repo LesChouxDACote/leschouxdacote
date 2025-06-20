@@ -49,7 +49,7 @@ export const SlotDateFirestore = Sc.transform(
     strict: true,
   },
 )
-export const SlotSchemaFirebase = Sc.Struct({
+export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
   heureDebut: Sc.String,
   heureFin: Sc.String,
@@ -81,7 +81,7 @@ const EditProductPage = () => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
 
-      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirebase))(data.slots) : []
+      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
       //const slots = []
       setSlots(slots)
     }
