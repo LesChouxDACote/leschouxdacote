@@ -15,7 +15,7 @@ import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
 import { formatAmount, formatQuantity } from "src/helpers/text"
-import { SlotSchemaFirebase } from "src/pages/compte/producteur/annonce"
+import { SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Product } from "src/types/model"
 
 const Container = styled.div<{ $odd?: boolean }>`
@@ -203,7 +203,7 @@ const AccountProduct = ({ product, odd }: Props) => {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
 
-  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirebase))(product.slots) : []
+  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
   //const slots = []
   return (
     <Container $odd={odd}>
