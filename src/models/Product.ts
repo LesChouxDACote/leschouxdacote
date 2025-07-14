@@ -34,7 +34,7 @@ export const ProductSchema = Sc.Struct({
   views: Sc.optional(Sc.NullOr(Sc.Number)),
   // data fan-out:
   producer: Sc.String, // producer.name
-  slots: Sc.Array(SlotSchemaFirestore),
+  slots: Sc.optional(Sc.Array(SlotSchemaFirestore)),
 }).pipe(Sc.extend(Identified))
 
 export type ProductEncoded = typeof ProductSchema.Encoded
