@@ -7,7 +7,8 @@ import { useUser } from "src/helpers/auth"
 import { useQuery } from "src/helpers/firebase"
 import { s } from "src/helpers/text"
 import Layout from "src/layout"
-import type { Producer, Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
+import type { Producer } from "src/types/model"
 
 type Tab = "all" | "online" | "disabled"
 
@@ -52,12 +53,12 @@ const MyAdsPage = () => {
   const { user } = useUser<Producer>()
   const [tab, setTab] = useState<Tab>("all")
 
-  const { data } = useQuery<Product>("products", user ? ["uid", "==", user.objectID] : false, true)
+  const { data } = useQuery<ProductEncoded>("products", user ? ["uid", "==", user.objectID] : false, true)
 
   const followers = user?.followers ? Object.keys(user.followers).length : null
 
   const now = Date.now()
-  const tabsData: Record<Tab, Product[]> = {
+  const tabsData: Record<Tab, ProductEncoded[]> = {
     all: data,
     online: data.filter(({ expires }) => expires && expires > now),
     disabled: data.filter(({ expires }) => !expires || expires <= now),

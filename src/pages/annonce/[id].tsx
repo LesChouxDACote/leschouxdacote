@@ -15,8 +15,9 @@ import { COLORS, ISR_REVALIDATE, LAYOUT, SIZES } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
+import { ProductEncoded, ProductSchema } from "src/models/Product"
 import ErrorPage from "src/pages/_error"
-import { SlotSchema } from "src/pages/compte/producteur/annonce"
+import { SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Producer, Product } from "src/types/model"
 
 const Wrapper = styled.div`
@@ -187,14 +188,19 @@ const DescriptionTitle = styled.h3`
   }
 `
 
+const Slots = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
 interface Params extends ParsedUrlQuery {
   id: string
 }
 
 interface Props {
-  product: Product | null
+  product: ProductEncoded | null
   producer: Producer | null
-  otherProducts?: Product[]
+  otherProducts?: ProductEncoded[]
 }
 
 const ProductPage = ({ product, producer, otherProducts }: Props) => {
@@ -219,11 +225,13 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
   const productShareData: ShareData = {
     url: productUrl,
   }
+
   const productSlots = pipe(
     product.slots,
     Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
     O.getOrElse(() => []),
   )
+  const slots = product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
 
   return (
     <Layout
@@ -259,7 +267,16 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                     {price}
                   </Text>
                 </Prices>
-
+                {slots.length > 0 && (
+                  <Slots>
+                    <h5>Créneaux</h5>
+                    {slots.map(({ date, heureDebut, heureFin }) => (
+                      <p key={date.toString()}>
+                        Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
+                      </p>
+                    ))}
+                  </Slots>
+                )}
                 <Address href={getMapsLink(product)} target="_blank" rel="noopener">
                   <PinIcon />
                   <Text as="span" $color={COLORS.input} $size={15}>
@@ -334,23 +351,37 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
   const { id } = params as Params
-  const product = getObject<Product>(await firestore.collection("products").doc(id).get())
+  const product = pipe(
+    getObject(await firestore.collection("products").doc(id).get()),
+    Sc.decodeUnknownSync(ProductSchema),
+  )
+
   if (!product) {
     return { notFound: true }
   }
 
+  // const serializableSlots = pipe(
+  //   product.slots,
+  //   A.map((slot) => ({ ...slot, date: { seconds: slot.date.toISOString() } })),
+  // )
+
   const producer = getObject<Producer>(await firestore.collection("users").doc(product.uid).get())
+
   if (!producer) {
     return { notFound: true }
   }
 
-  const props: Props = { product, producer }
+  const props: Props = { product: Sc.encodeSync(ProductSchema)(product), producer }
 
   const { docs } = await firestore.collection("products").where("uid", "==", product.uid).get()
-  props.otherProducts = (docs.map(getObject) as Product[]).filter(
-    ({ objectID }) => objectID !== product.objectID, // && expires && expires > Date.now()
-  )
 
+  props.otherProducts = (docs.map(getObject) as Product[])
+    .filter(
+      ({ objectID }) => objectID !== product.objectID, // && expires && expires > Date.now()
+    )
+    //We don't slots here, and there is issues with Next serialization.
+    .map((product) => ({ ...product, slots: [] }))
+  console.log(props.otherProducts)
   return { props, revalidate: ISR_REVALIDATE }
 }
 
@@ -359,7 +390,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
 
   return {
     paths: products.docs.map((doc) => ({ params: { id: doc.id } })),
-    fallback: "blocking",
+    fallback: false,
   }
 }
 

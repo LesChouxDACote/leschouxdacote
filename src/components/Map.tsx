@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import PlacePopup from "src/components/PlacePopup"
 import { LAYOUT } from "src/constants"
+import { ProductEncoded } from "src/models/Product"
 import type { Product } from "src/types/model"
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || ""
@@ -63,7 +64,7 @@ const getCoordinates = (ll?: string) => {
   return ll.split(",").reverse().map(Number) as Coordinates
 }
 
-const getPlaceId = ({ _geoloc }: Product) => {
+const getPlaceId = ({ _geoloc }: ProductEncoded) => {
   // because Google's placeId is unstable
   // https://developers.google.com/maps/documentation/places/web-service/place-id
   return `${_geoloc.lng.toFixed(4)},${_geoloc.lat.toFixed(4)}`
@@ -84,12 +85,12 @@ const Container = styled.div`
 type MoveEvent = MapboxEvent<MouseEvent | TouchEvent | WheelEvent | undefined>
 
 interface MapProps {
-  products: Product[]
+  products: ProductEncoded[]
 }
 
 interface Place {
   coordinates: Coordinates
-  products: Product[]
+  products: ProductEncoded[]
 }
 
 const Mapbox = ({ products }: MapProps) => {

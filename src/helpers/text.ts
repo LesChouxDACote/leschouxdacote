@@ -1,4 +1,5 @@
-import type { Product, Unit } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
+import type { Unit } from "src/types/model"
 
 interface FormattedUnit {
   singular: string
@@ -31,7 +32,7 @@ export const formatAmount = (cents?: number) => {
   return (cents / 100).toFixed(2).replace(/(\d{1,3})\.(\d+)/g, "$1,$2 €")
 }
 
-export const formatPricePerUnit = ({ price, quantity, unit }: Pick<Product, "price" | "quantity" | "unit">) => {
+export const formatPricePerUnit = ({ price, quantity, unit }: Pick<ProductEncoded, "price" | "quantity" | "unit">) => {
   if (price == null || !quantity) {
     return ""
   }
@@ -41,14 +42,14 @@ export const formatPricePerUnit = ({ price, quantity, unit }: Pick<Product, "pri
   return `${formatAmount(price / quantity)} / ${unit === "g" ? "kg" : getUnit(unit || "u")}`
 }
 
-export const formatQuantity = ({ unit, quantity }: Product) => {
+export const formatQuantity = ({ unit, quantity }: ProductEncoded) => {
   if (!quantity) {
     return ""
   }
   return `${String(quantity).replace(".", ",")} ${getUnit(unit || "u", quantity)}`
 }
 
-export const formatPrice = ({ price }: Product) => formatAmount(price)
+export const formatPrice = ({ price }: ProductEncoded) => formatAmount(price)
 
 export const formatPhone = (num?: string) => {
   if (!num) {

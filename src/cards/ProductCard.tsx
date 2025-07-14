@@ -8,7 +8,7 @@ import { useUser } from "src/helpers/auth"
 import { useHover } from "src/helpers/hover"
 import { formatPrice, formatPricePerUnit, formatQuantity } from "src/helpers/text"
 import { isFollowed } from "src/helpers/user"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
 
 const Container = styled.div<{ $hover: boolean }>`
   box-shadow: 0px 3px 3px ${({ $hover }) => ($hover ? COLORS.green : COLORS.shadow.light)};
@@ -100,7 +100,7 @@ const StyledFloatingTag = styled(FloatingTag)`
 `
 
 interface Props {
-  product: Product
+  product: ProductEncoded
   followButton?: boolean
 }
 

@@ -12,7 +12,7 @@ import { productsIndex } from "src/helpers/algolia"
 import { handleError } from "src/helpers/errors"
 import { HoverProvider } from "src/helpers/hover"
 import Layout from "src/layout"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
 
 const Row = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const getOptions = (radius: number, latlng?: string, bio?: "1") => {
 const SearchPage = () => {
   const { query, isReady } = useRouter()
   const [view, setView] = useState<"list" | "map" | "both">("list")
-  const [results, setResults] = useState<Product[]>()
+  const [results, setResults] = useState<ProductEncoded[]>()
   const { what, ll, r, type, bio } = query as SearchQuery
 
   const radius = Number(r) || SEARCH_RADIUS[type || "dpt"]
@@ -71,7 +71,7 @@ const SearchPage = () => {
       return
     }
     productsIndex
-      .search<Product>(what || "", getOptions(radius, ll, bio))
+      .search<ProductEncoded>(what || "", getOptions(radius, ll, bio))
       .then(({ hits }) => setResults(hits))
       .catch(handleError)
   }, [isReady, what, radius, ll, bio])
@@ -98,12 +98,12 @@ const SearchPage = () => {
         <Row>
           {view !== "map" && (
             <LeftCol>
-              <ResultsList products={results as Product[]} />
+              <ResultsList products={results as ProductEncoded[]} />
             </LeftCol>
           )}
           {view !== "list" && (
             <RightCol>
-              <ResultsMap products={results as Product[]} />
+              <ResultsMap products={results as ProductEncoded[]} />
             </RightCol>
           )}
         </Row>

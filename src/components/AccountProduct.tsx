@@ -15,8 +15,8 @@ import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
 import { formatAmount, formatQuantity } from "src/helpers/text"
+import { ProductEncoded } from "src/models/Product"
 import { SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
-import type { Product } from "src/types/model"
 
 const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
@@ -167,7 +167,7 @@ const StyledSocialBar = styled(SocialShareBar)`
 `
 
 interface Props {
-  product: Product
+  product: ProductEncoded
   odd?: boolean
 }
 

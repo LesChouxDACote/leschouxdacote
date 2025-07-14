@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import ProductCard from "src/cards/ProductCard"
 import Products from "src/components/Products"
 import { LAYOUT } from "src/constants"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
 
 const Container = styled.div`
   padding: 32px;
@@ -16,7 +16,7 @@ const Container = styled.div`
 `
 
 interface Props {
-  products: Product[]
+  products: ProductEncoded[]
 }
 
 const SearchResults = ({ products }: Props) => {
