@@ -55,6 +55,8 @@ export const SlotSchemaFirestore = Sc.Struct({
   heureFin: Sc.String,
 })
 
+export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
+
 const PriceInfos = () => {
   const { watch } = useFormContext()
   const quantity = Number(watch("quantity"))

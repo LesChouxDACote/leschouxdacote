@@ -1,11 +1,12 @@
 import styled from "@emotion/styled"
-import { pipe, Schema as Sc } from "effect"
+import { Order, pipe, Schema as Sc } from "effect"
 import * as O from "effect/Option"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
+import * as A from "effect/Array"
 import Link from "src/components/Link"
 import Products from "src/components/Products"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
@@ -231,7 +232,14 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
     Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
     O.getOrElse(() => []),
   )
-  const slots = product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
+  const sortedByDateSlots = pipe(
+    product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : [],
+    A.sortBy(
+      Order.mapInput(Order.number, (slot) => slot.date.getTime()),
+      Order.mapInput(Order.string, (slot) => slot.heureDebut),
+    ),
+    A.takeRight(10),
+  )
 
   return (
     <Layout
@@ -267,14 +275,18 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                     {price}
                   </Text>
                 </Prices>
-                {slots.length > 0 && (
+                {sortedByDateSlots.length > 0 && (
                   <Slots>
                     <h5>Créneaux</h5>
-                    {slots.map(({ date, heureDebut, heureFin }) => (
-                      <p key={date.toString()}>
-                        Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
-                      </p>
-                    ))}
+                    {sortedByDateSlots.map(({ date, heureDebut, heureFin }) => {
+                      const isPast = date.getTime() < Date.now()
+
+                      return (
+                        <div key={date.toString()} style={{ color: isPast ? COLORS.grey : "inherit" }}>
+                          Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
+                        </div>
+                      )
+                    })}
                   </Slots>
                 )}
                 <Address href={getMapsLink(product)} target="_blank" rel="noopener">
