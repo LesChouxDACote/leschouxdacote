@@ -24,7 +24,7 @@ export const ProductSchema = Sc.Struct({
   _tags: Sc.optional(Sc.NullOr(Sc.Array(Sc.String))),
   placeId: Sc.String, // from Google places
   city: Sc.String,
-  dpt: Sc.optional(Sc.String),
+  dpt: Sc.optional(Sc.Union(Sc.Number, Sc.String)),
   description: Sc.String,
   photo: Sc.String,
   email: Sc.optional(Sc.NullOr(Sc.String)),
