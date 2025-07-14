@@ -112,7 +112,7 @@ const Header = () => {
             </Middle>
           </>
         )}
-        {user?.role !== USER_ROLE.BUYER && (
+        {user?.role === USER_ROLE.PRODUCER && (
           <Cta href="/compte/producteur/annonce" $variant="green">
             Créer une annonce
           </Cta>

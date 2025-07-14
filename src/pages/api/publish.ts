@@ -1,7 +1,7 @@
-import { stringify } from "@effect/schema/FastCheck"
 import { addDays } from "date-fns"
 import { pipe } from "effect"
 import * as T from "effect/Effect"
+import { stringify } from "effect/FastCheck"
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
