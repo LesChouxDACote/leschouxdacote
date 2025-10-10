@@ -216,7 +216,7 @@ const AccountProduct = ({ product, odd }: Props) => {
           <div>{infos.filter((info) => info).join(" | ")}</div>
           {slots.length > 0 && (
             <div>
-              <h5>Créneaux</h5>
+              <h3>Créneaux</h3>
               {slots.map(({ date, heureDebut, heureFin }) => (
                 <p key={date.toString()}>
                   Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
