@@ -3,15 +3,33 @@
     "yarn.lock": true
   },
   "files.exclude": {
-    "node_modules/": true
+    "node_modules/": false
   },
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "json"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "[yaml]": {
     "editor.formatOnSave": true
   },
-  "typescript.preferences.importModuleSpecifier": "non-relative"
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "cSpell.words": [
+    "coolify",
+    "Coolify",
+    "firestore",
+    "firstname",
+    "Geoloc",
+    "ilieff",
+    "lastname",
+    "leschouxdacote",
+    "mailjet",
+    "Mailjet",
+    "Mapbox",
+    "nocheck",
+    "signin",
+    "signout",
+    "siret",
+    "Vaultwarden"
+  ]
 }

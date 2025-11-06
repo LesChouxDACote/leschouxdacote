@@ -3,12 +3,13 @@ import { USER_ROLE } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import { MailjetTemplate, sendTemplateEmail } from "src/helpers-api/mail"
 import { formatPrice } from "src/helpers/text"
-import type { Producer, Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
+import type { Producer } from "src/types/model"
 
 const handler = async () => {
   const producersList = await firestore.collection("users").where("role", "==", USER_ROLE.PRODUCER).get()
 
-  const map: Record<string, { producer: Producer; products: Product[] }> = {}
+  const map: Record<string, { producer: Producer; products: ProductEncoded[] }> = {}
 
   producersList.forEach((doc) => {
     const producer = getObject(doc) as Producer
@@ -28,7 +29,7 @@ const handler = async () => {
     .get()
 
   productsList.forEach((doc) => {
-    const product = getObject(doc) as Product
+    const product = getObject(doc) as ProductEncoded
     map[product.uid].products.push(product)
   })
 

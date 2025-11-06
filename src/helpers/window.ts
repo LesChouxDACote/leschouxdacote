@@ -8,6 +8,7 @@ export const isWindows = () => {
   if ("userAgentData" in navigator) {
     return WINDOWS.test(navigator.userAgentData.platform)
   }
+  // @ts-expect-error because of new typescript version
   return WINDOWS.test(navigator.platform)
 }
 

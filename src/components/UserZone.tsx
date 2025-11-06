@@ -45,7 +45,9 @@ const entryCss = css`
   text-align: left;
   background-color: transparent;
   color: ${COLORS.input};
-  transition: background-color 150ms, color 150ms;
+  transition:
+    background-color 150ms,
+    color 150ms;
   &:hover {
     background-color: ${COLORS.green};
     color: ${COLORS.white};

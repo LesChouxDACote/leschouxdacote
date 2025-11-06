@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import { IconButton } from "@mui/material"
+import { Schema as Sc } from "effect"
 import { useState } from "react"
 import PointerIcon from "src/assets/pointer.svg"
 import { Button } from "src/components/Button"
@@ -14,7 +15,8 @@ import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
 import { formatAmount, formatQuantity } from "src/helpers/text"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
+import { SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 
 const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
@@ -165,7 +167,7 @@ const StyledSocialBar = styled(SocialShareBar)`
 `
 
 interface Props {
-  product: Product
+  product: ProductEncoded
   odd?: boolean
 }
 
@@ -201,6 +203,8 @@ const AccountProduct = ({ product, odd }: Props) => {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
 
+  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
+  //const slots = []
   return (
     <Container $odd={odd}>
       <Ad>
@@ -210,6 +214,17 @@ const AccountProduct = ({ product, odd }: Props) => {
         <Infos>
           <h4>{product.title}</h4>
           <div>{infos.filter((info) => info).join(" | ")}</div>
+          {slots.length > 0 && (
+            <div>
+              <h3>Créneaux</h3>
+              {slots.map(({ date, heureDebut, heureFin }) => (
+                <p key={date.toString()}>
+                  Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
+                </p>
+              ))}
+            </div>
+          )}
+
           <Days>
             Annonce créée le {formatDate(product.created)}
             {product.updated && <> et modifiée le {formatDate(product.updated)}</>}

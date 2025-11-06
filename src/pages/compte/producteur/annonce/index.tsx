@@ -1,10 +1,13 @@
 import styled from "@emotion/styled"
 import { differenceInCalendarDays } from "date-fns"
+import { Schema as Sc } from "effect"
+import { stringify } from "effect/FastCheck"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
 import ProductEndDate from "src/components/ProductEndDate"
+import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
 import { MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
@@ -15,13 +18,44 @@ import { formatPricePerUnit } from "src/helpers/text"
 import { validatePhoneNumber } from "src/helpers/validators"
 import Layout from "src/layout"
 import type { AuthUser, Producer, Product, ProductPayload, Unit } from "src/types/model"
-
 // https://sharp.pixelplumbing.com/#formats
 const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff"]
 
 const Photo = styled.img`
   width: 100%;
 `
+const SlotDate = Sc.DateFromString.annotations({
+  message: () => "Veuillez entrer une date.",
+  override: true,
+})
+
+export const SlotSchema = Sc.Struct({
+  date: SlotDate,
+  heureDebut: Sc.String,
+  heureFin: Sc.String,
+})
+
+export type Slot = typeof SlotSchema.Type
+
+export const SlotDateFirestore = Sc.transform(
+  Sc.Struct({
+    seconds: Sc.Int,
+  }),
+  Sc.DateFromSelf,
+
+  {
+    decode: (timestamp) => new Date(timestamp.seconds * 1000),
+    encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
+    strict: true,
+  },
+)
+export const SlotSchemaFirestore = Sc.Struct({
+  date: SlotDateFirestore,
+  heureDebut: Sc.String,
+  heureFin: Sc.String,
+})
+
+export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
 
 const PriceInfos = () => {
   const { watch } = useFormContext()
@@ -36,6 +70,7 @@ const PriceInfos = () => {
 
 const EditProductPage = () => {
   const { authUser, user } = useUser<Producer>()
+  const [slots, setSlots] = useState<readonly Slot[]>([])
   const { query, push } = useRouter()
 
   const productId = Array.isArray(query.id) ? undefined : query.id
@@ -47,6 +82,10 @@ const EditProductPage = () => {
   useEffect(() => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
+
+      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
+      //const slots = []
+      setSlots(slots)
     }
   }, [place, data])
 
@@ -61,7 +100,6 @@ const EditProductPage = () => {
 
   const handleSubmit: Submit<ProductPayload> = async (values, target) => {
     const payload = new FormData(target)
-
     if (!payload.get("email") && !payload.get("phone")) {
       throw new ValidationError("email", "Vous devez au moins spécifier une adresse e-mail ou un numéro de téléphone")
     }
@@ -77,12 +115,14 @@ const EditProductPage = () => {
       }
     }
 
+    // TODO: validate slots
     payload.append("placeId", place.id)
     payload.append("lat", String(place.lat))
     payload.append("lng", String(place.lng))
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
+    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)
@@ -193,6 +233,7 @@ const EditProductPage = () => {
           suffix="jour(s)"
         />
         <ProductEndDate />
+        <SlotsForm setSlots={setSlots} slots={slots} />
         <SubmitButton />
       </Form>
     </Layout>

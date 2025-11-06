@@ -57,6 +57,7 @@ const Center = styled.div`
 
 interface LinkProps {
   href: string
+  children: React.ReactNode
 }
 const ListItemLink: FC<LinkProps> = ({ href, children }) => {
   const { pathname } = useRouter()

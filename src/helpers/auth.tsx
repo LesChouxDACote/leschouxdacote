@@ -1,6 +1,6 @@
 import Bugsnag from "@bugsnag/js"
 import { useRouter } from "next/router"
-import React, { createContext, FC, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useEffect, useState } from "react"
 import { USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
 import { auth, firestore, getObject } from "src/helpers/firebase"
@@ -8,6 +8,7 @@ import { getName } from "src/helpers/user"
 import type { AuthUser, User } from "src/types/model"
 
 const ANONYMOUS_ROUTES = ["/connexion", "/inscription", "/confirmation", "/mot-de-passe-oublie"]
+const ADMIN_ROUTES = ["/csv-export"]
 
 export interface IUserContext<T extends User = User> {
   loading: boolean
@@ -22,7 +23,7 @@ export interface IUserContext<T extends User = User> {
 
 const UserContext = createContext<IUserContext>({} as IUserContext)
 
-export const UserProvider: FC = ({ children }) => {
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -91,8 +92,15 @@ export const UserProvider: FC = ({ children }) => {
     if (authUser && user?.role === USER_ROLE.BUYER && ANONYMOUS_ROUTES.includes(pathname)) {
       return destination || "/"
     }
+    if (authUser && user?.role === USER_ROLE.ADMIN && ANONYMOUS_ROUTES.includes(pathname)) {
+      return "/csv-export"
+    }
+
     if (!authUser && isPrivateRoute) {
       return "/connexion?next=" + asPath
+    }
+    if (authUser && user?.role !== USER_ROLE.ADMIN && ADMIN_ROUTES.includes(pathname)) {
+      return "/"
     }
   })()
 

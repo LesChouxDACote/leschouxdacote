@@ -2,15 +2,15 @@ import { connect, Email } from "node-mailjet"
 import { CONTACT_EMAIL } from "src/constants"
 
 export enum MailjetTemplate {
-  alert = 3162690,
-  expired = 3331613,
+  alert = 5997948,
+  expired = 5997949,
 }
 
 export const sendTemplateEmail = async (
   recipient: string,
   templateId: MailjetTemplate,
   variables: Record<string, any>,
-  subject?: string
+  subject?: string,
 ) => {
   const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
 

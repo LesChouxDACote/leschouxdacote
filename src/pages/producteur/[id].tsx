@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { pipe, Schema as Sc } from "effect"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
 import PinIcon from "src/assets/pin.svg"
@@ -9,8 +10,9 @@ import { COLORS, ISR_REVALIDATE, LAYOUT, SIZES, USER_ROLE } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import { formatPhone, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
+import { ProductEncoded, ProductSchema } from "src/models/Product"
 import ErrorPage from "src/pages/_error"
-import type { Producer, Product } from "src/types/model"
+import type { Producer } from "src/types/model"
 
 const Title = styled.h1`
   a {
@@ -37,7 +39,7 @@ interface Params extends ParsedUrlQuery {
 
 interface Props {
   producer: Producer | null
-  products?: Product[]
+  products?: readonly ProductEncoded[]
 }
 
 const ProducerPage = ({ producer, products }: Props) => {
@@ -89,7 +91,14 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
   const props: Props = { producer }
 
   const { docs } = await firestore.collection("products").where("uid", "==", id).get()
-  props.products = docs.map(getObject) as Product[] //.filter(({ expires }) => expires && expires > Date.now())
+
+  const products = pipe(
+    docs.map(getObject),
+    Sc.decodeUnknownSync(Sc.Array(ProductSchema)),
+    Sc.encodeSync(Sc.Array(ProductSchema)),
+  )
+
+  props.products = products //.filter(({ expires }) => expires && expires > Date.now())
 
   return { props, revalidate: ISR_REVALIDATE }
 }

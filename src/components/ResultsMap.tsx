@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import dynamic from "next/dynamic"
 import { COLORS } from "src/constants"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
 
 const Map = dynamic(import("src/components/Map"), {
   ssr: false,
@@ -22,7 +22,7 @@ const Loader = styled.div`
 `
 
 interface Props {
-  products: Product[]
+  products: ProductEncoded[]
 }
 
 const ResultsMap = ({ products }: Props) => {

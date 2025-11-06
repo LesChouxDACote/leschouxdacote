@@ -2,17 +2,18 @@ import { subHours } from "date-fns"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import { MailjetTemplate, sendTemplateEmail } from "src/helpers-api/mail"
 import { formatPrice, formatPricePerUnit, formatQuantity } from "src/helpers/text"
-import type { Product, User } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
+import type { User } from "src/types/model"
 
 const handler = async () => {
   const startDate = subHours(new Date(), 1)
 
   const list = await firestore.collection("products").where("published", ">", startDate).get()
 
-  const producers: Record<string, Product[]> = {}
+  const producers: Record<string, ProductEncoded[]> = {}
 
   list.forEach((doc) => {
-    const product = getObject(doc) as Product
+    const product = getObject(doc) as ProductEncoded
 
     if (!producers[product.uid]) {
       producers[product.uid] = []

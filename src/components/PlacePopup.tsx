@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useState } from "react"
 import { ProductInfos } from "src/cards/ProductCard"
 import { COLORS, LAYOUT } from "src/constants"
 import { useHover } from "src/helpers/hover"
-import type { Product } from "src/types/model"
+import { ProductEncoded } from "src/models/Product"
 
 const PopupContent = styled.div`
   width: ${LAYOUT.mapPopupWidth}px;
@@ -42,7 +42,7 @@ const Nav = styled.nav`
 `
 
 interface PlaceProps {
-  products: Product[]
+  products: ProductEncoded[]
 }
 
 const PlacePopup = forwardRef<HTMLDivElement, PlaceProps>(({ products }, ref) => {

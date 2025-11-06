@@ -8,9 +8,14 @@ export const formatDate = (ts: number | Date | null, pattern = "do MMMM yyyy") =
   return format(ts, pattern, { locale: fr }).replace("ème", "")
 }
 
-export const formatDateTime = (date: number | Date | null) => formatDate(date, "do MMMM yyyy à HH:mm")
+export const formatDateTime = (date: number | Date | null | undefined) => {
+  if (!date) {
+    return ""
+  }
+  return formatDate(date, "do MMMM yyyy à HH:mm")
+}
 
-export const daysFromNow = (ts: number | Date | null) => {
+export const daysFromNow = (ts: number | Date | null | undefined) => {
   if (!ts) {
     return ""
   }

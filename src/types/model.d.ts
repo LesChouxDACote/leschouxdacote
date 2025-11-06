@@ -1,4 +1,5 @@
 import { USER_ROLE } from "src/constants"
+import { Slot } from "src/pages/compte/producteur/annonce"
 
 interface AuthUser {
   uid: string
@@ -43,6 +44,10 @@ interface BaseUser extends Identified {
 interface Buyer extends BaseUser {
   role: USER_ROLE.BUYER
 }
+
+interface Admin extends BaseUser {
+  role: USER_ROLE.ADMIN
+}
 interface Producer extends BaseUser {
   role: USER_ROLE.PRODUCER
   siret: string
@@ -53,11 +58,11 @@ interface Producer extends BaseUser {
   followers?: Record<string, Follower>
   alertsExpired?: boolean
 }
-type User = Buyer | Producer
+type User = Buyer | Producer | Admin
 
 interface RegisteringUser extends Registering<Producer> {
   created: Date
-  password?: string
+  password: string
   nocheck?: boolean
 }
 
@@ -87,6 +92,7 @@ interface Product extends Identified {
   views: number | null
   // data fan-out:
   producer: string // producer.name
+  slots: readonly Slot[]
 }
 
 interface RegisteringProduct extends Registering<Product> {
