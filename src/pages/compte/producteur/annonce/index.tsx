@@ -33,6 +33,9 @@ export const SlotSchema = Sc.Struct({
   date: SlotDate,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation_instructions: Sc.optional(Sc.String),
+  reservation_total_quantity: Sc.optional(Sc.Number),
+  reservation_max_quantity_per_user: Sc.optional(Sc.Number),
 })
 
 export type Slot = typeof SlotSchema.Type
@@ -53,6 +56,9 @@ export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation_instructions: Sc.optional(Sc.String),
+  reservation_total_quantity: Sc.optional(Sc.Number),
+  reservation_max_quantity_per_user: Sc.optional(Sc.Number),
 })
 
 export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
