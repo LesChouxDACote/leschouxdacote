@@ -1,5 +1,5 @@
 import { RemoveCircle } from "@mui/icons-material"
-import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/material"
+import { Alert, Box, Button, IconButton, Stack, TextField, Typography } from "@mui/material"
 import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
@@ -7,6 +7,9 @@ import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 import Modal from "src/components/Modal"
 import ReservationForm from "./ReservationForm"
+
+// Define a new type that extends Slot for local UI purposes
+type DisplaySlot = Slot & { isNewlySaved?: boolean }
 
 interface SlotsFormProps {
   slots: readonly Slot[]
@@ -41,8 +44,10 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
   const [error, setError] = React.useState<string | null>(null)
 
   const handleSaveReservation = (index: number, reservationDetails: Partial<Slot>) => {
-    const newSlots = [...slots]
-    newSlots[index] = { ...newSlots[index], ...reservationDetails }
+    // Cast newSlots to DisplaySlot[] to allow adding isNewlySaved
+    const newSlots = [...slots] as DisplaySlot[]
+    newSlots[index] = { ...newSlots[index], ...reservationDetails, isNewlySaved: true }
+    // When calling setSlots, it expects Slot[], but DisplaySlot[] is compatible
     setSlots(newSlots)
     setEditingReservationSlotIndex(null)
   }
@@ -65,6 +70,11 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
 
       {slots.map((slot, index) => (
         <React.Fragment key={index}>
+          {(slot as DisplaySlot).isNewlySaved && (
+            <Alert severity="success">
+              La réservation a été enregistrée. N&apos;oubliez pas de sauvegarder l&apos;annonce.
+            </Alert>
+          )}
           <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2}>
             <Box width="37%">
               <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
