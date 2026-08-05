@@ -167,10 +167,10 @@ const removeWorktree = async (card: TrelloCard) => {
 }
 
 // PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
-const previewLineFor = (prUrl: string | undefined) => {
+const previewLineFor = (prUrl: string | undefined, label = "Preview") => {
   const prNumber = prUrl?.split("/").pop()
   const template = process.env.PREVIEW_URL_TEMPLATE
-  return template && prNumber ? `\nPreview (une fois déployée) : ${template.replace("{{pr_id}}", prNumber)}` : ""
+  return template && prNumber ? `\n${label} : ${template.replace("{{pr_id}}", prNumber)}` : ""
 }
 
 // pingue le preview jusqu'à ce qu'il réponde, puis le signale sur la carte (lancé sans await :
@@ -366,7 +366,10 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   // 5. Rapport sur la carte et nettoyage
   const doneState = readState()[card.idShort]
   saveTicketState(card.idShort, { ...doneState, status: "done", prUrl })
-  await addComment(card.id, `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl)}`)
+  await addComment(
+    card.id,
+    `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl, "⏳ Preview en cours de déploiement")}`,
+  )
   await moveCard(card.id, lists.done.id)
   await removeWorktree(card)
   notifyWhenPreviewIsLive(card, prUrl).catch(console.error) // en tâche de fond, sans bloquer la boucle
