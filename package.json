@@ -31,7 +31,8 @@
     "serve": "next start",
     "email-alerts": "ts-node --files -r dotenv/config src/scripts/alerts.ts",
     "email-expired": "ts-node --files -r dotenv/config src/scripts/expired.ts",
-    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts"
+    "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts",
+    "watch-trello": "ts-node --files -r dotenv/config src/scripts/trello-ia.ts"
   },
   "dependencies": {
     "@algolia/client-search": "^4.24.0",

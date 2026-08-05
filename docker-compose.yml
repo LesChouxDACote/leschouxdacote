@@ -1,0 +1,31 @@
+# Déploiement Coolify du watcher Trello + IA (voir README « Automatisation Trello + IA »)
+services:
+  trello-ia:
+    build:
+      context: .
+      dockerfile: docker/trello-ia/Dockerfile
+    restart: unless-stopped
+    environment:
+      # Trello
+      - TRELLO_API_KEY=${TRELLO_API_KEY}
+      - TRELLO_TOKEN=${TRELLO_TOKEN}
+      - TRELLO_BOARD_ID=${TRELLO_BOARD_ID}
+      - TRELLO_LIST_READY=${TRELLO_LIST_READY:-Ready IA}
+      - TRELLO_LIST_WIP=${TRELLO_LIST_WIP:-IA en cours}
+      - TRELLO_LIST_DONE=${TRELLO_LIST_DONE:-IA terminé}
+      - TRELLO_POLL_MINUTES=${TRELLO_POLL_MINUTES:-3}
+      # GitHub : token avec droits repo (contents + pull requests)
+      - GH_TOKEN=${GH_TOKEN}
+      - GITHUB_REPO=${GITHUB_REPO:-RaphaelPI/leschouxdacote}
+      # Claude : token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Identité des commits de l'orchestrateur
+      - GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME:-Automatisation IA}
+      - GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL:-ia@leschouxdacote.fr}
+    volumes:
+      # persiste l'auth + les sessions Claude (reprise par ticket) et l'état des tickets
+      - trello-ia-data:/data
+
+volumes:
+  trello-ia-data:

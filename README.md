@@ -82,3 +82,35 @@ Ask Charles to access to the Coolify project.
 
 Two schedule actions in Github actions : "Alerts for expired product" and "Alerts for new products" are used for dev and prod environment.
 Maybe we should change this for Vercel Cron ?
+
+## Automatisation Trello + IA
+
+`yarn watch-trello` lance un watcher qui surveille la liste Trello « Ready IA » du board.
+Pour chaque carte : création d'une branche `ia/<n°>-<titre>` depuis `production` (poussée immédiatement),
+génération d'un plan puis implémentation par Claude Code (une session Claude par ticket, reprise en cas de relance),
+commit + push, ouverture d'une PR vers `production`, commentaires et déplacement de la carte (« IA en cours » → « IA terminé »).
+En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
+
+Prérequis sur la machine qui exécute le watcher :
+
+- `claude` (Claude Code CLI) installé et connecté
+- `gh` (GitHub CLI) authentifié avec le droit de push et de créer des PR
+- les variables `TRELLO_*` du `.env` (clé/token via <https://trello.com/power-ups/admin>), les trois listes devant exister sur le board
+
+### Déploiement sur Coolify (Docker)
+
+Créer une ressource « Docker Compose » pointant sur ce dépôt : le `docker-compose.yml` à la racine construit
+`docker/trello-ia/Dockerfile` (Node 20 + git + gh + claude) et lance `yarn watch-trello`.
+Le volume `/data` persiste l'authentification et les sessions Claude (nécessaires à la reprise par ticket),
+l'état des tickets (`ia-sessions.json`) et les worktrees.
+
+Variables d'environnement à renseigner dans Coolify :
+
+- `TRELLO_API_KEY`, `TRELLO_TOKEN`, `TRELLO_BOARD_ID` (+ `TRELLO_LIST_*`, `TRELLO_POLL_MINUTES` si besoin)
+- `GH_TOKEN` : token GitHub (fine-grained : Contents + Pull requests en read/write) — sert au push et aux PR
+- `GITHUB_REPO` : `owner/repo` du dépôt (le conteneur re-clone depuis GitHub, Coolify ne fournit pas `.git`)
+- `CLAUDE_CODE_OAUTH_TOKEN` : **authentification Claude recommandée** — générer le token une fois sur ta machine
+  avec `claude setup-token` (abonnement Claude), puis le coller dans Coolify. Aucune connexion interactive nécessaire.
+  Alternatives : `ANTHROPIC_API_KEY` (facturation API), ou ouvrir le terminal du conteneur dans Coolify et lancer
+  `claude /login` (la connexion est conservée dans le volume `/data`). La connexion ne se fait pas via les logs :
+  logs = suivi du watcher, terminal Coolify = dépannage/login manuel.

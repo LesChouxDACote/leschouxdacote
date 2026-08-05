@@ -38,6 +38,10 @@ yarn-error.log*
 # firebase
 .firebaserc
 
+# automatisation trello + ia
+.ia-sessions.json
+.ia-plan.md
+
 # typescript cache
 *.tsbuildinfoz
 
