@@ -166,6 +166,39 @@ const removeWorktree = async (card: TrelloCard) => {
   await run("git", ["branch", "-D", branch]).catch(() => undefined) // la branche distante n'est pas touchée
 }
 
+// PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
+const previewLineFor = (prUrl: string | undefined) => {
+  const prNumber = prUrl?.split("/").pop()
+  const template = process.env.PREVIEW_URL_TEMPLATE
+  return template && prNumber ? `\nPreview (une fois déployée) : ${template.replace("{{pr_id}}", prNumber)}` : ""
+}
+
+// pingue le preview jusqu'à ce qu'il réponde, puis le signale sur la carte (lancé sans await :
+// le watcher continue de traiter les tickets pendant l'attente)
+const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string) => {
+  const template = process.env.PREVIEW_URL_TEMPLATE
+  const prNumber = prUrl.split("/").pop()
+  if (!template || !prNumber) {
+    return
+  }
+  const url = template.replace("{{pr_id}}", prNumber)
+  const deadline = Date.now() + 15 * 60 * 1000
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
+      if (response.ok) {
+        console.log(`  Preview en ligne : ${url}`)
+        await addComment(card.id, `🌐 Preview en ligne : ${url}`)
+        return
+      }
+    } catch (error) {
+      // DNS/certificat/build pas encore prêts : on réessaie
+    }
+    await sleep(30 * 1000)
+  }
+  console.log(`  Preview toujours indisponible après 15 min : ${url}`)
+}
+
 const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   const { branch, worktree } = ticketPaths(card)
   const state = readState()[card.idShort]
@@ -177,7 +210,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     console.log("  Ticket déjà traité, rien à faire")
     await addComment(
       card.id,
-      `♻️ Ticket déjà traité par l'automatisation IA.\nBranche : ${state.branch}${state.prUrl ? `\nPR : ${state.prUrl}` : ""}`,
+      `♻️ Ticket déjà traité par l'automatisation IA.\nBranche : ${state.branch}${state.prUrl ? `\nPR : ${state.prUrl}` : ""}${previewLineFor(state.prUrl)}`,
     )
     await moveCard(card.id, lists.done.id)
     return
@@ -331,18 +364,12 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   console.log(`  PR créée : ${prUrl}`)
 
   // 5. Rapport sur la carte et nettoyage
-  // PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
-  const prNumber = prUrl.split("/").pop()
-  const previewTemplate = process.env.PREVIEW_URL_TEMPLATE
-  const previewLine =
-    previewTemplate && prNumber
-      ? `\nPreview (une fois déployée) : ${previewTemplate.replace("{{pr_id}}", prNumber)}`
-      : ""
   const doneState = readState()[card.idShort]
   saveTicketState(card.idShort, { ...doneState, status: "done", prUrl })
-  await addComment(card.id, `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLine}`)
+  await addComment(card.id, `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl)}`)
   await moveCard(card.id, lists.done.id)
   await removeWorktree(card)
+  notifyWhenPreviewIsLive(card, prUrl).catch(console.error) // en tâche de fond, sans bloquer la boucle
 }
 
 const resolveLists = async (): Promise<ResolvedLists> => {
