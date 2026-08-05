@@ -37,5 +37,8 @@ export const getCards = (listId: string) =>
 export const moveCard = (cardId: string, listId: string) =>
   request<unknown>("PUT", `/cards/${cardId}`, { idList: listId })
 
-export const addComment = (cardId: string, text: string) =>
-  request<unknown>("POST", `/cards/${cardId}/actions/comments`, { text })
+export const addComment = async (cardId: string, text: string) => {
+  const result = await request<unknown>("POST", `/cards/${cardId}/actions/comments`, { text })
+  console.log(`  Commentaire Trello ajouté : ${text.split("\n")[0].slice(0, 80)}`)
+  return result
+}

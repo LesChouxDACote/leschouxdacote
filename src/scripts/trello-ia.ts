@@ -36,6 +36,7 @@ interface ClaudeOutput {
   result: string
   session_id: string
   is_error?: boolean
+  modelUsage?: Record<string, unknown> // clés = identifiants des modèles utilisés
 }
 
 type TicketStatus = "plan" | "implement" | "done" | "failed"
@@ -119,6 +120,7 @@ const runClaude = (args: string[], cwd: string) =>
           new Error(`claude : échec (code ${code}) : ${(output?.result || stdout || "aucune sortie").slice(-2000)}`),
         )
       } else {
+        console.log(`  Modèle(s) Claude : ${Object.keys(output.modelUsage ?? {}).join(", ") || "non renseigné"}`)
         resolve(output)
       }
     })
@@ -167,21 +169,25 @@ const removeWorktree = async (card: TrelloCard) => {
 }
 
 // PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
-const previewLineFor = (prUrl: string | undefined, label = "Preview") => {
+const previewUrlFor = (prUrl: string | undefined) => {
   const prNumber = prUrl?.split("/").pop()
   const template = process.env.PREVIEW_URL_TEMPLATE
-  return template && prNumber ? `\n${label} : ${template.replace("{{pr_id}}", prNumber)}` : ""
+  return template && prNumber ? template.replace("{{pr_id}}", prNumber) : undefined
+}
+
+const previewLineFor = (prUrl: string | undefined, label = "Preview") => {
+  const url = previewUrlFor(prUrl)
+  return url ? `\n${label} : ${url}` : ""
 }
 
 // pingue le preview jusqu'à ce qu'il réponde, puis le signale sur la carte (lancé sans await :
 // le watcher continue de traiter les tickets pendant l'attente)
 const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string) => {
-  const template = process.env.PREVIEW_URL_TEMPLATE
-  const prNumber = prUrl.split("/").pop()
-  if (!template || !prNumber) {
+  const url = previewUrlFor(prUrl)
+  if (!url) {
     return
   }
-  const url = template.replace("{{pr_id}}", prNumber)
+  console.log(`  Ping du preview ${url} (toutes les 30 s, 15 min max)…`)
   const deadline = Date.now() + 15 * 60 * 1000
   while (Date.now() < deadline) {
     try {
@@ -362,6 +368,10 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     worktree,
   ).finally(() => unlinkSync(bodyFile))
   console.log(`  PR créée : ${prUrl}`)
+  const previewUrl = previewUrlFor(prUrl)
+  console.log(
+    previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview",
+  )
 
   // 5. Rapport sur la carte et nettoyage
   const doneState = readState()[card.idShort]
@@ -402,6 +412,11 @@ const handler = async () => {
   mkdirSync(WORKTREES_DIR, { recursive: true })
   const pollMs = Number(process.env.TRELLO_POLL_MINUTES || 3) * 60 * 1000
   console.log(`Surveillance de la liste « ${lists.ready.name} » (toutes les ${pollMs / 60000} min)`)
+  console.log(
+    process.env.ANTHROPIC_MODEL
+      ? `Modèle Claude forcé : ${process.env.ANTHROPIC_MODEL}`
+      : "Modèle Claude : défaut du compte (définir ANTHROPIC_MODEL pour forcer)",
+  )
 
   while (true) {
     try {
