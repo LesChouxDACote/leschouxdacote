@@ -86,9 +86,11 @@ Maybe we should change this for Vercel Cron ?
 ## Automatisation Trello + IA
 
 `yarn watch-trello` lance un watcher qui surveille la liste Trello « Ready IA » du board.
-Pour chaque carte : création d'une branche `ia/<n°>-<titre>` depuis `production` (poussée immédiatement),
+Pour chaque carte : création d'une branche `ia/<n°>-<titre>` depuis `develop` (poussée immédiatement),
 génération d'un plan puis implémentation par Claude Code (une session Claude par ticket, reprise en cas de relance),
-commit + push, ouverture d'une PR vers `production`, commentaires et déplacement de la carte (« IA en cours » → « IA terminé »).
+commit + push, ouverture d'une PR vers `develop`, commentaires et déplacement de la carte (« IA en cours » → « IA terminé »).
+La branche de base est configurable via `IA_BASE_BRANCH` ; si `PREVIEW_URL_TEMPLATE` est définie
+(ex. `https://{{pr_id}}.choux.ilieff.fr`), le lien du preview Coolify est ajouté au commentaire ✅ de la carte.
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :

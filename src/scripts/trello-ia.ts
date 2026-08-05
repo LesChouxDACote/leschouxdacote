@@ -9,6 +9,8 @@ const REPO_ROOT = process.cwd()
 // surchargés en Docker pour pointer vers le volume persistant (voir docker-compose.yml)
 const WORKTREES_DIR = process.env.IA_WORKTREES_DIR || path.resolve(REPO_ROOT, "..", ".ia-worktrees")
 const STATE_FILE = process.env.IA_STATE_FILE || path.join(REPO_ROOT, ".ia-sessions.json")
+// branche de départ des tickets et cible des PR (develop = previews Coolify sur l'app dev)
+const BASE_BRANCH = process.env.IA_BASE_BRANCH || "develop"
 const TRELLO_COMMENT_LIMIT = 15000 // Trello accepte 16384 caractères par commentaire
 const CLAUDE_TIMEOUT = 45 * 60 * 1000
 const ALLOWED_TOOLS = [
@@ -181,8 +183,8 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     return
   }
 
-  // 1. Worktree isolé sur une branche issue de production
-  await run("git", ["fetch", "origin", "production"])
+  // 1. Worktree isolé sur une branche issue de la branche de base
+  await run("git", ["fetch", "origin", BASE_BRANCH])
   await removeWorktree(card) // nettoie les restes d'un run précédent
   const branchOnOrigin = await run("git", ["ls-remote", "--exit-code", "--heads", "origin", branch])
     .then(() => true)
@@ -197,9 +199,9 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     await run("git", ["fetch", "origin", branch])
     await run("git", ["worktree", "add", worktree, "-B", branch, `origin/${branch}`])
   } else {
-    await run("git", ["worktree", "add", worktree, "-b", branch, "origin/production"])
+    await run("git", ["worktree", "add", worktree, "-b", branch, `origin/${BASE_BRANCH}`])
     await run("git", ["push", "-u", "origin", branch], worktree)
-    console.log(`  Branche ${branch} créée depuis production et poussée`)
+    console.log(`  Branche ${branch} créée depuis ${BASE_BRANCH} et poussée`)
   }
   console.log("  yarn install…")
   await run("yarn", ["install"], worktree)
@@ -304,7 +306,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   await run("git", ["push", "-u", "origin", branch], worktree)
   console.log("  Changements commités et poussés")
 
-  // 4. Pull request vers production
+  // 4. Pull request vers la branche de base
   const bodyFile = path.join(tmpdir(), `ia-pr-${card.idShort}.md`)
   writeFileSync(
     bodyFile,
@@ -316,7 +318,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
       "pr",
       "create",
       "--base",
-      "production",
+      BASE_BRANCH,
       "--head",
       branch,
       "--title",
@@ -329,9 +331,16 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   console.log(`  PR créée : ${prUrl}`)
 
   // 5. Rapport sur la carte et nettoyage
+  // PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
+  const prNumber = prUrl.split("/").pop()
+  const previewTemplate = process.env.PREVIEW_URL_TEMPLATE
+  const previewLine =
+    previewTemplate && prNumber
+      ? `\nPreview (une fois déployée) : ${previewTemplate.replace("{{pr_id}}", prNumber)}`
+      : ""
   const doneState = readState()[card.idShort]
   saveTicketState(card.idShort, { ...doneState, status: "done", prUrl })
-  await addComment(card.id, `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}`)
+  await addComment(card.id, `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLine}`)
   await moveCard(card.id, lists.done.id)
   await removeWorktree(card)
 }

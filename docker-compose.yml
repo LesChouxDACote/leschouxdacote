@@ -17,9 +17,15 @@ services:
       # GitHub : token avec droits repo (contents + pull requests)
       - GH_TOKEN=${GH_TOKEN}
       - GITHUB_REPO=${GITHUB_REPO:-LesChouxDACote/leschouxdacote}
+      # Branche de départ des tickets et cible des PR (develop → previews Coolify sur l'app dev)
+      - IA_BASE_BRANCH=${IA_BASE_BRANCH:-develop}
       # Claude : token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
       - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Optionnel : forcer le modèle Claude (ex. claude-opus-5, claude-sonnet-5) ; vide = défaut du compte
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
+      # Optionnel : URL des previews Coolify ajoutée au commentaire Trello (ex. https://{{pr_id}}.choux.ilieff.fr)
+      - PREVIEW_URL_TEMPLATE=${PREVIEW_URL_TEMPLATE:-}
       # Identité des commits de l'orchestrateur
       - GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME:-Automatisation IA}
       - GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL:-ia@leschouxdacote.fr}

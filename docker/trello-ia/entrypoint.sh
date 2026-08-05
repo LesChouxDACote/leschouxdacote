@@ -16,11 +16,12 @@ fi
 gh auth setup-git
 
 # Coolify construit l'image sans le dossier .git : on recrée un dépôt relié à origin
+IA_BASE_BRANCH="${IA_BASE_BRANCH:-develop}"
 if [ ! -d .git ]; then
-  git init --initial-branch production --quiet
+  git init --initial-branch "$IA_BASE_BRANCH" --quiet
   git remote add origin "https://github.com/${GITHUB_REPO:?GITHUB_REPO manquant (ex. LesChouxDACote/leschouxdacote)}.git"
 fi
-git fetch origin production
+git fetch origin "$IA_BASE_BRANCH"
 
 if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -z "$ANTHROPIC_API_KEY" ] && [ ! -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]; then
   echo "ATTENTION : aucune authentification Claude détectée." >&2
