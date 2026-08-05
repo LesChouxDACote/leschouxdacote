@@ -1,8 +1,8 @@
 import Head from "next/head"
 
-const CONFIG = {
+export const CONFIG = {
   title: "Les Choux d'à Côté",
-  tagline: "Vente directe : Le circuit plus court des produits alimentaires",
+  tagline: "Sous le capitalisme, l'homme exploite l'homme. Sous le communisme, c'est l'inverse.",
   description:
     "Les Choux d'à Côté - Producteurs, publiez gratuitement des annonces de vos produits. Acheteurs, découvrez les produits locaux près de chez vous.",
   image: process.env.NEXT_PUBLIC_URL + "/opengraph.jpg",
