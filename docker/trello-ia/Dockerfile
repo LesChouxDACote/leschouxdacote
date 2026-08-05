@@ -16,7 +16,15 @@ WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn/releases .yarn/releases
-RUN yarn install --immutable
+
+# petits serveurs : timeouts réseau larges + téléchargements moins parallèles (vaut aussi
+# pour le « yarn install » exécuté à chaud dans les worktrees)
+ENV YARN_HTTP_TIMEOUT=300000 \
+    YARN_NETWORK_CONCURRENCY=8
+
+# cache yarn hors des layers, réutilisé d'un build à l'autre (BuildKit requis :
+# en local, construire avec DOCKER_BUILDKIT=1)
+RUN --mount=type=cache,target=/root/.yarn/berry/cache yarn install --immutable
 
 COPY . .
 
