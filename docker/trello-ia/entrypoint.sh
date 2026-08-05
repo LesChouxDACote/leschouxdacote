@@ -18,7 +18,7 @@ gh auth setup-git
 # Coolify construit l'image sans le dossier .git : on recrée un dépôt relié à origin
 if [ ! -d .git ]; then
   git init --initial-branch production --quiet
-  git remote add origin "https://github.com/${GITHUB_REPO:?GITHUB_REPO manquant (ex. RaphaelPI/leschouxdacote)}.git"
+  git remote add origin "https://github.com/${GITHUB_REPO:?GITHUB_REPO manquant (ex. LesChouxDACote/leschouxdacote)}.git"
 fi
 git fetch origin production
 

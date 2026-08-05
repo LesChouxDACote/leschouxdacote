@@ -16,7 +16,7 @@ services:
       - TRELLO_POLL_MINUTES=${TRELLO_POLL_MINUTES:-3}
       # GitHub : token avec droits repo (contents + pull requests)
       - GH_TOKEN=${GH_TOKEN}
-      - GITHUB_REPO=${GITHUB_REPO:-RaphaelPI/leschouxdacote}
+      - GITHUB_REPO=${GITHUB_REPO:-LesChouxDACote/leschouxdacote}
       # Claude : token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
       - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
