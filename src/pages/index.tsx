@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import LogoSvg from "src/assets/logo.svg"
+import { CONFIG } from "src/components/Seo"
 import SearchBar, { BioSwitchLabelContainer } from "src/components/SearchBar"
 import { COLORS, LAYOUT } from "src/constants"
 import Layout from "src/layout"
@@ -93,7 +94,7 @@ const HomePage = () => {
   return (
     <Layout bgImage>
       <Logo />
-      <Title>Vente directe : Le circuit plus court des produits alimentaires</Title>
+      <Title>{CONFIG.tagline}</Title>
       <a href="https://info.leschouxdacote.fr/" target="_blank" rel="noreferrer">
         <Introduction>
           <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
