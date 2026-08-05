@@ -1,7 +1,7 @@
 import Head from "next/head"
 
 const CONFIG = {
-  title: "Les Choux d'à Côté",
+  title: "titi test IA3",
   tagline: "Vente directe : Le circuit plus court des produits alimentaires",
   description:
     "Les Choux d'à Côté - Producteurs, publiez gratuitement des annonces de vos produits. Acheteurs, découvrez les produits locaux près de chez vous.",
