@@ -1,0 +1,72 @@
+RÉCUPÉRER LES ACCÈS TRELLO ET GITHUB POUR L'AUTOMATISATION IA
+==============================================================
+
+L'automatisation a besoin de « clés » pour agir à notre place sur Trello et
+GitHub. Il y en a 3 à récupérer. Compte environ 10 minutes.
+
+ATTENTION : ces clés sont des mots de passe. Ne les envoie jamais par mail ou
+Slack en clair — dépose-les dans Vaultwarden.
+
+
+1. LA CLÉ API TRELLO (TRELLO_API_KEY)
+-------------------------------------
+
+1. Connecte-toi à Trello avec le compte qui a accès au board.
+2. Va sur https://trello.com/power-ups/admin
+3. Clique sur « Nouveau » (ou « New ») pour créer une intégration :
+   donne-lui un nom, par exemple « Automatisation IA », choisis notre espace
+   de travail, et mets n'importe quelle adresse du site dans les champs
+   demandés (par exemple https://leschouxdacote.fr).
+4. Une fois créée, ouvre l'onglet « Clé API » : la longue suite de lettres et
+   de chiffres affichée est la clé API. Copie-la.
+
+
+2. LE JETON TRELLO (TRELLO_TOKEN)
+---------------------------------
+
+1. Sur la même page que la clé API, repère la phrase du type « vous pouvez
+   générer manuellement un jeton » et clique sur le lien « Jeton » / « Token ».
+2. Trello te demande d'autoriser l'accès : clique sur « Autoriser ».
+3. Une page affiche le jeton : copie-le. C'est lui qui donne réellement le
+   droit d'agir sur nos boards, il est aussi sensible qu'un mot de passe.
+
+À faire aussi sur le board concerné : créer trois colonnes nommées exactement
+« Ready IA », « IA en cours » et « IA terminé ». C'est en déposant une carte
+dans « Ready IA » qu'on déclenche l'automatisation.
+
+
+3. LE JETON GITHUB (GH_TOKEN)
+-----------------------------
+
+Il permet à l'automatisation de proposer ses modifications de code (branches
+et « pull requests »). Il faut un compte GitHub qui a le droit d'écrire sur le
+dépôt LesChouxDACote/leschouxdacote — si tu n'es pas sûr, demande à Charles
+ou Jérôme.
+
+1. Connecte-toi sur https://github.com, clique sur ta photo en haut à droite,
+   puis « Settings ».
+2. Tout en bas du menu de gauche : « Developer settings »
+   → « Personal access tokens » → « Fine-grained tokens »
+   → « Generate new token ».
+3. Remplis :
+   - Token name : Automatisation IA
+   - Resource owner : choisis l'organisation LesChouxDACote
+     (pas ton compte perso)
+   - Expiration : 90 jours ou plus (il faudra le renouveler à l'échéance)
+   - Repository access : « Only select repositories »
+     → coche uniquement leschouxdacote
+   - Permissions (section « Repository permissions ») :
+     mets « Contents » sur Read and write
+     et « Pull requests » sur Read and write. Rien d'autre.
+4. Clique sur « Generate token » et copie immédiatement le jeton affiché
+   (il commence par github_pat_) : il ne sera plus jamais montré.
+
+
+ET ENSUITE ?
+------------
+
+Dépose les 3 valeurs dans Vaultwarden avec leurs noms (TRELLO_API_KEY,
+TRELLO_TOKEN, GH_TOKEN) et préviens la personne qui gère le serveur : elle
+les branchera dans l'outil de déploiement (Coolify). Les autres réglages
+(identifiant du board, connexion à Claude) sont techniques et seront gérés
+directement par elle.
