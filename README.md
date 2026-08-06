@@ -85,10 +85,17 @@ Maybe we should change this for Vercel Cron ?
 
 ## Automatisation Trello + IA
 
-`yarn watch-trello` lance un watcher qui surveille la liste Trello « Ready IA » du board.
-Pour chaque carte : création d'une branche `ia/<n°>-<titre>` depuis `develop` (poussée immédiatement),
-génération d'un plan puis implémentation par Claude Code (une session Claude par ticket, reprise en cas de relance),
-commit + push, ouverture d'une PR vers `develop`, commentaires et déplacement de la carte (« IA en cours » → « IA terminé »).
+`yarn watch-trello` lance un watcher qui surveille deux listes du board Trello :
+
+**« Atelier IA » (cadrage, optionnelle)** : Claude lit le ticket complet (description, checklists, labels,
+pièces jointes téléchargées — y compris les images — et commentaires) et discute avec le PO en commentaires 🤖 :
+reformulation du besoin, faisabilité vérifiée dans le code (lecture seule stricte), questions. Il répond à chaque
+nouveau message du PO. Quand le besoin est prêt, le PO déplace lui-même la carte vers « Ready IA ».
+
+**« Ready IA » (développement)** : création d'une branche `ia/<n°>-<titre>` depuis `develop` (poussée immédiatement),
+génération d'un plan puis implémentation par Claude Code — avec tout le contexte du ticket, y compris la discussion
+de cadrage — puis commit + push, ouverture d'une PR vers `develop`, commentaires et déplacement de la carte
+(« IA en cours » → « IA terminé »). Une session Claude par ticket, reprise en cas de relance.
 La branche de base est configurable via `IA_BASE_BRANCH` ; si `PREVIEW_URL_TEMPLATE` est définie
 (ex. `https://{{pr_id}}.choux.ilieff.fr`), le lien du preview Coolify est ajouté au commentaire ✅ de la carte,
 puis un commentaire 🌐 est posté dès que le preview répond réellement (ping toutes les 30 s, 15 min max).

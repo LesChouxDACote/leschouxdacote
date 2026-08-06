@@ -30,9 +30,19 @@ Slack en clair — dépose-les dans Vaultwarden.
 3. Une page affiche le jeton : copie-le. C'est lui qui donne réellement le
    droit d'agir sur nos boards, il est aussi sensible qu'un mot de passe.
 
-À faire aussi sur le board concerné : créer trois colonnes nommées exactement
-« Ready IA », « IA en cours » et « IA terminé ». C'est en déposant une carte
-dans « Ready IA » qu'on déclenche l'automatisation.
+À faire aussi sur le board concerné : créer quatre colonnes nommées exactement
+« Atelier IA », « Ready IA », « IA en cours » et « IA terminé ».
+
+Comment ça marche au quotidien :
+1. Dépose une carte dans « Atelier IA » pour discuter du besoin avec l'IA :
+   elle lit toute la carte (description, checklists, pièces jointes, images…),
+   reformule le besoin, pose des questions en commentaire, et répond à chacun
+   de tes commentaires. À cette étape, elle ne touche jamais au code.
+2. Quand le besoin est clair, déplace toi-même la carte vers « Ready IA » :
+   c'est ça qui lance le développement (l'IA garde en mémoire toute la
+   discussion de cadrage).
+3. La carte passe en « IA en cours » pendant le travail, puis « IA terminé »
+   avec les liens vers la modification proposée et le site de test.
 
 
 3. LE JETON GITHUB (GH_TOKEN)

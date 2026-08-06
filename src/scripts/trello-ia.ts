@@ -3,7 +3,21 @@ import { createHash } from "crypto"
 import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import path from "path"
-import { addComment, getCards, getLists, moveCard, TrelloCard, TrelloList } from "src/helpers-api/trello"
+import {
+  addComment,
+  downloadAttachment,
+  getCardDetails,
+  getCards,
+  getComments,
+  getLists,
+  getMe,
+  moveCard,
+  TrelloCard,
+  TrelloCardDetails,
+  TrelloComment,
+  TrelloList,
+  TrelloMember,
+} from "src/helpers-api/trello"
 
 const REPO_ROOT = process.cwd()
 // surchargés en Docker pour pointer vers le volume persistant (voir docker-compose.yml)
@@ -11,8 +25,15 @@ const WORKTREES_DIR = process.env.IA_WORKTREES_DIR || path.resolve(REPO_ROOT, ".
 const STATE_FILE = process.env.IA_STATE_FILE || path.join(REPO_ROOT, ".ia-sessions.json")
 // branche de départ des tickets et cible des PR (develop = previews Coolify sur l'app dev)
 const BASE_BRANCH = process.env.IA_BASE_BRANCH || "develop"
+// worktree partagé, détaché sur la branche de base : contexte code des discussions de cadrage
+const ATELIER_WORKTREE = path.join(WORKTREES_DIR, "_atelier")
+const TICKET_DIR = ".ia-ticket" // pièces jointes du ticket, téléchargées pour Claude (jamais commitées)
 const TRELLO_COMMENT_LIMIT = 15000 // Trello accepte 16384 caractères par commentaire
+const DISCUSSION_LIMIT = 8000 // taille max de la discussion injectée dans les prompts
+const MAX_ATTACHMENTS = 10
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
 const CLAUDE_TIMEOUT = 45 * 60 * 1000
+const CHAT_TIMEOUT = 10 * 60 * 1000
 const ALLOWED_TOOLS = [
   "Edit",
   "Write",
@@ -25,11 +46,14 @@ const ALLOWED_TOOLS = [
   "Bash(git diff:*)",
   "Bash(git log:*)",
 ]
+// cadrage : lecture seule garantie par le mode plan
+const CHAT_ARGS = ["--output-format", "json", "--permission-mode", "plan"]
 
 interface ResolvedLists {
   ready: TrelloList
   wip: TrelloList
   done: TrelloList
+  refine?: TrelloList // optionnelle : sans elle, le cadrage est désactivé
 }
 
 interface ClaudeOutput {
@@ -42,24 +66,32 @@ interface ClaudeOutput {
 type TicketStatus = "plan" | "implement" | "done" | "failed"
 
 interface TicketState {
-  sessionId: string
-  branch: string
-  status: TicketStatus
+  sessionId?: string // session de développement (plan + implémentation)
+  chatSessionId?: string // session de cadrage (Atelier IA)
+  branch?: string
+  status?: TicketStatus
   prUrl?: string
+}
+
+interface TicketContext {
+  details: TrelloCardDetails
+  comments: TrelloComment[]
+  attachmentPaths: string[]
 }
 
 const readState = (): Record<string, TicketState> =>
   existsSync(STATE_FILE) ? JSON.parse(readFileSync(STATE_FILE, "utf8")) : {}
 
-const saveTicketState = (idShort: number, ticket: TicketState) => {
+const saveTicketState = (idShort: number, ticket: Partial<TicketState>) => {
   const state = readState()
-  state[idShort] = ticket
+  state[idShort] = { ...state[idShort], ...ticket }
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2))
 }
 
-// UUID déterministe (style v5) dérivé du numéro de ticket : une session Claude par ticket
-const uuidForTicket = (idShort: number) => {
-  const hash = createHash("sha1").update(`leschouxdacote-trello-${idShort}`).digest("hex")
+// UUID déterministe (style v5) dérivé du numéro de ticket : une session Claude par ticket et par usage
+const uuidForTicket = (idShort: number, kind: "dev" | "chat" = "dev") => {
+  const seed = kind === "dev" ? `leschouxdacote-trello-${idShort}` : `leschouxdacote-trello-${kind}-${idShort}`
+  const hash = createHash("sha1").update(seed).digest("hex")
   const variant = ((parseInt(hash[16], 16) & 0x3) | 0x8).toString(16)
   return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-5${hash.slice(13, 16)}-${variant}${hash.slice(17, 20)}-${hash.slice(20, 32)}`
 }
@@ -79,6 +111,15 @@ const truncate = (text: string) =>
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+const lastIndexWhere = <T>(items: T[], predicate: (item: T) => boolean) => {
+  for (let index = items.length - 1; index >= 0; index--) {
+    if (predicate(items[index])) {
+      return index
+    }
+  }
+  return -1
+}
+
 const run = (command: string, args: string[], cwd = REPO_ROOT) =>
   new Promise<string>((resolve, reject) => {
     execFile(command, args, { cwd, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
@@ -90,7 +131,7 @@ const run = (command: string, args: string[], cwd = REPO_ROOT) =>
     })
   })
 
-const runClaude = (args: string[], cwd: string) =>
+const runClaude = (args: string[], cwd: string, timeoutMs = CLAUDE_TIMEOUT) =>
   new Promise<ClaudeOutput>((resolve, reject) => {
     const child = spawn("claude", args, { cwd, stdio: ["ignore", "pipe", "inherit"] })
     let stdout = ""
@@ -100,8 +141,8 @@ const runClaude = (args: string[], cwd: string) =>
 
     const watchdog = setTimeout(() => {
       child.kill()
-      reject(new Error("claude : temps d'exécution dépassé (45 min)"))
-    }, CLAUDE_TIMEOUT)
+      reject(new Error(`claude : temps d'exécution dépassé (${Math.round(timeoutMs / 60000)} min)`))
+    }, timeoutMs)
 
     child.on("error", (error) => {
       clearTimeout(watchdog)
@@ -126,17 +167,107 @@ const runClaude = (args: string[], cwd: string) =>
     })
   })
 
-const planPrompt = (
-  card: TrelloCard,
-) => `Tu travailles sur le dépôt « Les Choux d'à Côté » (Next.js 12, conventions décrites dans CLAUDE.md).
+// première session d'un ticket : UUID déterministe, avec repli en session anonyme s'il est déjà pris
+const runClaudeNewSession = async (args: string[], sessionId: string, cwd: string, timeoutMs?: number) => {
+  try {
+    return await runClaude([...args, "--session-id", sessionId], cwd, timeoutMs)
+  } catch (error) {
+    console.error("  --session-id indisponible, session anonyme :", error)
+    return runClaude(args, cwd, timeoutMs)
+  }
+}
 
-Ticket Trello #${card.idShort} — ${card.name}
-${card.shortUrl}
+// ---------------------------------------------------------------------------
+// Contexte complet du ticket (carte + checklists + pièces jointes + discussion)
+// ---------------------------------------------------------------------------
 
-Description :
-${card.desc || "(pas de description)"}
+const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐)/ // commentaires de statut de l'automatisation, exclus des prompts
 
-Rédige un PLAN d'implémentation concis et actionnable pour ce ticket : fichiers à modifier, étapes, points de vigilance. N'écris aucun code pour l'instant.`
+const fetchAttachments = async (details: TrelloCardDetails, dir: string) => {
+  const ticketDir = path.join(dir, TICKET_DIR, String(details.idShort))
+  rmSync(ticketDir, { recursive: true, force: true })
+  const files = details.attachments
+    .filter((attachment) => attachment.bytes !== null && attachment.bytes <= MAX_ATTACHMENT_BYTES)
+    .slice(0, MAX_ATTACHMENTS)
+  const paths: string[] = []
+  if (files.length === 0) {
+    return paths
+  }
+  mkdirSync(ticketDir, { recursive: true })
+  for (const attachment of files) {
+    const fileName = attachment.name.replace(/[^\w.-]+/g, "_") || attachment.id
+    const destPath = path.join(ticketDir, fileName)
+    try {
+      await downloadAttachment(attachment.url, destPath)
+      paths.push(path.relative(dir, destPath))
+      console.log(`  Pièce jointe téléchargée : ${path.relative(dir, destPath)}`)
+    } catch (error) {
+      console.error(`  Pièce jointe « ${attachment.name} » ignorée :`, error)
+    }
+  }
+  return paths
+}
+
+const loadTicketContext = async (card: TrelloCard, dir: string): Promise<TicketContext> => {
+  const details = await getCardDetails(card.id)
+  const comments = await getComments(card.id)
+  const attachmentPaths = await fetchAttachments(details, dir)
+  return { details, comments, attachmentPaths }
+}
+
+const formatDiscussion = (comments: TrelloComment[], me: TrelloMember) => {
+  const lines = comments
+    .filter((comment) => !STATUS_COMMENT.test(comment.text))
+    .map((comment) => `[${comment.memberId === me.id ? "IA" : comment.memberName}] ${comment.text}`)
+  const text = lines.join("\n---\n")
+  return text.length > DISCUSSION_LIMIT ? `…${text.slice(-DISCUSSION_LIMIT)}` : text
+}
+
+const ticketContextBlock = (context: TicketContext, me: TrelloMember) => {
+  const { details, comments, attachmentPaths } = context
+  const parts = [
+    `Ticket Trello #${details.idShort} — ${details.name}`,
+    details.shortUrl,
+    `\nDescription :\n${details.desc || "(pas de description)"}`,
+  ]
+  const labels = details.labels.map((label) => label.name).filter(Boolean)
+  if (labels.length > 0) {
+    parts.push(`\nLabels : ${labels.join(", ")}`)
+  }
+  if (details.due) {
+    parts.push(`Échéance : ${details.due}`)
+  }
+  if (details.members.length > 0) {
+    parts.push(`Membres : ${details.members.map((member) => member.fullName || member.username).join(", ")}`)
+  }
+  for (const checklist of details.checklists) {
+    const items = checklist.checkItems.map((item) => `- [${item.state === "complete" ? "x" : " "}] ${item.name}`)
+    parts.push(`\nChecklist « ${checklist.name} » :\n${items.join("\n")}`)
+  }
+  if (attachmentPaths.length > 0) {
+    parts.push(
+      `\nPièces jointes du ticket, téléchargées localement (consulte-les) :\n${attachmentPaths.map((p) => `- ${p}`).join("\n")}`,
+    )
+  }
+  const discussion = formatDiscussion(comments, me)
+  if (discussion) {
+    parts.push(`\nDiscussion sur le ticket (du plus ancien au plus récent) :\n${discussion}`)
+  }
+  return parts.join("\n")
+}
+
+// ---------------------------------------------------------------------------
+// Prompts
+// ---------------------------------------------------------------------------
+
+const REPO_INTRO =
+  "Tu travailles sur le dépôt « Les Choux d'à Côté » (Next.js 12, conventions décrites dans CLAUDE.md)."
+
+const planPrompt = (ticketBlock: string) => `${REPO_INTRO}
+
+${ticketBlock}
+
+Rédige un PLAN d'implémentation concis et actionnable pour ce ticket : fichiers à modifier, étapes, points de vigilance. Consulte les pièces jointes listées le cas échéant. N'écris aucun code pour l'instant.`
 
 const IMPLEMENT_PROMPT = `Implémente maintenant ce plan dans le dépôt.
 Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
@@ -144,10 +275,33 @@ Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
 const retryPrompt = (
   card: TrelloCard,
+  ticketBlock: string,
 ) => `Le traitement automatisé du ticket Trello #${card.idShort} (« ${card.name} ») a été relancé : la tentative précédente a échoué ou n'est pas allée au bout.
+
+Rappel du ticket (la discussion peut contenir de nouvelles consignes) :
+${ticketBlock}
+
 Reprends l'implémentation du plan là où elle s'est arrêtée, dans l'état actuel du dépôt.
 Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
+
+const initialAnalysisPrompt = (ticketBlock: string) => `${REPO_INTRO}
+Tu es en phase de CADRAGE de ce ticket avec le PO : AUCUN développement, le code est en lecture seule.
+
+${ticketBlock}
+
+Analyse le besoin : reformule-le en quelques lignes, vérifie sa faisabilité dans le code existant, signale les zones d'ombre et pose au PO les 2 à 4 questions les plus utiles pour affiner le ticket.
+Ta réponse sera postée telle quelle en commentaire Trello : concise (moins de 1 500 caractères), en français, sans préambule.`
+
+const replyPrompt = (newMessages: string) => `Nouveaux messages du PO sur le ticket :
+${newMessages}
+
+Réponds : clarifie, propose, challenge si nécessaire (tu peux vérifier dans le code, en lecture seule). Si le besoin te semble prêt à développer, dis-le au PO et propose-lui de déplacer la carte vers « Ready IA ».
+Ta réponse sera postée telle quelle en commentaire Trello : concise (moins de 1 500 caractères), en français, sans préambule.`
+
+// ---------------------------------------------------------------------------
+// Git : worktrees
+// ---------------------------------------------------------------------------
 
 const ticketPaths = (card: TrelloCard) => {
   const slug = slugify(card.name)
@@ -167,6 +321,27 @@ const removeWorktree = async (card: TrelloCard) => {
   await run("git", ["worktree", "prune"]).catch(() => undefined)
   await run("git", ["branch", "-D", branch]).catch(() => undefined) // la branche distante n'est pas touchée
 }
+
+// (re)met le worktree de cadrage sur la tête de la branche de base
+const refreshAtelierWorktree = async () => {
+  await run("git", ["fetch", "origin", BASE_BRANCH])
+  const recreate = async () => {
+    await run("git", ["worktree", "remove", "--force", ATELIER_WORKTREE]).catch(() => {
+      rmSync(ATELIER_WORKTREE, { recursive: true, force: true })
+    })
+    await run("git", ["worktree", "prune"]).catch(() => undefined)
+    await run("git", ["worktree", "add", "--detach", ATELIER_WORKTREE, `origin/${BASE_BRANCH}`])
+  }
+  if (existsSync(ATELIER_WORKTREE)) {
+    await run("git", ["checkout", "--detach", `origin/${BASE_BRANCH}`], ATELIER_WORKTREE).catch(recreate)
+  } else {
+    await recreate()
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Preview Coolify
+// ---------------------------------------------------------------------------
 
 // PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
 const previewUrlFor = (prUrl: string | undefined) => {
@@ -205,7 +380,76 @@ const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string) => {
   console.log(`  Preview toujours indisponible après 15 min : ${url}`)
 }
 
-const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
+// ---------------------------------------------------------------------------
+// Cadrage (« Atelier IA ») : discussion sur la carte, sans toucher au code
+// ---------------------------------------------------------------------------
+
+const processDiscussion = async (card: TrelloCard, me: TrelloMember) => {
+  const comments = await getComments(card.id)
+  const lastComment = comments[comments.length - 1]
+  if (lastComment && lastComment.memberId === me.id) {
+    return // dernier mot au bot : on attend la réponse du PO
+  }
+
+  console.log(`\n💬 Cadrage du ticket #${card.idShort} « ${card.name} »`)
+  await refreshAtelierWorktree()
+  const context = await loadTicketContext(card, ATELIER_WORKTREE)
+  const state = readState()[card.idShort]
+
+  let output: ClaudeOutput
+  if (state?.chatSessionId) {
+    const lastBotIndex = lastIndexWhere(comments, (comment) => comment.memberId === me.id)
+    const newMessages =
+      comments
+        .slice(lastBotIndex + 1)
+        .filter((comment) => !STATUS_COMMENT.test(comment.text))
+        .map((comment) => `[${comment.memberName}] ${comment.text}`)
+        .join("\n---\n") || "(carte relancée sans nouveau message)"
+    try {
+      output = await runClaude(
+        ["-p", "--resume", state.chatSessionId, replyPrompt(newMessages), ...CHAT_ARGS],
+        ATELIER_WORKTREE,
+        CHAT_TIMEOUT,
+      )
+    } catch (error) {
+      console.error("  Reprise du cadrage impossible, nouvelle session :", error)
+      output = await runClaude(
+        ["-p", initialAnalysisPrompt(ticketContextBlock(context, me)), ...CHAT_ARGS],
+        ATELIER_WORKTREE,
+        CHAT_TIMEOUT,
+      )
+    }
+  } else {
+    output = await runClaudeNewSession(
+      ["-p", initialAnalysisPrompt(ticketContextBlock(context, me)), ...CHAT_ARGS],
+      uuidForTicket(card.idShort, "chat"),
+      ATELIER_WORKTREE,
+      CHAT_TIMEOUT,
+    )
+  }
+  saveTicketState(card.idShort, { chatSessionId: output.session_id })
+  await addComment(card.id, truncate(`🤖 ${output.result}`))
+}
+
+const processDiscussions = async (lists: ResolvedLists, me: TrelloMember) => {
+  if (!lists.refine) {
+    return
+  }
+  const cards = await getCards(lists.refine.id)
+  for (const card of cards) {
+    try {
+      await processDiscussion(card, me)
+    } catch (error) {
+      console.error(`Cadrage du ticket #${card.idShort} :`, error)
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Développement (« Ready IA ») : plan, implémentation, PR
+// ---------------------------------------------------------------------------
+
+const processCard = async (card: TrelloCard, lists: ResolvedLists, me: TrelloMember) => {
   const { branch, worktree } = ticketPaths(card)
   const state = readState()[card.idShort]
 
@@ -229,7 +473,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     .then(() => true)
     .catch(() => false)
 
-  if (branchOnOrigin && !state) {
+  if (branchOnOrigin && !state?.sessionId) {
     throw new Error(`la branche ${branch} existe déjà sur origin (créée hors automatisation)`)
   }
 
@@ -245,9 +489,13 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   console.log("  yarn install…")
   await run("yarn", ["install"], worktree)
 
-  // 2. Plan puis implémentation par Claude, dans la session du ticket
+  // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
+  const context = await loadTicketContext(card, worktree)
+  const ticketBlock = ticketContextBlock(context, me)
+
+  // 3. Plan puis implémentation par Claude, dans la session du ticket
   let lastOutput: ClaudeOutput
-  if (state) {
+  if (state?.sessionId) {
     console.log(`  Reprise de la session existante ${state.sessionId}…`)
     try {
       lastOutput = await runClaude(
@@ -255,7 +503,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
           "-p",
           "--resume",
           state.sessionId,
-          retryPrompt(card),
+          retryPrompt(card, ticketBlock),
           "--output-format",
           "json",
           "--permission-mode",
@@ -268,7 +516,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     } catch (error) {
       console.error("  Reprise impossible, nouvelle session :", error)
       lastOutput = await runClaude(
-        ["-p", planPrompt(card), "--output-format", "json", "--permission-mode", "acceptEdits"],
+        ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits"],
         worktree,
       )
       saveTicketState(card.idShort, { sessionId: lastOutput.session_id, branch, status: "plan" })
@@ -292,17 +540,9 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     saveTicketState(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
   } else {
     console.log("  Génération du plan…")
-    const plan = await runClaude(
-      [
-        "-p",
-        planPrompt(card),
-        "--session-id",
-        uuidForTicket(card.idShort),
-        "--output-format",
-        "json",
-        "--permission-mode",
-        "acceptEdits",
-      ],
+    const plan = await runClaudeNewSession(
+      ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits"],
+      uuidForTicket(card.idShort),
       worktree,
     )
     saveTicketState(card.idShort, { sessionId: plan.session_id, branch, status: "plan" })
@@ -328,7 +568,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     saveTicketState(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
   }
 
-  // 3. Garde-fou typage puis commit + push par l'orchestrateur
+  // 4. Garde-fou typage puis commit + push par l'orchestrateur
   console.log("  Vérification tsc…")
   await run("yarn", ["tsc", "--skipLibCheck", "--noEmit"], worktree)
 
@@ -336,6 +576,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   if (existsSync(planFile)) {
     unlinkSync(planFile)
   }
+  rmSync(path.join(worktree, TICKET_DIR), { recursive: true, force: true }) // pièces jointes jamais commitées
   const changes = await run("git", ["status", "--porcelain"], worktree)
   if (!changes) {
     throw new Error("aucun changement produit par l'implémentation")
@@ -345,7 +586,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   await run("git", ["push", "-u", "origin", branch], worktree)
   console.log("  Changements commités et poussés")
 
-  // 4. Pull request vers la branche de base
+  // 5. Pull request vers la branche de base
   const bodyFile = path.join(tmpdir(), `ia-pr-${card.idShort}.md`)
   writeFileSync(
     bodyFile,
@@ -373,9 +614,8 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview",
   )
 
-  // 5. Rapport sur la carte et nettoyage
-  const doneState = readState()[card.idShort]
-  saveTicketState(card.idShort, { ...doneState, status: "done", prUrl })
+  // 6. Rapport sur la carte et nettoyage
+  saveTicketState(card.idShort, { status: "done", prUrl })
   await addComment(
     card.id,
     `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl, "⏳ Preview en cours de déploiement")}`,
@@ -385,20 +625,32 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   notifyWhenPreviewIsLive(card, prUrl).catch(console.error) // en tâche de fond, sans bloquer la boucle
 }
 
+// ---------------------------------------------------------------------------
+// Boucle principale
+// ---------------------------------------------------------------------------
+
 const resolveLists = async (): Promise<ResolvedLists> => {
   const lists = await getLists(process.env.TRELLO_BOARD_ID as string)
-  const find = (envName: string, fallback: string) => {
+  const findByName = (envName: string, fallback: string) => {
     const name = process.env[envName] || fallback
-    const list = lists.find(({ name: listName }) => listName.toLowerCase() === name.toLowerCase())
+    return { name, list: lists.find(({ name: listName }) => listName.toLowerCase() === name.toLowerCase()) }
+  }
+  const mustFind = (envName: string, fallback: string) => {
+    const { name, list } = findByName(envName, fallback)
     if (!list) {
       throw new Error(`Liste Trello « ${name} » introuvable sur le board`)
     }
     return list
   }
+  const { name: refineName, list: refine } = findByName("TRELLO_LIST_REFINE", "Atelier IA")
+  if (!refine) {
+    console.log(`Liste « ${refineName} » absente du board : cadrage IA désactivé`)
+  }
   return {
-    ready: find("TRELLO_LIST_READY", "Ready IA"),
-    wip: find("TRELLO_LIST_WIP", "IA en cours"),
-    done: find("TRELLO_LIST_DONE", "IA terminé"),
+    ready: mustFind("TRELLO_LIST_READY", "Ready IA"),
+    wip: mustFind("TRELLO_LIST_WIP", "IA en cours"),
+    done: mustFind("TRELLO_LIST_DONE", "IA terminé"),
+    refine,
   }
 }
 
@@ -408,10 +660,15 @@ const handler = async () => {
       throw new Error(`Variable d'environnement manquante : ${name}`)
     }
   }
+  const me = await getMe()
   const lists = await resolveLists()
   mkdirSync(WORKTREES_DIR, { recursive: true })
   const pollMs = Number(process.env.TRELLO_POLL_MINUTES || 3) * 60 * 1000
+  console.log(`Connecté à Trello : ${me.fullName || me.username}`)
   console.log(`Surveillance de la liste « ${lists.ready.name} » (toutes les ${pollMs / 60000} min)`)
+  if (lists.refine) {
+    console.log(`Cadrage actif sur la liste « ${lists.refine.name} »`)
+  }
   console.log(
     process.env.ANTHROPIC_MODEL
       ? `Modèle Claude forcé : ${process.env.ANTHROPIC_MODEL}`
@@ -419,18 +676,23 @@ const handler = async () => {
   )
 
   while (true) {
+    // 1. cadrage : répondre aux cartes de l'Atelier (léger, en premier pour rester réactif)
+    try {
+      await processDiscussions(lists, me)
+    } catch (error) {
+      console.error("Erreur de cadrage :", error)
+    }
+
+    // 2. développement : traiter une carte Ready
     try {
       const cards = await getCards(lists.ready.id)
       if (cards.length > 0) {
         const card = cards[0] // un seul ticket à la fois
         try {
-          await processCard(card, lists)
+          await processCard(card, lists, me)
         } catch (error) {
           console.error(error)
-          const state = readState()[card.idShort]
-          if (state) {
-            saveTicketState(card.idShort, { ...state, status: "failed" })
-          }
+          saveTicketState(card.idShort, { status: "failed" })
           const message = error instanceof Error ? error.message : String(error)
           // la carte reste dans la liste WIP : un humain décide de la remettre en Ready ou non
           await addComment(card.id, truncate(`⚠️ Automatisation IA échouée : ${message}`)).catch(console.error)

@@ -41,6 +41,7 @@ yarn-error.log*
 # automatisation trello + ia
 .ia-sessions.json
 .ia-plan.md
+.ia-ticket/
 
 # typescript cache
 *.tsbuildinfoz
