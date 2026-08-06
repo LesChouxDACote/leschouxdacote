@@ -93,7 +93,7 @@ const HomePage = () => {
   return (
     <Layout bgImage>
       <Logo />
-      <Title>Vente directe : Le circuit plus court des produits alimentaires</Title>
+      <Title>Bienvenue TOT ceci est un test IA</Title>
       <a href="https://info.leschouxdacote.fr/" target="_blank" rel="noreferrer">
         <Introduction>
           <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
