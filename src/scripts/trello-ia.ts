@@ -16,7 +16,6 @@ import {
   TrelloCardDetails,
   TrelloComment,
   TrelloList,
-  TrelloMember,
 } from "src/helpers-api/trello"
 
 const REPO_ROOT = process.cwd()
@@ -182,6 +181,8 @@ const runClaudeNewSession = async (args: string[], sessionId: string, cwd: strin
 // ---------------------------------------------------------------------------
 
 const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐)/ // commentaires de statut de l'automatisation, exclus des prompts
+// détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
+const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐)/
 
 const fetchAttachments = async (details: TrelloCardDetails, dir: string) => {
   const ticketDir = path.join(dir, TICKET_DIR, String(details.idShort))
@@ -215,15 +216,15 @@ const loadTicketContext = async (card: TrelloCard, dir: string): Promise<TicketC
   return { details, comments, attachmentPaths }
 }
 
-const formatDiscussion = (comments: TrelloComment[], me: TrelloMember) => {
+const formatDiscussion = (comments: TrelloComment[]) => {
   const lines = comments
     .filter((comment) => !STATUS_COMMENT.test(comment.text))
-    .map((comment) => `[${comment.memberId === me.id ? "IA" : comment.memberName}] ${comment.text}`)
+    .map((comment) => `[${BOT_COMMENT.test(comment.text) ? "IA" : comment.memberName}] ${comment.text}`)
   const text = lines.join("\n---\n")
   return text.length > DISCUSSION_LIMIT ? `…${text.slice(-DISCUSSION_LIMIT)}` : text
 }
 
-const ticketContextBlock = (context: TicketContext, me: TrelloMember) => {
+const ticketContextBlock = (context: TicketContext) => {
   const { details, comments, attachmentPaths } = context
   const parts = [
     `Ticket Trello #${details.idShort} — ${details.name}`,
@@ -249,7 +250,7 @@ const ticketContextBlock = (context: TicketContext, me: TrelloMember) => {
       `\nPièces jointes du ticket, téléchargées localement (consulte-les) :\n${attachmentPaths.map((p) => `- ${p}`).join("\n")}`,
     )
   }
-  const discussion = formatDiscussion(comments, me)
+  const discussion = formatDiscussion(comments)
   if (discussion) {
     parts.push(`\nDiscussion sur le ticket (du plus ancien au plus récent) :\n${discussion}`)
   }
@@ -384,27 +385,31 @@ const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string) => {
 // Cadrage (« Atelier IA ») : discussion sur la carte, sans toucher au code
 // ---------------------------------------------------------------------------
 
-const processDiscussion = async (card: TrelloCard, me: TrelloMember) => {
+const processDiscussion = async (card: TrelloCard) => {
   const comments = await getComments(card.id)
   const lastComment = comments[comments.length - 1]
-  if (lastComment && lastComment.memberId === me.id) {
+  if (lastComment && BOT_COMMENT.test(lastComment.text)) {
+    console.log(`💬 #${card.idShort} « ${card.name} » : en attente d'une réponse du PO`)
     return // dernier mot au bot : on attend la réponse du PO
   }
 
-  console.log(`\n💬 Cadrage du ticket #${card.idShort} « ${card.name} »`)
+  console.log(
+    `\n💬 Cadrage du ticket #${card.idShort} « ${card.name} » (${comments.length} commentaire(s), dernier : ${lastComment ? lastComment.memberName : "aucun"})`,
+  )
   await refreshAtelierWorktree()
   const context = await loadTicketContext(card, ATELIER_WORKTREE)
   const state = readState()[card.idShort]
 
   let output: ClaudeOutput
   if (state?.chatSessionId) {
-    const lastBotIndex = lastIndexWhere(comments, (comment) => comment.memberId === me.id)
+    const lastBotIndex = lastIndexWhere(comments, (comment) => BOT_COMMENT.test(comment.text))
     const newMessages =
       comments
         .slice(lastBotIndex + 1)
         .filter((comment) => !STATUS_COMMENT.test(comment.text))
         .map((comment) => `[${comment.memberName}] ${comment.text}`)
         .join("\n---\n") || "(carte relancée sans nouveau message)"
+    console.log(`  Reprise de la session de cadrage ${state.chatSessionId}…`)
     try {
       output = await runClaude(
         ["-p", "--resume", state.chatSessionId, replyPrompt(newMessages), ...CHAT_ARGS],
@@ -414,14 +419,15 @@ const processDiscussion = async (card: TrelloCard, me: TrelloMember) => {
     } catch (error) {
       console.error("  Reprise du cadrage impossible, nouvelle session :", error)
       output = await runClaude(
-        ["-p", initialAnalysisPrompt(ticketContextBlock(context, me)), ...CHAT_ARGS],
+        ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS],
         ATELIER_WORKTREE,
         CHAT_TIMEOUT,
       )
     }
   } else {
+    console.log("  Analyse initiale du besoin…")
     output = await runClaudeNewSession(
-      ["-p", initialAnalysisPrompt(ticketContextBlock(context, me)), ...CHAT_ARGS],
+      ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS],
       uuidForTicket(card.idShort, "chat"),
       ATELIER_WORKTREE,
       CHAT_TIMEOUT,
@@ -431,14 +437,17 @@ const processDiscussion = async (card: TrelloCard, me: TrelloMember) => {
   await addComment(card.id, truncate(`🤖 ${output.result}`))
 }
 
-const processDiscussions = async (lists: ResolvedLists, me: TrelloMember) => {
+const processDiscussions = async (lists: ResolvedLists) => {
   if (!lists.refine) {
     return
   }
   const cards = await getCards(lists.refine.id)
+  if (cards.length > 0) {
+    console.log(`\nAtelier : ${cards.length} carte(s) dans « ${lists.refine.name} »`)
+  }
   for (const card of cards) {
     try {
-      await processDiscussion(card, me)
+      await processDiscussion(card)
     } catch (error) {
       console.error(`Cadrage du ticket #${card.idShort} :`, error)
     }
@@ -449,7 +458,7 @@ const processDiscussions = async (lists: ResolvedLists, me: TrelloMember) => {
 // Développement (« Ready IA ») : plan, implémentation, PR
 // ---------------------------------------------------------------------------
 
-const processCard = async (card: TrelloCard, lists: ResolvedLists, me: TrelloMember) => {
+const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   const { branch, worktree } = ticketPaths(card)
   const state = readState()[card.idShort]
 
@@ -491,7 +500,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists, me: TrelloMem
 
   // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
   const context = await loadTicketContext(card, worktree)
-  const ticketBlock = ticketContextBlock(context, me)
+  const ticketBlock = ticketContextBlock(context)
 
   // 3. Plan puis implémentation par Claude, dans la session du ticket
   let lastOutput: ClaudeOutput
@@ -704,7 +713,7 @@ const handler = async () => {
   while (true) {
     // 1. cadrage : répondre aux cartes de l'Atelier (léger, en premier pour rester réactif)
     try {
-      await processDiscussions(lists, me)
+      await processDiscussions(lists)
     } catch (error) {
       console.error("Erreur de cadrage :", error)
     }
@@ -715,7 +724,7 @@ const handler = async () => {
       if (cards.length > 0) {
         const card = cards[0] // un seul ticket à la fois
         try {
-          await processCard(card, lists, me)
+          await processCard(card, lists)
         } catch (error) {
           console.error(error)
           saveTicketState(card.idShort, { status: "failed" })
