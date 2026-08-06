@@ -568,7 +568,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists, me: TrelloMem
     saveTicketState(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
   }
 
-  // 4. Garde-fou typage puis commit + push par l'orchestrateur
+  // 4. Garde-fous typage + formatage puis commit + push par l'orchestrateur
   console.log("  Vérification tsc…")
   await run("yarn", ["tsc", "--skipLibCheck", "--noEmit"], worktree)
 
@@ -577,6 +577,32 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists, me: TrelloMem
     unlinkSync(planFile)
   }
   rmSync(path.join(worktree, TICKET_DIR), { recursive: true, force: true }) // pièces jointes jamais commitées
+
+  // le build Next échoue sur la règle prettier/prettier : on formate tout ce que le ticket a touché,
+  // y compris les commits déjà poussés lors d'une tentative précédente (retry)
+  const committedFiles = await run("git", ["diff", "--name-only", `origin/${BASE_BRANCH}...HEAD`], worktree)
+  const statusLines = await run("git", ["status", "--porcelain"], worktree)
+  const pendingFiles = statusLines
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => {
+      const raw = line.slice(3)
+      return (raw.includes(" -> ") ? raw.split(" -> ")[1] : raw).replace(/^"|"$/g, "")
+    })
+  const touchedFiles = Array.from(new Set([...committedFiles.split("\n").filter(Boolean), ...pendingFiles])).filter(
+    (file) => existsSync(path.join(worktree, file)),
+  )
+  const prettierFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx|json|css|scss|md)$/.test(file))
+  if (prettierFiles.length > 0) {
+    console.log("  Formatage Prettier…")
+    await run("yarn", ["prettier", "--write", ...prettierFiles], worktree)
+  }
+  const lintFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx)$/.test(file))
+  if (lintFiles.length > 0) {
+    console.log("  ESLint --fix…")
+    await run("yarn", ["eslint", "--fix", ...lintFiles], worktree)
+  }
+
   const changes = await run("git", ["status", "--porcelain"], worktree)
   if (!changes) {
     throw new Error("aucun changement produit par l'implémentation")
