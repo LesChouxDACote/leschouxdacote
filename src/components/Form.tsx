@@ -40,8 +40,10 @@ const Required = styled.p`
   margin: -1em 0 1em;
 `
 
-interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>>
-  extends Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> {
+interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>> extends Omit<
+  FormHTMLAttributes<HTMLFormElement>,
+  "onSubmit"
+> {
   title?: string
   hasRequired?: boolean
   onSubmit: Submit<A>

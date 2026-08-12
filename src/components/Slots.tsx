@@ -4,8 +4,8 @@ import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
-import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 import Modal from "src/components/Modal"
+import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 
 interface SlotsFormProps {
   slots: readonly Slot[]
