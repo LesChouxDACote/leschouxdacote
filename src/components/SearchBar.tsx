@@ -103,8 +103,8 @@ const SearchBar = ({ className }: Props) => {
     setQuery(router.query)
   }, [router.query])
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
-  const input = useRef<HTMLInputElement>()
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const input = useRef<HTMLInputElement | null>(null)
 
   const handleRef = (el: HTMLInputElement | null) => {
     loadGmaps().then(() => {

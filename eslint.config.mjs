@@ -1,3 +1,4 @@
+import nextPlugin from "@next/eslint-plugin-next"
 import tsParser from "@typescript-eslint/parser"
 import tseslint from "@typescript-eslint/eslint-plugin"
 import react from "eslint-plugin-react"
@@ -42,6 +43,15 @@ export default [
       "prettier/prettier": "error",
     },
     settings: { react: { version: "detect" } },
+  },
+  nextPlugin.configs["core-web-vitals"],
+  {
+    // règles next ignorées : photos Firebase Storage en <img> (pas d'optimiseur configuré)
+    // et polices Google via <link> dans _app (pas de next/font)
+    rules: {
+      "@next/next/no-img-element": "off",
+      "@next/next/no-page-custom-font": "off",
+    },
   },
   eslintConfigPrettier,
 ]

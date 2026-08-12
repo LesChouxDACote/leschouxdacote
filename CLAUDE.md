@@ -47,3 +47,13 @@ Petites annonces alimentaires (producteurs locaux). Next.js 12 (pages router), T
 - `BUILD_CPUS` sert uniquement à limiter la RAM du build sur Coolify (dev) ; ne pas le rendre obligatoire ni le documenter comme requis en prod/Vercel.
 - Secrets et clés (Firebase, Algolia, Mapbox, INSEE, Bugsnag) sont gérés via `.env` / Vaultwarden / GitHub Secrets — voir `README.md`, jamais à committer ni à documenter en clair ici.
 - Avant de valider une modif TypeScript, lancer `yarn tsc --skipLibCheck --noEmit` (comme le fait `lint-staged` sur les fichiers `.ts(x)` en pre-commit).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -136,7 +136,7 @@ const EditProductPage = () => {
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
   const handleRef = (el: HTMLInputElement | null) => {
     if (!el || autocomplete.current) {
       return

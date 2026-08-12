@@ -95,7 +95,7 @@ interface Place {
 
 const Mapbox = ({ products }: MapProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<Map>()
+  const mapRef = useRef<Map | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState(false)
   const [placePopup, setPlacePopup] = useState<Place>()
