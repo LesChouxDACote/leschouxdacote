@@ -7,8 +7,10 @@ const client = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID as string, p
 // algoliasearch v5 a retiré initIndex() : on émule l'API index de la v4
 const initIndex = (indexName: string): SearchIndex => ({
   async search<T>(query: string, options?: Record<string, any>) {
+    // les options de recherche s'étalent à la racine de la requête : `params` est réservé
+    // à la variante query string URL-encodée (SearchParamsString)
     const { results } = await client.search<T>({
-      requests: [{ indexName, query, params: options as any }],
+      requests: [{ indexName, query, ...options }],
     })
     return { hits: (results[0] as SearchResponse<T> | undefined)?.hits ?? [] }
   },

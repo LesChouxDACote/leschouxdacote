@@ -1,10 +1,10 @@
 # Les Choux d'à Côté
 
-Petites annonces alimentaires (producteurs locaux). Next.js 12 (pages router), TypeScript, déployé sur Vercel/Coolify.
+Petites annonces alimentaires (producteurs locaux). Next.js 16 (pages router), TypeScript, déployé sur Vercel/Coolify.
 
 ## Stack
 
-- Next.js 12 (`src/pages`, pas d'App Router) + React + TypeScript (`strict: true`, target es5).
+- Next.js 16 (`src/pages`, pas d'App Router) + React 19 + TypeScript (`strict: true`, target es2020).
 - Style : Emotion (`@emotion/styled`), constantes partagées dans `src/constants`.
 - Formulaires : `react-hook-form` + `yup` (schémas dans `src/helpers/yup.ts`).
 - Données/validation runtime : `effect` (`Schema`) pour les modèles (ex. `src/models/Product.ts`).
@@ -23,7 +23,7 @@ Petites annonces alimentaires (producteurs locaux). Next.js 12 (pages router), T
 ## Style de code
 
 - Pas de point-virgule (`semi: false`), `printWidth: 120` (Prettier).
-- ESLint : `plugin:react/recommended`, `plugin:@typescript-eslint/recommended` sur `.ts(x)`, `react-hooks/rules-of-hooks` en erreur.
+- ESLint 9 en config flat (`eslint.config.mjs`) : `react/recommended`, `typescript-eslint/recommended` sur `.ts(x)`, `next/core-web-vitals`, `react-hooks/rules-of-hooks` en erreur.
 - `@typescript-eslint/no-explicit-any` désactivé : `any` toléré si justifié, mais préférer un typage précis quand c'est simple.
 
 ## Structure `src/`
@@ -42,7 +42,10 @@ Petites annonces alimentaires (producteurs locaux). Next.js 12 (pages router), T
 
 ## Points de vigilance
 
-- Le projet cible **Next.js 12** : pas de fonctionnalités App Router, pas de Server Components.
+- Le projet reste sur le **pages router** (`src/pages`) même en Next.js 16 : pas de fonctionnalités App Router, pas de Server Components.
+- Firebase est utilisé en **SDK modulaire** (`firebase/*` côté client, `firebase-admin/*` côté serveur) ; les alias de types globaux sont dans `src/types/firebase.d.ts`.
+- `src/helpers/algolia.ts` et `src/helpers-api/algolia.ts` exposent une couche `initIndex` qui émule l'API index de algoliasearch v4 sur le client v5 : les options de recherche s'étalent à la racine de la requête (`params` est réservé à la variante query string).
+- formidable v3 renvoie **des tableaux** pour les champs comme pour les fichiers ; `getFormData` reprend la forme scalaire des champs, les fichiers restent indexés (`files.photo[0]`).
 - Les schémas `effect/Schema` (ex. `ProductSchema`) sont la source de vérité pour la forme des données Firestore/Algolia ; les faire évoluer avec prudence (champs "fan-out" dénormalisés comme `producer`).
 - `BUILD_CPUS` sert uniquement à limiter la RAM du build sur Coolify (dev) ; ne pas le rendre obligatoire ni le documenter comme requis en prod/Vercel.
 - Secrets et clés (Firebase, Algolia, Mapbox, INSEE, Bugsnag) sont gérés via `.env` / Vaultwarden / GitHub Secrets — voir `README.md`, jamais à committer ni à documenter en clair ici.

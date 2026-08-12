@@ -18,8 +18,10 @@ export interface SearchIndex {
 
 const initIndex = (indexName: string): SearchIndex => ({
   async search<T>(query: string, options?: Record<string, any>) {
+    // les options de recherche s'étalent à la racine de la requête : `params` est réservé
+    // à la variante query string URL-encodée (SearchParamsString)
     const { results } = await client.search<T>({
-      requests: [{ indexName, query, params: options as any }],
+      requests: [{ indexName, query, ...options }],
     })
     return { hits: (results[0] as SearchResponse<T> | undefined)?.hits ?? [] }
   },
