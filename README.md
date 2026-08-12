@@ -5,8 +5,8 @@ Classified food ads.
 
 ## Requirements
 
-- [Node](https://nodejs.org/) v10.13+
-- [Yarn](https://yarnpkg.com/)
+- [Node](https://nodejs.org/) v22+
+- [Yarn](https://yarnpkg.com/) 4 (via `corepack enable`, version épinglée par `packageManager`)
 
 ## Config
 

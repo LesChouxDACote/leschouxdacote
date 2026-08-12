@@ -1,11 +1,14 @@
-import * as admin from "firebase-admin"
+import { cert, getApps, initializeApp } from "firebase-admin"
+import { getAuth } from "firebase-admin/auth"
+import { FieldValue, GeoPoint, Timestamp, getFirestore, type DocumentSnapshot } from "firebase-admin/firestore"
+import { getStorage } from "firebase-admin/storage"
 import type { NextApiRequest } from "next"
 import type { Geoloc } from "src/types/model"
 
-const app = admin.apps.length
-  ? admin.app()
-  : admin.initializeApp({
-      credential: admin.credential.cert({
+const app = getApps().length
+  ? getApps()[0]
+  : initializeApp({
+      credential: cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT,
         clientEmail: process.env.FIREBASE_EMAIL,
         privateKey: `-----BEGIN PRIVATE KEY-----\n${process.env.FIREBASE_PRIVATE_KEY}\n-----END PRIVATE KEY-----\n`,
@@ -13,13 +16,12 @@ const app = admin.apps.length
       storageBucket: `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT}.appspot.com`,
     })
 
-export const auth = app.auth()
-export const firestore = app.firestore()
-export const storage = app.storage()
-export const GeoPoint = admin.firestore.GeoPoint
-export const FieldValue = admin.firestore.FieldValue
+export const auth = getAuth(app)
+export const firestore = getFirestore(app)
+export const storage = getStorage(app)
+export { FieldValue, GeoPoint }
 
-export const getObject = <T extends DataObject = DataObject>(doc: admin.firestore.DocumentSnapshot) => {
+export const getObject = <T extends DataObject = DataObject>(doc: DocumentSnapshot) => {
   if (!doc.exists) {
     return null
   }
@@ -29,9 +31,9 @@ export const getObject = <T extends DataObject = DataObject>(doc: admin.firestor
   }
   for (const key in data) {
     const value = data[key]
-    if (value instanceof admin.firestore.GeoPoint) {
+    if (value instanceof GeoPoint) {
       obj[key] = { lat: value.latitude, lng: value.longitude } as Geoloc
-    } else if (value instanceof admin.firestore.Timestamp) {
+    } else if (value instanceof Timestamp) {
       obj[key] = value.toMillis()
     } else {
       obj[key] = value
