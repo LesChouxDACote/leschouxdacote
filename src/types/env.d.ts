@@ -8,8 +8,6 @@ declare module "standard-http-error/codes" {
   export = value
 }
 
-declare module "@mapbox/mapbox-gl-language"
-
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/platform
 interface NavigatorUAData {
   brands: string[]

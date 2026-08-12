@@ -163,6 +163,10 @@ const EditProductPage = () => {
         }
 
         const { location } = res.geometry
+        if (!location) {
+          setPlace(null)
+          return
+        }
         setPlace({
           id: res.place_id,
           lat: location.lat(),

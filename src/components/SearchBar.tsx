@@ -128,13 +128,15 @@ const SearchBar = ({ className }: Props) => {
         const { location } = place.geometry
         const type = getType(place.types)
         const zoom = ZOOM[type]
-        setQuery((previous) => ({
-          what: previous.what,
-          where: place.name,
-          type,
-          ll: `${location.lat()},${location.lng()}`,
-          z: String(zoom),
-        }))
+        if (location) {
+          setQuery((previous) => ({
+            what: previous.what,
+            where: place.name,
+            type,
+            ll: `${location.lat()},${location.lng()}`,
+            z: String(zoom),
+          }))
+        }
       })
     })
   }

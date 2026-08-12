@@ -1,7 +1,8 @@
-import { File, IncomingForm } from "formidable"
+import { IncomingForm, type File } from "formidable"
 import type { NextApiRequest } from "next"
 
-type SingleFiles = Record<string, File>
+// formidable v3 : les fichiers sont des tableaux par champ
+type SingleFiles = Record<string, File[]>
 
 export const getFormData = <T = any>(req: NextApiRequest): Promise<[T, SingleFiles]> =>
   new Promise((resolve, reject) => {
@@ -10,6 +11,6 @@ export const getFormData = <T = any>(req: NextApiRequest): Promise<[T, SingleFil
       if (err) {
         return reject(err)
       }
-      resolve([fields as unknown as T, files as SingleFiles])
+      resolve([fields as unknown as T, files as unknown as SingleFiles])
     })
   })
