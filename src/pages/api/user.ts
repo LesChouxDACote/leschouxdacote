@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import fetch from "node-fetch"
 import { CONTACT_EMAIL, USER_ROLE } from "src/constants"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"

@@ -9,7 +9,7 @@ import {
   TextareaHTMLAttributes,
   useEffect,
 } from "react"
-import { DefaultValues, FieldValues, FormProvider, UnpackNestedValue, useForm, useFormContext } from "react-hook-form"
+import { DeepPartial, DefaultValues, FieldValues, FormProvider, useForm, useFormContext } from "react-hook-form"
 import { Button } from "src/components/Button"
 import { COLORS, LAYOUT } from "src/constants"
 import { handleError } from "src/helpers/errors"
@@ -40,7 +40,7 @@ const Required = styled.p`
   margin: -1em 0 1em;
 `
 
-interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>> extends Omit<
+interface FormProps<A extends FieldValues, T extends DeepPartial<A>> extends Omit<
   FormHTMLAttributes<HTMLFormElement>,
   "onSubmit"
 > {
@@ -51,7 +51,7 @@ interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>> exten
   resetOnChange?: any
 }
 
-export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
+export function Form<A extends FieldValues, T extends DeepPartial<A>>({
   title,
   hasRequired,
   onSubmit,

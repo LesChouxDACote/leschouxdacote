@@ -10,9 +10,6 @@ declare module "standard-http-error/codes" {
 
 declare module "@mapbox/mapbox-gl-language"
 
-// tmp fix // https://github.com/react-hook-form/resolvers/issues/271
-declare module "@hookform/resolvers/yup/dist/yup.umd"
-
 // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/platform
 interface NavigatorUAData {
   brands: string[]
