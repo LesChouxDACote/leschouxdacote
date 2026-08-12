@@ -63,7 +63,7 @@
     "firebase-admin": "^14.2.0",
     "formidable": "^2.1.2",
     "mapbox-gl": "^2.15.0",
-    "next": "^14.2.35",
+    "next": "^15.5.23",
     "next-sitemap": "^4.2.3",
     "node-mailjet": "^3.4.1",
     "nprogress": "^0.2.0",
