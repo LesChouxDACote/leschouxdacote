@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { ChangeEvent, FocusEvent, KeyboardEvent, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import CustomSwitch from "src/components/CustomSwitch"
-import { Label } from "src/components/Form"
+import { ErrorMessage, Label } from "src/components/Form"
 import { COLORS } from "src/constants"
 import { tagsIndex } from "src/helpers/algolia"
 
@@ -46,11 +46,12 @@ interface Props {
 }
 
 const TagsInput = ({ label }: Props) => {
-  const { register, getValues, setValue, watch } = useFormContext()
+  const { register, getValues, setValue, watch, formState } = useFormContext()
   const inputRef = useRef<HTMLInputElement>(null)
   const [suggestions, setSuggestions] = useState<AlgoliaTag[]>([])
   register("_tags")
   const values: string[] = watch("_tags") || []
+  const error = formState.errors["_tags"]
 
   const add = (value: string) => {
     setValue("_tags", [...values, value])
@@ -103,8 +104,8 @@ const TagsInput = ({ label }: Props) => {
   }
 
   return (
-    <Label htmlFor={"_tags"}>
-      <div>{label}</div>
+    <Label htmlFor={"_tags"} $error={Boolean(error)}>
+      <div>{label} *</div>
       <label>
         <CustomSwitch name="bio" defaultChecked={getValues("bio")} /> Bio ou agriculture raisonnée
       </label>
@@ -137,6 +138,7 @@ const TagsInput = ({ label }: Props) => {
           ))}
         </Suggestions>
       )}
+      {error && <ErrorMessage>{error.message?.toString()}</ErrorMessage>}
     </Label>
   )
 }

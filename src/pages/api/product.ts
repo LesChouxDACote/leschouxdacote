@@ -37,6 +37,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
         address: "Vous devez sélectionner une adresse suggérée par Google dans la liste déroulante",
       })
     }
+    if (!fields._tags) {
+      return respond(res, {
+        _tags: "Veuillez renseigner au moins un mot-clé.",
+      })
+    }
     if (!fields.email && !fields.phone) {
       return respond(res, {
         email: "Vous devez au moins spécifier une adresse e-mail ou un numéro de téléphone",
