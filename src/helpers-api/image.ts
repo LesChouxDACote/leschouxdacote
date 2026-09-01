@@ -39,6 +39,7 @@ export const resize = async (source: string) => {
   const destination = source + "-resized.jpg"
 
   await image
+    .rotate()
     .resize({ width: WIDTH, withoutEnlargement: true })
     .toFormat("jpeg", { quality: QUALITY })
     .toFile(destination)
