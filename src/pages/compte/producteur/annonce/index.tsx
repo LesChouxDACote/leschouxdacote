@@ -108,6 +108,10 @@ const EditProductPage = () => {
       throw new ValidationError("address", "Veuillez sélectionner l'adresse dans la liste déroulante")
     }
 
+    if (!payload.get("_tags")) {
+      throw new ValidationError("_tags", "Veuillez renseigner au moins un mot-clé.")
+    }
+
     if (payload.get("days") === "0") {
       const ok = confirm("Êtes-vous sûr·e de ne pas vouloir publier cette annonce ?\n(durée renseignée : 0 jours)")
       if (!ok) {
