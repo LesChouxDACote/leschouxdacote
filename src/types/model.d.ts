@@ -40,17 +40,15 @@ interface BaseUser extends Identified {
   email: string
   followedProducers: Record<string, FollowedProducer>
   role: USER_ROLE
+  isAdmin?: boolean
 }
 interface Buyer extends BaseUser {
   role: USER_ROLE.BUYER
 }
 
-interface Admin extends BaseUser {
-  role: USER_ROLE.ADMIN
-}
 interface Producer extends BaseUser {
   role: USER_ROLE.PRODUCER
-  siret: string
+  siret?: string
   name: string // company name
   address: string
   description: string
@@ -58,9 +56,10 @@ interface Producer extends BaseUser {
   followers?: Record<string, Follower>
   alertsExpired?: boolean
 }
-type User = Buyer | Producer | Admin
+type User = Buyer | Producer
 
-interface RegisteringUser extends Registering<Producer> {
+interface RegisteringUser extends Omit<Registering<Producer>, "siret"> {
+  siret: string
   created: Date
   password: string
   nocheck?: boolean

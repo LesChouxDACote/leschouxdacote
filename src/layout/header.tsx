@@ -117,11 +117,6 @@ const Header = () => {
             Créer une annonce
           </Cta>
         )}
-        {user?.role === USER_ROLE.ADMIN && (
-          <Cta href="/csv-export" $variant="red">
-            Export des CSVs
-          </Cta>
-        )}
 
         <UserZone />
       </Desktop>
