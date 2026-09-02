@@ -1,8 +1,8 @@
 import styled from "@emotion/styled"
-import { ChangeEvent, FocusEvent, KeyboardEvent, useRef, useState } from "react"
+import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import CustomSwitch from "src/components/CustomSwitch"
-import { ErrorMessage, Label } from "src/components/Form"
+import { Label } from "src/components/Form"
 import { COLORS } from "src/constants"
 import { tagsIndex } from "src/helpers/algolia"
 
@@ -47,14 +47,20 @@ interface Props {
 }
 
 const TagsInput = ({ label, required }: Props) => {
-  const { register, getValues, setValue, watch, formState } = useFormContext()
+  const { register, getValues, setValue, watch } = useFormContext()
   const inputRef = useRef<HTMLInputElement>(null)
   const [suggestions, setSuggestions] = useState<AlgoliaTag[]>([])
-  register("_tags", {
-    validate: (value: string[]) => (value && value.length > 0) || "Veuillez renseigner au moins un mot-clé.",
-  })
-  const error = formState.errors["_tags"]
+  register("_tags")
   const values: string[] = watch("_tags") || []
+
+  // Validation HTML native (info-bulle du navigateur) homogène avec les autres champs obligatoires.
+  // La valeur réelle est portée par un input caché (exclu de la validation native) : on porte donc
+  // la contrainte sur le champ de saisie visible tant qu'aucun mot-clé n'a été ajouté (Enter/clic).
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(
+      required && values.length === 0 ? "Veuillez renseigner au moins un mot-clé." : "",
+    )
+  }, [required, values.length])
 
   const add = (value: string) => {
     setValue("_tags", [...values, value])
@@ -107,7 +113,7 @@ const TagsInput = ({ label, required }: Props) => {
   }
 
   return (
-    <Label htmlFor={"_tags"} $error={Boolean(error)}>
+    <Label htmlFor={"_tags"}>
       <div>
         {label} {required && "*"}
       </div>
@@ -143,7 +149,6 @@ const TagsInput = ({ label, required }: Props) => {
           ))}
         </Suggestions>
       )}
-      {error && <ErrorMessage>{error.message?.toString()}</ErrorMessage>}
     </Label>
   )
 }
