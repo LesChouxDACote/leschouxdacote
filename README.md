@@ -99,6 +99,10 @@ de cadrage — puis commit + push, ouverture d'une PR vers `develop`, commentair
 La branche de base est configurable via `IA_BASE_BRANCH` ; si `PREVIEW_URL_TEMPLATE` est définie
 (ex. `https://{{pr_id}}.choux.ilieff.fr`), le lien du preview Coolify est ajouté au commentaire ✅ de la carte,
 puis un commentaire 🌐 est posté dès que le preview répond réellement (ping toutes les 30 s, 15 min max).
+
+**Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet`, `haiku` ou `fable` sur la carte
+impose le modèle Claude pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte
+n'importe quel identifiant (ex. `model:claude-opus-4-6`). Priorité : étiquette > `ANTHROPIC_MODEL` > défaut du compte.
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :

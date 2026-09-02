@@ -184,6 +184,26 @@ const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐)/ // commentaires de statu
 // détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
 const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐)/
 
+// étiquette Trello → modèle Claude du ticket (prime sur ANTHROPIC_MODEL, cf. --model du CLI)
+const MODEL_LABELS: Record<string, string> = {
+  opus: "opus",
+  sonnet: "sonnet",
+  haiku: "haiku",
+  fable: "claude-fable-5", // pas d'alias CLI, et nécessite un compte y ayant accès
+}
+
+const modelArgsFor = (details: TrelloCardDetails) => {
+  for (const label of details.labels) {
+    const name = (label.name || "").trim().toLowerCase()
+    const model = MODEL_LABELS[name] || (name.startsWith("model:") ? name.slice("model:".length).trim() : undefined)
+    if (model) {
+      console.log(`  Modèle demandé par étiquette : ${model}`)
+      return ["--model", model]
+    }
+  }
+  return []
+}
+
 const fetchAttachments = async (details: TrelloCardDetails, dir: string) => {
   const ticketDir = path.join(dir, TICKET_DIR, String(details.idShort))
   rmSync(ticketDir, { recursive: true, force: true })
@@ -398,6 +418,7 @@ const processDiscussion = async (card: TrelloCard) => {
   )
   await refreshAtelierWorktree()
   const context = await loadTicketContext(card, ATELIER_WORKTREE)
+  const modelArgs = modelArgsFor(context.details)
   const state = readState()[card.idShort]
 
   let output: ClaudeOutput
@@ -412,14 +433,14 @@ const processDiscussion = async (card: TrelloCard) => {
     console.log(`  Reprise de la session de cadrage ${state.chatSessionId}…`)
     try {
       output = await runClaude(
-        ["-p", "--resume", state.chatSessionId, replyPrompt(newMessages), ...CHAT_ARGS],
+        ["-p", "--resume", state.chatSessionId, replyPrompt(newMessages), ...CHAT_ARGS, ...modelArgs],
         ATELIER_WORKTREE,
         CHAT_TIMEOUT,
       )
     } catch (error) {
       console.error("  Reprise du cadrage impossible, nouvelle session :", error)
       output = await runClaude(
-        ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS],
+        ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS, ...modelArgs],
         ATELIER_WORKTREE,
         CHAT_TIMEOUT,
       )
@@ -427,7 +448,7 @@ const processDiscussion = async (card: TrelloCard) => {
   } else {
     console.log("  Analyse initiale du besoin…")
     output = await runClaudeNewSession(
-      ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS],
+      ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS, ...modelArgs],
       uuidForTicket(card.idShort, "chat"),
       ATELIER_WORKTREE,
       CHAT_TIMEOUT,
@@ -501,6 +522,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
   const context = await loadTicketContext(card, worktree)
   const ticketBlock = ticketContextBlock(context)
+  const modelArgs = modelArgsFor(context.details)
 
   // 3. Plan puis implémentation par Claude, dans la session du ticket
   let lastOutput: ClaudeOutput
@@ -517,6 +539,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
           "json",
           "--permission-mode",
           "acceptEdits",
+          ...modelArgs,
           "--allowedTools",
           ...ALLOWED_TOOLS,
         ],
@@ -525,7 +548,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     } catch (error) {
       console.error("  Reprise impossible, nouvelle session :", error)
       lastOutput = await runClaude(
-        ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits"],
+        ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits", ...modelArgs],
         worktree,
       )
       saveTicketState(card.idShort, { sessionId: lastOutput.session_id, branch, status: "plan" })
@@ -540,6 +563,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
           "json",
           "--permission-mode",
           "acceptEdits",
+          ...modelArgs,
           "--allowedTools",
           ...ALLOWED_TOOLS,
         ],
@@ -550,7 +574,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   } else {
     console.log("  Génération du plan…")
     const plan = await runClaudeNewSession(
-      ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits"],
+      ["-p", planPrompt(ticketBlock), "--output-format", "json", "--permission-mode", "acceptEdits", ...modelArgs],
       uuidForTicket(card.idShort),
       worktree,
     )
@@ -569,6 +593,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
         "json",
         "--permission-mode",
         "acceptEdits",
+        ...modelArgs,
         "--allowedTools",
         ...ALLOWED_TOOLS,
       ],

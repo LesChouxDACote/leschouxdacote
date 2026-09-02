@@ -44,6 +44,11 @@ Comment ça marche au quotidien :
 3. La carte passe en « IA en cours » pendant le travail, puis « IA terminé »
    avec les liens vers la modification proposée et le site de test.
 
+Astuce : tu peux choisir le « cerveau » utilisé pour une carte en lui posant
+une étiquette « opus » (le plus malin, par défaut), « sonnet » (plus rapide,
+pour les tickets simples) ou « fable » (le plus puissant, pour les tickets
+critiques). Sans étiquette, le réglage par défaut s'applique.
+
 
 3. LE JETON GITHUB (GH_TOKEN)
 -----------------------------
