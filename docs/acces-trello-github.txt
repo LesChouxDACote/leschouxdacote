@@ -43,6 +43,9 @@ Comment ça marche au quotidien :
    discussion de cadrage).
 3. La carte passe en « IA en cours » pendant le travail, puis « IA terminé »
    avec les liens vers la modification proposée et le site de test.
+4. Pas satisfait du résultat ? Écris en commentaire ce que tu veux changer,
+   puis remets la carte dans « Ready IA » : l'IA reprend son travail là où
+   elle l'avait laissé et met à jour la même proposition.
 
 Astuce : tu peux choisir le « cerveau » utilisé pour une carte en lui posant
 une étiquette « opus » (le plus malin, par défaut), « sonnet » (plus rapide,

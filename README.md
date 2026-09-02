@@ -96,6 +96,9 @@ nouveau message du PO. Quand le besoin est prêt, le PO déplace lui-même la ca
 génération d'un plan puis implémentation par Claude Code — avec tout le contexte du ticket, y compris la discussion
 de cadrage — puis commit + push, ouverture d'une PR vers `develop`, commentaires et déplacement de la carte
 (« IA en cours » → « IA terminé »). Une session Claude par ticket, reprise en cas de relance.
+Remettre une carte déjà livrée dans « Ready IA » déclenche une **itération** : Claude reprend sa session,
+prend en compte les derniers commentaires du PO et met à jour la même branche et la même PR
+(ou explique en commentaire ♻️ pourquoi aucun changement n'est nécessaire).
 La branche de base est configurable via `IA_BASE_BRANCH` ; si `PREVIEW_URL_TEMPLATE` est définie
 (ex. `https://{{pr_id}}.choux.ilieff.fr`), le lien du preview Coolify est ajouté au commentaire ✅ de la carte,
 puis un commentaire 🌐 est posté dès que le preview répond réellement (ping toutes les 30 s, 15 min max).

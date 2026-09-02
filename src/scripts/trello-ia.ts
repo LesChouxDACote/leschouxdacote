@@ -319,19 +319,36 @@ Reprends l'implémentation du plan là où elle s'est arrêtée, dans l'état ac
 Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
+const iterationPrompt = (
+  card: TrelloCard,
+  ticketBlock: string,
+) => `Le ticket Trello #${card.idShort} (« ${card.name} ») revient pour une NOUVELLE ITÉRATION : une première implémentation a déjà été livrée (la PR existe, la branche contient ton travail précédent), mais le PO a fait de nouveaux retours.
+
+Ticket et discussion à jour (les retours du PO sont dans les commentaires les plus récents) :
+${ticketBlock}
+
+Prends en compte les derniers retours du PO et adapte l'implémentation existante en conséquence.
+Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
+Si, après analyse, aucun changement de code n'est réellement nécessaire, explique pourquoi sans rien modifier.
+Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
+
+// le texte produit est publié tel quel : interdire tout méta-commentaire
+const CHAT_STYLE = `Ta réponse sera postée telle quelle en commentaire Trello, adressée au PO, à la première personne, en français, concise (moins de 1 500 caractères).
+AUCUN méta-commentaire : n'écris jamais « voici la réponse », n'annonce pas ce que tu vas faire, ne compte pas les caractères — ton texte EST le commentaire, rien d'autre.`
+
 const initialAnalysisPrompt = (ticketBlock: string) => `${REPO_INTRO}
 Tu es en phase de CADRAGE de ce ticket avec le PO : AUCUN développement, le code est en lecture seule.
 
 ${ticketBlock}
 
 Analyse le besoin : reformule-le en quelques lignes, vérifie sa faisabilité dans le code existant, signale les zones d'ombre et pose au PO les 2 à 4 questions les plus utiles pour affiner le ticket.
-Ta réponse sera postée telle quelle en commentaire Trello : concise (moins de 1 500 caractères), en français, sans préambule.`
+${CHAT_STYLE}`
 
 const replyPrompt = (newMessages: string) => `Nouveaux messages du PO sur le ticket :
 ${newMessages}
 
 Réponds : clarifie, propose, challenge si nécessaire (tu peux vérifier dans le code, en lecture seule). Si le besoin te semble prêt à développer, dis-le au PO et propose-lui de déplacer la carte vers « Ready IA ».
-Ta réponse sera postée telle quelle en commentaire Trello : concise (moins de 1 500 caractères), en français, sans préambule.`
+${CHAT_STYLE}`
 
 // ---------------------------------------------------------------------------
 // Git : worktrees
@@ -495,19 +512,11 @@ const processDiscussions = async (lists: ResolvedLists) => {
 const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   const { branch, worktree } = ticketPaths(card)
   const state = readState()[card.idShort]
+  // ticket déjà livré remis en Ready = le PO demande une itération sur la même branche/PR
+  const isIteration = state?.status === "done"
 
-  console.log(`\n▶ Ticket #${card.idShort} « ${card.name} » → ${branch}`)
+  console.log(`\n▶ Ticket #${card.idShort} « ${card.name} » → ${branch}${isIteration ? " (itération)" : ""}`)
   await moveCard(card.id, lists.wip.id) // « claim » : évite tout retraitement pendant le run
-
-  if (state?.status === "done") {
-    console.log("  Ticket déjà traité, rien à faire")
-    await addComment(
-      card.id,
-      `♻️ Ticket déjà traité par l'automatisation IA.\nBranche : ${state.branch}${state.prUrl ? `\nPR : ${state.prUrl}` : ""}${previewLineFor(state.prUrl)}`,
-    )
-    await moveCard(card.id, lists.done.id)
-    return
-  }
 
   // 1. Worktree isolé sur une branche issue de la branche de base
   await run("git", ["fetch", "origin", BASE_BRANCH])
@@ -540,14 +549,14 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   // 3. Plan puis implémentation par Claude, dans la session du ticket
   let lastOutput: ClaudeOutput
   if (state?.sessionId) {
-    console.log(`  Reprise de la session existante ${state.sessionId}…`)
+    console.log(`  Reprise de la session existante ${state.sessionId}${isIteration ? " (itération)" : ""}…`)
     try {
       lastOutput = await runClaude(
         [
           "-p",
           "--resume",
           state.sessionId,
-          retryPrompt(card, ticketBlock),
+          isIteration ? iterationPrompt(card, ticketBlock) : retryPrompt(card, ticketBlock),
           "--output-format",
           "json",
           "--permission-mode",
@@ -652,6 +661,15 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
 
   const changes = await run("git", ["status", "--porcelain"], worktree)
   if (!changes) {
+    if (isIteration) {
+      // Claude a jugé qu'aucune modification n'était nécessaire : on l'explique au PO
+      console.log("  Itération sans changement de code")
+      saveTicketState(card.idShort, { status: "done" }) // le run l'avait passé à « implement »
+      await addComment(card.id, truncate(`♻️ Aucun changement nécessaire d'après l'IA :\n\n${lastOutput.result}`))
+      await moveCard(card.id, lists.done.id)
+      await removeWorktree(card)
+      return
+    }
     throw new Error("aucun changement produit par l'implémentation")
   }
   await run("git", ["add", "-A"], worktree)
@@ -659,29 +677,39 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   await run("git", ["push", "-u", "origin", branch], worktree)
   console.log("  Changements commités et poussés")
 
-  // 5. Pull request vers la branche de base
-  const bodyFile = path.join(tmpdir(), `ia-pr-${card.idShort}.md`)
-  writeFileSync(
-    bodyFile,
-    `Ticket Trello : ${card.shortUrl}\n\n${lastOutput.result}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`,
-  )
-  const prUrl = await run(
+  // 5. Pull request vers la branche de base (réutilisée si déjà ouverte : le push l'a mise à jour)
+  const existingPrOutput = await run(
     "gh",
-    [
-      "pr",
-      "create",
-      "--base",
-      BASE_BRANCH,
-      "--head",
-      branch,
-      "--title",
-      `[IA] #${card.idShort} ${card.name}`,
-      "--body-file",
-      bodyFile,
-    ],
+    ["pr", "list", "--head", branch, "--state", "open", "--json", "url", "--jq", ".[].url"],
     worktree,
-  ).finally(() => unlinkSync(bodyFile))
-  console.log(`  PR créée : ${prUrl}`)
+  ).catch(() => "")
+  let prUrl = existingPrOutput.split("\n").filter(Boolean)[0] || ""
+  if (prUrl) {
+    console.log(`  PR existante mise à jour : ${prUrl}`)
+  } else {
+    const bodyFile = path.join(tmpdir(), `ia-pr-${card.idShort}.md`)
+    writeFileSync(
+      bodyFile,
+      `Ticket Trello : ${card.shortUrl}\n\n${lastOutput.result}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)`,
+    )
+    prUrl = await run(
+      "gh",
+      [
+        "pr",
+        "create",
+        "--base",
+        BASE_BRANCH,
+        "--head",
+        branch,
+        "--title",
+        `[IA] #${card.idShort} ${card.name}`,
+        "--body-file",
+        bodyFile,
+      ],
+      worktree,
+    ).finally(() => unlinkSync(bodyFile))
+    console.log(`  PR créée : ${prUrl}`)
+  }
   const previewUrl = previewUrlFor(prUrl)
   console.log(
     previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview",
@@ -691,7 +719,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   saveTicketState(card.idShort, { status: "done", prUrl })
   await addComment(
     card.id,
-    `✅ Implémentation terminée.\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl, "⏳ Preview en cours de déploiement")}`,
+    `${isIteration ? "✅ Nouvelle itération terminée." : "✅ Implémentation terminée."}\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl, "⏳ Preview en cours de déploiement")}`,
   )
   await moveCard(card.id, lists.done.id)
   await removeWorktree(card)
