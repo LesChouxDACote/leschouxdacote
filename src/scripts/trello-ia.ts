@@ -406,29 +406,53 @@ const previewLineFor = (prUrl: string | undefined, label = "Preview") => {
   return url ? `\n${label} : ${url}` : ""
 }
 
-// pingue le preview jusqu'à ce qu'il réponde, puis le signale sur la carte (lancé sans await :
-// le watcher continue de traiter les tickets pendant l'attente)
-const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string) => {
+// buildId Next.js embarqué dans la page (__NEXT_DATA__) : identifie le build réellement servi
+const previewBuildId = async (url: string | undefined) => {
+  if (!url) {
+    return undefined
+  }
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
+    if (!response.ok) {
+      return undefined
+    }
+    return (await response.text()).match(/"buildId":"([^"]+)"/)?.[1]
+  } catch (error) {
+    return undefined
+  }
+}
+
+// pingue le preview jusqu'à ce qu'il réponde — et, sur une itération, jusqu'à ce qu'il serve un
+// build DIFFÉRENT de l'ancien (l'ancienne version reste en ligne pendant le rebuild Coolify).
+// Lancé sans await : le watcher continue de traiter les tickets pendant l'attente.
+const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string, previousBuildId?: string) => {
   const url = previewUrlFor(prUrl)
   if (!url) {
     return
   }
-  console.log(`  Ping du preview ${url} (toutes les 30 s, 15 min max)…`)
+  console.log(
+    `  Ping du preview ${url} (toutes les 30 s, 15 min max${previousBuildId ? `, attente d'un build ≠ ${previousBuildId}` : ""})…`,
+  )
   const deadline = Date.now() + 15 * 60 * 1000
   while (Date.now() < deadline) {
     try {
       const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
       if (response.ok) {
-        console.log(`  Preview en ligne : ${url}`)
-        await addComment(card.id, `🌐 Preview en ligne : ${url}`)
-        return
+        const buildId = (await response.text()).match(/"buildId":"([^"]+)"/)?.[1]
+        const isFresh = previousBuildId ? buildId !== undefined && buildId !== previousBuildId : true
+        if (isFresh) {
+          const label = previousBuildId ? "Preview mise à jour" : "Preview en ligne"
+          console.log(`  ${label} : ${url} (build ${buildId ?? "?"})`)
+          await addComment(card.id, `🌐 ${label} : ${url}`)
+          return
+        }
       }
     } catch (error) {
       // DNS/certificat/build pas encore prêts : on réessaie
     }
     await sleep(30 * 1000)
   }
-  console.log(`  Preview toujours indisponible après 15 min : ${url}`)
+  console.log(`  Preview toujours pas ${previousBuildId ? "mise à jour" : "en ligne"} après 15 min : ${url}`)
 }
 
 // ---------------------------------------------------------------------------
@@ -674,6 +698,8 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   }
   await run("git", ["add", "-A"], worktree)
   await run("git", ["commit", "-m", `feat: ${card.name} (Trello #${card.idShort})`], worktree)
+  // capturé avant le push : sur une itération, le 🌐 n'est posté que quand le preview sert un build plus récent
+  const buildIdBeforePush = isIteration ? await previewBuildId(previewUrlFor(state?.prUrl)) : undefined
   await run("git", ["push", "-u", "origin", branch], worktree)
   console.log("  Changements commités et poussés")
 
@@ -719,11 +745,16 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   saveTicketState(card.idShort, { status: "done", prUrl })
   await addComment(
     card.id,
-    `${isIteration ? "✅ Nouvelle itération terminée." : "✅ Implémentation terminée."}\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(prUrl, "⏳ Preview en cours de déploiement")}`,
+    `${isIteration ? "✅ Nouvelle itération terminée." : "✅ Implémentation terminée."}\nBranche : ${branch}\nPR : ${prUrl}${previewLineFor(
+      prUrl,
+      isIteration
+        ? "⏳ Preview en cours de mise à jour (l'ancienne version répond en attendant)"
+        : "⏳ Preview en cours de déploiement",
+    )}`,
   )
   await moveCard(card.id, lists.done.id)
   await removeWorktree(card)
-  notifyWhenPreviewIsLive(card, prUrl).catch(console.error) // en tâche de fond, sans bloquer la boucle
+  notifyWhenPreviewIsLive(card, prUrl, buildIdBeforePush).catch(console.error) // en tâche de fond, sans bloquer la boucle
 }
 
 // ---------------------------------------------------------------------------
