@@ -103,6 +103,8 @@ puis un commentaire 🌐 est posté dès que le preview répond réellement (pin
 **Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet`, `haiku` ou `fable` sur la carte
 impose le modèle Claude pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte
 n'importe quel identifiant (ex. `model:claude-opus-4-6`). Priorité : étiquette > `ANTHROPIC_MODEL` > défaut du compte.
+Une étiquette `effort:<niveau>` (`low`, `medium`, `high`, `xhigh`, `max`) règle de la même façon le niveau
+d'effort — optionnelle et combinable avec l'étiquette de modèle ; sans elle, le défaut du CLI s'applique (`xhigh`).
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :
