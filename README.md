@@ -91,6 +91,8 @@ Maybe we should change this for Vercel Cron ?
 pièces jointes téléchargées — y compris les images — et commentaires) et discute avec le PO en commentaires 🤖 :
 reformulation du besoin, faisabilité vérifiée dans le code (lecture seule stricte), questions. Il répond à chaque
 nouveau message du PO. Quand le besoin est prêt, le PO déplace lui-même la carte vers « Ready IA ».
+Le cadrage tourne dans une boucle indépendante (`TRELLO_CHAT_POLL_MINUTES`, 1 min par défaut) : les réponses
+arrivent même pendant qu'une implémentation est en cours.
 
 **« Ready IA » (développement)** : création d'une branche `ia/<n°>-<titre>` depuis `develop` (poussée immédiatement),
 génération d'un plan puis implémentation par Claude Code — avec tout le contexte du ticket, y compris la discussion

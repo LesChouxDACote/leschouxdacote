@@ -15,6 +15,8 @@ services:
       - TRELLO_LIST_WIP=${TRELLO_LIST_WIP:-IA en cours}
       - TRELLO_LIST_DONE=${TRELLO_LIST_DONE:-IA terminé}
       - TRELLO_POLL_MINUTES=${TRELLO_POLL_MINUTES:-3}
+      # cadence de la boucle de cadrage (tourne en parallèle du dev)
+      - TRELLO_CHAT_POLL_MINUTES=${TRELLO_CHAT_POLL_MINUTES:-1}
       # GitHub : token avec droits repo (contents + pull requests)
       - GH_TOKEN=${GH_TOKEN}
       - GITHUB_REPO=${GITHUB_REPO:-LesChouxDACote/leschouxdacote}

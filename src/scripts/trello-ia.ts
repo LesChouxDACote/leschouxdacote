@@ -362,7 +362,17 @@ const ticketPaths = (card: TrelloCard) => {
   }
 }
 
-const removeWorktree = async (card: TrelloCard) => {
+// les boucles cadrage et dev tournent en parallèle : on sérialise les commandes git qui touchent
+// l'état partagé du dépôt (fetch des mêmes refs, worktree add/remove/prune). Verrou NON réentrant.
+let gitLock: Promise<unknown> = Promise.resolve()
+const withGitLock = <T>(task: () => Promise<T>): Promise<T> => {
+  const result = gitLock.then(task)
+  gitLock = result.catch(() => undefined)
+  return result
+}
+
+// version sans verrou, à n'appeler que depuis un bloc déjà sous withGitLock
+const removeWorktreeFiles = async (card: TrelloCard) => {
   const { branch, worktree } = ticketPaths(card)
   if (existsSync(worktree)) {
     await run("git", ["worktree", "remove", "--force", worktree]).catch(() => {
@@ -373,22 +383,25 @@ const removeWorktree = async (card: TrelloCard) => {
   await run("git", ["branch", "-D", branch]).catch(() => undefined) // la branche distante n'est pas touchée
 }
 
+const removeWorktree = (card: TrelloCard) => withGitLock(() => removeWorktreeFiles(card))
+
 // (re)met le worktree de cadrage sur la tête de la branche de base
-const refreshAtelierWorktree = async () => {
-  await run("git", ["fetch", "origin", BASE_BRANCH])
-  const recreate = async () => {
-    await run("git", ["worktree", "remove", "--force", ATELIER_WORKTREE]).catch(() => {
-      rmSync(ATELIER_WORKTREE, { recursive: true, force: true })
-    })
-    await run("git", ["worktree", "prune"]).catch(() => undefined)
-    await run("git", ["worktree", "add", "--detach", ATELIER_WORKTREE, `origin/${BASE_BRANCH}`])
-  }
-  if (existsSync(ATELIER_WORKTREE)) {
-    await run("git", ["checkout", "--detach", `origin/${BASE_BRANCH}`], ATELIER_WORKTREE).catch(recreate)
-  } else {
-    await recreate()
-  }
-}
+const refreshAtelierWorktree = () =>
+  withGitLock(async () => {
+    await run("git", ["fetch", "origin", BASE_BRANCH])
+    const recreate = async () => {
+      await run("git", ["worktree", "remove", "--force", ATELIER_WORKTREE]).catch(() => {
+        rmSync(ATELIER_WORKTREE, { recursive: true, force: true })
+      })
+      await run("git", ["worktree", "prune"]).catch(() => undefined)
+      await run("git", ["worktree", "add", "--detach", ATELIER_WORKTREE, `origin/${BASE_BRANCH}`])
+    }
+    if (existsSync(ATELIER_WORKTREE)) {
+      await run("git", ["checkout", "--detach", `origin/${BASE_BRANCH}`], ATELIER_WORKTREE).catch(recreate)
+    } else {
+      await recreate()
+    }
+  })
 
 // ---------------------------------------------------------------------------
 // Preview Coolify
@@ -542,23 +555,29 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   console.log(`\n▶ Ticket #${card.idShort} « ${card.name} » → ${branch}${isIteration ? " (itération)" : ""}`)
   await moveCard(card.id, lists.wip.id) // « claim » : évite tout retraitement pendant le run
 
-  // 1. Worktree isolé sur une branche issue de la branche de base
-  await run("git", ["fetch", "origin", BASE_BRANCH])
-  await removeWorktree(card) // nettoie les restes d'un run précédent
-  const branchOnOrigin = await run("git", ["ls-remote", "--exit-code", "--heads", "origin", branch])
-    .then(() => true)
-    .catch(() => false)
+  // 1. Worktree isolé sur une branche issue de la branche de base (sous verrou : la boucle de
+  // cadrage peut faire un fetch/worktree au même moment)
+  const branchOnOrigin = await withGitLock(async () => {
+    await run("git", ["fetch", "origin", BASE_BRANCH])
+    await removeWorktreeFiles(card) // nettoie les restes d'un run précédent
+    const exists = await run("git", ["ls-remote", "--exit-code", "--heads", "origin", branch])
+      .then(() => true)
+      .catch(() => false)
 
-  if (branchOnOrigin && !state?.sessionId) {
-    throw new Error(`la branche ${branch} existe déjà sur origin (créée hors automatisation)`)
-  }
+    if (exists && !state?.sessionId) {
+      throw new Error(`la branche ${branch} existe déjà sur origin (créée hors automatisation)`)
+    }
 
-  if (branchOnOrigin) {
-    // retry : on repart de l'état déjà poussé
-    await run("git", ["fetch", "origin", branch])
-    await run("git", ["worktree", "add", worktree, "-B", branch, `origin/${branch}`])
-  } else {
-    await run("git", ["worktree", "add", worktree, "-b", branch, `origin/${BASE_BRANCH}`])
+    if (exists) {
+      // retry ou itération : on repart de l'état déjà poussé
+      await run("git", ["fetch", "origin", branch])
+      await run("git", ["worktree", "add", worktree, "-B", branch, `origin/${branch}`])
+    } else {
+      await run("git", ["worktree", "add", worktree, "-b", branch, `origin/${BASE_BRANCH}`])
+    }
+    return exists
+  })
+  if (!branchOnOrigin) {
     await run("git", ["push", "-u", "origin", branch], worktree)
     console.log(`  Branche ${branch} créée depuis ${BASE_BRANCH} et poussée`)
   }
@@ -796,10 +815,13 @@ const handler = async () => {
   const lists = await resolveLists()
   mkdirSync(WORKTREES_DIR, { recursive: true })
   const pollMs = Number(process.env.TRELLO_POLL_MINUTES || 3) * 60 * 1000
+  const chatPollMs = Number(process.env.TRELLO_CHAT_POLL_MINUTES || 1) * 60 * 1000
   console.log(`Connecté à Trello : ${me.fullName || me.username}`)
   console.log(`Surveillance de la liste « ${lists.ready.name} » (toutes les ${pollMs / 60000} min)`)
   if (lists.refine) {
-    console.log(`Cadrage actif sur la liste « ${lists.refine.name} »`)
+    console.log(
+      `Cadrage actif sur la liste « ${lists.refine.name} » (toutes les ${chatPollMs / 60000} min, en parallèle du dev)`,
+    )
   }
   console.log(
     process.env.ANTHROPIC_MODEL
@@ -807,35 +829,47 @@ const handler = async () => {
       : "Modèle Claude : défaut du compte (définir ANTHROPIC_MODEL pour forcer)",
   )
 
-  while (true) {
-    // 1. cadrage : répondre aux cartes de l'Atelier (léger, en premier pour rester réactif)
-    try {
-      await processDiscussions(lists)
-    } catch (error) {
-      console.error("Erreur de cadrage :", error)
+  // cadrage : boucle indépendante, pour répondre au PO même pendant une implémentation
+  const chatLoop = async () => {
+    if (!lists.refine) {
+      return
     }
-
-    // 2. développement : traiter une carte Ready
-    try {
-      const cards = await getCards(lists.ready.id)
-      if (cards.length > 0) {
-        const card = cards[0] // un seul ticket à la fois
-        try {
-          await processCard(card, lists)
-        } catch (error) {
-          console.error(error)
-          saveTicketState(card.idShort, { status: "failed" })
-          const message = error instanceof Error ? error.message : String(error)
-          // la carte reste dans la liste WIP : un humain décide de la remettre en Ready ou non
-          await addComment(card.id, truncate(`⚠️ Automatisation IA échouée : ${message}`)).catch(console.error)
-          await removeWorktree(card).catch(console.error)
-        }
+    while (true) {
+      try {
+        await processDiscussions(lists)
+      } catch (error) {
+        console.error("Erreur de cadrage :", error)
       }
-    } catch (error) {
-      console.error("Erreur de polling Trello :", error)
+      await sleep(chatPollMs)
     }
-    await sleep(pollMs)
   }
+
+  // développement : une carte Ready à la fois
+  const devLoop = async () => {
+    while (true) {
+      try {
+        const cards = await getCards(lists.ready.id)
+        if (cards.length > 0) {
+          const card = cards[0] // un seul ticket à la fois
+          try {
+            await processCard(card, lists)
+          } catch (error) {
+            console.error(error)
+            saveTicketState(card.idShort, { status: "failed" })
+            const message = error instanceof Error ? error.message : String(error)
+            // la carte reste dans la liste WIP : un humain décide de la remettre en Ready ou non
+            await addComment(card.id, truncate(`⚠️ Automatisation IA échouée : ${message}`)).catch(console.error)
+            await removeWorktree(card).catch(console.error)
+          }
+        }
+      } catch (error) {
+        console.error("Erreur de polling Trello :", error)
+      }
+      await sleep(pollMs)
+    }
+  }
+
+  await Promise.all([chatLoop(), devLoop()])
 }
 
 // pas de process.exit(0) : ce script est un watcher qui ne se termine jamais
