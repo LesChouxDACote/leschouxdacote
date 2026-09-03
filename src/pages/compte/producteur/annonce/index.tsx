@@ -131,40 +131,44 @@ const EditProductPage = () => {
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
-  const handleRef = async (el: HTMLInputElement | null) => {
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const handleRef = (el: HTMLInputElement | null) => {
     if (!el || autocomplete.current) {
       return
     }
 
-    await loadGmaps()
+    void loadGmaps().then(() => {
+      autocomplete.current = new google.maps.places.Autocomplete(el, {
+        componentRestrictions: { country: "fr" },
+        fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
+        // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
+      })
+      autocomplete.current.addListener("place_changed", () => {
+        const res = autocomplete.current?.getPlace()
+        if (!res || !res.geometry || !res.address_components || !res.place_id) {
+          setPlace(null)
+          return
+        }
 
-    autocomplete.current = new google.maps.places.Autocomplete(el, {
-      componentRestrictions: { country: "fr" },
-      fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
-      // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
-    })
-    autocomplete.current.addListener("place_changed", () => {
-      const res = autocomplete.current?.getPlace()
-      if (!res || !res.geometry || !res.address_components || !res.place_id) {
-        setPlace(null)
-        return
-      }
+        const city = getCity(res)
+        const dpt = getDpt(res)
+        if (!city || !dpt) {
+          setPlace(null)
+          return
+        }
 
-      const city = getCity(res)
-      const dpt = getDpt(res)
-      if (!city || !dpt) {
-        setPlace(null)
-        return
-      }
-
-      const { location } = res.geometry
-      setPlace({
-        id: res.place_id,
-        lat: location.lat(),
-        lng: location.lng(),
-        city,
-        dpt,
+        const { location } = res.geometry
+        if (!location) {
+          setPlace(null)
+          return
+        }
+        setPlace({
+          id: res.place_id,
+          lat: location.lat(),
+          lng: location.lng(),
+          city,
+          dpt,
+        })
       })
     })
   }

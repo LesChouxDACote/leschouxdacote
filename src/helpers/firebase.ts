@@ -1,14 +1,29 @@
-import "firebase/analytics"
-import firebase from "firebase/app"
-import "firebase/auth"
-import "firebase/firestore"
+import { getAnalytics, isSupported } from "firebase/analytics"
+import { getApps, initializeApp } from "firebase/app"
+import { getAuth } from "firebase/auth"
+import {
+  collection,
+  doc,
+  GeoPoint,
+  getDoc,
+  getDocs,
+  getFirestore,
+  onSnapshot,
+  query,
+  Timestamp,
+  where,
+  type DocumentData,
+  type DocumentSnapshot,
+  type Query,
+  type QuerySnapshot,
+} from "firebase/firestore"
 import { useEffect, useState } from "react"
 import { handleError } from "src/helpers/errors"
 import type { Geoloc, Identified } from "src/types/model"
 
-const app = firebase.apps.length
-  ? firebase.app()
-  : firebase.initializeApp({
+const app = getApps().length
+  ? getApps()[0]
+  : initializeApp({
       apiKey: process.env.NEXT_PUBLIC_FIREBASE_KEY,
       authDomain: `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT}.firebaseapp.com`,
       projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT,
@@ -19,26 +34,50 @@ const app = firebase.apps.length
     })
 
 if (typeof window !== "undefined") {
-  app.analytics()
+  // getAnalytics échoue si le SDK n'est pas supporté (webview, node…) : on ne log que si possible
+  isSupported().then((yes) => {
+    if (yes) {
+      getAnalytics(app)
+    }
+  })
 }
 
-export const auth = app.auth()
-export const firestore = app.firestore()
-export const GeoPoint = firebase.firestore.GeoPoint
+export const auth = getAuth(app)
+export const firestore = getFirestore(app)
+export { GeoPoint }
 
-export const getObject = (doc: firebase.firestore.DocumentData) => {
+// Schema v4 ne lit que les clés propres : les Timestamp imbriqués (ex. slots[].date), dont `seconds`
+// est un getter du prototype, sont normalisés en objets simples { seconds }
+const normalizeNested = (value: unknown): unknown => {
+  if (value instanceof Timestamp) {
+    return { seconds: value.seconds }
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeNested)
+  }
+  if (value && typeof value === "object" && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).map(([key, nested]) => [key, normalizeNested(nested)]))
+  }
+  return value
+}
+
+export const getObject = (doc: DocumentSnapshot) => {
   const data = doc.data()
   const obj: DataObject = {
     objectID: doc.id,
   }
+  if (!data) {
+    // document sans données (supprimé ou jamais écrit) : il ne reste que l'id
+    return obj
+  }
   for (const key in data) {
     const value = data[key]
-    if (value instanceof firebase.firestore.GeoPoint) {
+    if (value instanceof GeoPoint) {
       obj[key] = { lat: value.latitude, lng: value.longitude } as Geoloc
-    } else if (value instanceof firebase.firestore.Timestamp) {
+    } else if (value instanceof Timestamp) {
       obj[key] = value.toMillis()
     } else {
-      obj[key] = value
+      obj[key] = normalizeNested(value)
     }
   }
   return obj
@@ -50,25 +89,25 @@ interface QueryProps<T> {
 }
 
 export const useQuery = function <T extends Identified>(
-  collection: string,
-  where?: WhereClause | false,
+  collectionName: string,
+  whereClause?: WhereClause | false,
   live?: boolean,
 ): QueryProps<T> {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<T[]>([])
 
   useEffect(() => {
-    if (where === false) {
+    if (whereClause === false) {
       // false => no query at this point
       setData([])
       setLoading(false)
       return
     }
 
-    let ref: CollectionOrQuery = firestore.collection(collection)
+    let ref: Query<DocumentData> = collection(firestore, collectionName)
 
-    if (where) {
-      ref = ref.where(...where)
+    if (whereClause) {
+      ref = query(ref, where(...whereClause))
     }
 
     const callback = (snapshot: QuerySnapshot) => {
@@ -77,11 +116,11 @@ export const useQuery = function <T extends Identified>(
     }
 
     if (live) {
-      return ref.onSnapshot(callback, handleError)
+      return onSnapshot(ref, callback, handleError)
     } else {
-      ref.get().then(callback).catch(handleError)
+      getDocs(ref).then(callback).catch(handleError)
     }
-  }, [collection, JSON.stringify(where)]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [collectionName, JSON.stringify(whereClause)]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { data, loading }
 }
@@ -92,7 +131,7 @@ interface ObjectQueryProps<T> {
 }
 
 export const useObjectQuery = function <T extends Identified>(
-  collection: string,
+  collectionName: string,
   id?: ID,
   live?: boolean,
 ): ObjectQueryProps<T> {
@@ -107,19 +146,19 @@ export const useObjectQuery = function <T extends Identified>(
       return
     }
 
-    const ref = firestore.collection(collection).doc(id)
+    const ref = doc(collection(firestore, collectionName), id)
 
-    const callback = (doc: DocumentSnapshot) => {
-      setData(getObject(doc) as T)
+    const callback = (snapshot: DocumentSnapshot) => {
+      setData(getObject(snapshot) as T)
       setLoading(false)
     }
 
     if (live) {
-      return ref.onSnapshot(callback, handleError)
+      return onSnapshot(ref, callback, handleError)
     } else {
-      ref.get().then(callback).catch(handleError)
+      getDoc(ref).then(callback).catch(handleError)
     }
-  }, [collection, id, live])
+  }, [collectionName, id, live])
 
   return { data, loading }
 }

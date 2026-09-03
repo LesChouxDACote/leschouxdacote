@@ -1,60 +1,62 @@
-# CLAUDE.md
+# Les Choux d'à Côté
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Petites annonces alimentaires (producteurs locaux). Next.js 16 (pages router), TypeScript, déployé sur Vercel/Coolify.
 
-## Project
+## Stack
 
-"Les Choux d'à Côté" (leschouxdacote.fr) — a French marketplace for local food classified ads. Producers publish time-limited ads (annonces); buyers search them by location. UI text, routes, and domain vocabulary are in French (annonce = ad, producteur = producer, compte = account, recherche = search, connexion = login, inscription = signup).
+- Next.js 16 (`src/pages`, pas d'App Router) + React 19 + TypeScript (`strict: true`, target es2020).
+- Style : Emotion (`@emotion/styled`), constantes partagées dans `src/constants`.
+- Formulaires : `react-hook-form` + `yup` (schémas dans `src/helpers/yup.ts`).
+- Données/validation runtime : `effect` (`Schema`) pour les modèles (ex. `src/models/Product.ts`).
+- Backend : Firebase (auth + Firestore/RTDB), Algolia (recherche), Google Places, INSEE (API géo/entreprises), Mapbox, Bugsnag (monitoring).
+- API routes Next.js dans `src/pages/api/*` pour les opérations serveur (publish, product, export, alerts, follow, user, view).
 
-## Commands
+## Commandes
 
-Requires Node >= 20 and Yarn 4 (`packageManager: yarn@4.5.1`).
+- `yarn dev` — dev local (nécessite `.env`, cf. `README.md`).
+- `yarn lint` — lint-staged (ESLint + Prettier sur JS/JSX, `tsc --noEmit` + ESLint sur TS/TSX).
+- `yarn build` — build Next.js (`BUILD_CPUS` limite les workers si besoin sur Coolify).
+- `yarn serve` — sert le build de prod.
+- `yarn email-alerts` / `yarn email-expired` / `yarn update-tags` — scripts `ts-node` ponctuels (`src/scripts/*.ts`).
+- Vérification type : `yarn tsc --skipLibCheck --noEmit`.
 
-- `yarn dev` — start Next.js dev server
-- `yarn build` — production build
-- `yarn serve` — serve production build
-- `yarn lint` — runs lint-staged (tsc + ESLint/Prettier on **staged files only**; also runs on pre-commit via husky). To check the whole project: `yarn tsc --skipLibCheck --noEmit`
-- `yarn env` — pull env vars from Vercel (or `cp example.env .env` and fill manually; see README for where keys live)
-- Cron scripts (run by GitHub Actions, executable locally via ts-node + dotenv):
-  - `yarn email-alerts` — email followers about products published in the last hour
-  - `yarn email-expired` — email producers about expired ads
-  - `yarn update-tags` — recompute tag counts in the Algolia tags index
+## Style de code
 
-There is no test suite.
+- Pas de point-virgule (`semi: false`), `printWidth: 120` (Prettier).
+- ESLint 9 en config flat (`eslint.config.mjs`) : `react/recommended`, `typescript-eslint/recommended` sur `.ts(x)`, `next/core-web-vitals`, `react-hooks/rules-of-hooks` en erreur.
+- `@typescript-eslint/no-explicit-any` désactivé : `any` toléré si justifié, mais préférer un typage précis quand c'est simple.
 
-## Architecture
+## Structure `src/`
 
-Next.js 12 (pages router) + React 17 + TypeScript, styled with Emotion (plus some MUI components). SVGs in `src/assets/` import as React components via @svgr/webpack. Imports use the `src/...` prefix (tsconfig `baseUrl: "."`; ts-node scripts rely on tsconfig-paths).
+- `pages/` — routes Next.js (pages + `api/`) ; `pages/producteur`, `pages/compte`, `pages/annonce` regroupent les sous-routes par domaine.
+- `components/` — composants React réutilisables.
+- `cards/` — composants de type "carte" (affichage annonces/produits).
+- `layout/` — mise en page globale (header, footer, wrappers).
+- `helpers/` — utilitaires côté client (auth, dates, URL, validation, Algolia, Firebase, Bugsnag...).
+- `helpers-api/` — utilitaires côté serveur (Firebase admin, Algolia, mail, CSV, upload d'images).
+- `models/` — schémas de données (`effect/Schema`) partagés client/serveur.
+- `types/` — types TypeScript globaux.
+- `constants/` — constantes partagées (couleurs, breakpoints, etc.).
+- `assets/` — SVG et médias (import direct via `@svgr/webpack`, cf. `next.config.js`).
+- `scripts/` — scripts CLI (`ts-node`) pour tâches planifiées (alertes email, mise à jour de tags).
 
-### Dual data store: Firestore + Algolia
+## Points de vigilance
 
-Firestore is the source of truth (`users` and `products` collections); Algolia is the search index. **Every product write must keep both in sync** — API routes write to Firestore and mirror to Algolia (`productsIndex.saveObject` / `deleteObject`, see `src/pages/api/publish.ts` and `product.ts`). A product only exists in Algolia while published; unpublishing deletes it from the index but keeps the Firestore doc. Documents use `objectID` (Algolia's convention) as their ID field everywhere in app code — `getObject()` in the firebase helpers converts a Firestore snapshot into a plain object with `objectID`, GeoPoints as `{lat, lng}`, and Timestamps as ms numbers.
+- Le projet reste sur le **pages router** (`src/pages`) même en Next.js 16 : pas de fonctionnalités App Router, pas de Server Components.
+- Firebase est utilisé en **SDK modulaire** (`firebase/*` côté client, `firebase-admin/*` côté serveur) ; les alias de types globaux sont dans `src/types/firebase.d.ts`.
+- `src/helpers/algolia.ts` et `src/helpers-api/algolia.ts` exposent une couche `initIndex` qui émule l'API index de algoliasearch v4 sur le client v5 : les options de recherche s'étalent à la racine de la requête (`params` est réservé à la variante query string).
+- formidable v3 renvoie **des tableaux** pour les champs comme pour les fichiers ; `getFormData` reprend la forme scalaire des champs, les fichiers restent indexés (`files.photo[0]`).
+- Les schémas `effect/Schema` (ex. `ProductSchema`) sont la source de vérité pour la forme des données Firestore/Algolia ; les faire évoluer avec prudence (champs "fan-out" dénormalisés comme `producer`).
+- `BUILD_CPUS` sert uniquement à limiter la RAM du build sur Coolify (dev) ; ne pas le rendre obligatoire ni le documenter comme requis en prod/Vercel.
+- Secrets et clés (Firebase, Algolia, Mapbox, INSEE, Bugsnag) sont gérés via `.env` / Vaultwarden / GitHub Secrets — voir `README.md`, jamais à committer ni à documenter en clair ici.
+- Avant de valider une modif TypeScript, lancer `yarn tsc --skipLibCheck --noEmit` (comme le fait `lint-staged` sur les fichiers `.ts(x)` en pre-commit).
 
-### Client vs server code split
+<!-- BEGIN:nextjs-agent-rules -->
 
-- `src/helpers/` — client-side only. `helpers/firebase.ts` uses the Firebase v8 browser SDK.
-- `src/helpers-api/` — server-side only (API routes and scripts). `helpers-api/firebase.ts` uses firebase-admin. Never import it from client code.
+# This is NOT the Next.js you know
 
-### Auth
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-Client: Firebase Auth wrapped in `UserProvider` (`src/helpers/auth.tsx`), which subscribes to the Firestore user doc, exposes `useUser()`, and handles all role-based route redirects (roles: `PRODUCER`, `BUYER`, `ADMIN`; producer pages live under `/compte/producteur`, admin has `/csv-export`).
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
-Server: API routes get the Firebase ID token from the `X-Token` header via `getToken()` (`helpers-api/firebase.ts`) and check ownership (`token.uid === product.uid`) themselves. The client wrapper `src/helpers/api.ts` attaches the token automatically to all `/api/*` calls.
-
-API responses use `respond()`/`badRequest()` from `src/helpers-api/index.ts`. Field-level validation errors are returned as `{ errors: { field: message } }`, which the client api helper rethrows as `ValidationError` for form display.
-
-### Data model
-
-`src/types/model.d.ts` defines the domain types (`Product`, `Producer`, `Buyer`, etc.). Prices are in cents; `published`/`expires` are ms timestamps (`expires: null` = offline). Some fields are denormalized fan-out (e.g. `product.producer` is a copy of the producer's name, `followedProducers` copies name/address). Newer code validates with Effect schemas (`src/models/Product.ts`); some API routes also use `effect` for error handling. Ambient types like `ApiResponse` live in `src/types/*.d.ts` and need no import.
-
-### Search & geodata
-
-`src/pages/recherche.tsx` queries Algolia directly from the client with geo-radius options (`aroundLatLng` + `SEARCH_RADIUS` scoped by city/dpt/region/country) and a `bio` facet filter. Addresses are geocoded via Google Places (`placeId` on products); maps use Mapbox GL. Producer SIRET numbers are validated against the INSEE API.
-
-### Rendering
-
-Public product and producer pages (`annonce/[id]`, `producteur/[id]`) use ISR (`getStaticProps` with `ISR_REVALIDATE` = 60s, fallback paths). Search and account pages are client-rendered. Shared constants (colors, layout breakpoints, cache headers) are in `src/constants/index.ts`.
-
-## Deployment
-
-Vercel: commits to `develop` deploy to the dev environment, commits to `production` deploy to prod. PRs usually target `develop`. GitHub Actions cron workflows run the alert/expired/tags scripts and daily Firestore backups.
+<!-- END:nextjs-agent-rules -->

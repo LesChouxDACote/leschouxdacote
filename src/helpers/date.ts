@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns"
-import fr from "date-fns/locale/fr"
+import { fr } from "date-fns/locale"
 
 export const formatDate = (ts: number | Date | null, pattern = "do MMMM yyyy") => {
   if (!ts) {

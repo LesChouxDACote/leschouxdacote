@@ -400,7 +400,7 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
 
   return {
     paths: products.docs.map((doc) => ({ params: { id: doc.id } })),
-    fallback: false,
+    fallback: "blocking",
   }
 }
 
