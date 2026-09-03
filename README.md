@@ -108,12 +108,18 @@ puis un commentaire 🌐 est posté dès que le preview répond réellement (pin
 **Suivi du déploiement et auto-correction (optionnel)** : avec `COOLIFY_API_URL`, `COOLIFY_API_TOKEN` et
 `COOLIFY_APP_UUID`, le watcher suit via l'API Coolify le déploiement du preview correspondant au commit poussé.
 La carte reste dans « IA en cours » jusqu'à ce que le preview soit en ligne (🌐, puis « IA terminé »).
-Si le déploiement échoue, il lit les logs du déploiement et les transmet à Claude (même session) qui corrige ;
-les garde-fous sont rejoués, un commit `fix:` est poussé (🛠️ puis 🔁 sur la carte) et le nouveau déploiement
-est suivi à son tour — `IA_DEPLOY_FIX_ATTEMPTS` corrections max (2 par défaut), `IA_DEPLOY_TIMEOUT_MINUTES`
-d'attente max par déploiement (30). Si Claude ne change rien (échec réseau, mémoire…), le déploiement est
-simplement relancé. Après la dernière tentative, un ⚠️ avec l'extrait des logs est posté et la carte reste
-dans « IA en cours ».
+Si le déploiement échoue, il récupère les logs du déploiement quand l'API les expose ; sinon (Coolify 4.3.x
+les masque) il rejoue `yarn build` dans le worktree du ticket pour reproduire l'erreur. Le diagnostic est
+transmis à Claude (même session) qui corrige ; les garde-fous sont rejoués, un commit `fix:` est poussé
+(🛠️ puis 🔁 sur la carte) et le nouveau déploiement est suivi à son tour. Si l'échec n'est pas reproductible
+(réseau, mémoire…), le déploiement est simplement relancé. Après la dernière tentative, un ⚠️ avec le lien
+vers les logs du déploiement dans Coolify est posté et la carte reste dans « IA en cours ».
+`IA_DEPLOY_TIMEOUT_MINUTES` : attente max par déploiement (30).
+
+**Garde-fous avant commit** : Prettier et ESLint `--fix` sur les fichiers touchés, `tsc`, puis ESLint sur tout
+`src` (la phase lint/typage de `next build`). Une erreur est transmise à Claude qui la corrige dans la même
+session (🛠️ sur la carte), `IA_FIX_ATTEMPTS` fois max (2 par défaut, partagé avec la correction des
+déploiements) ; au-delà, ⚠️ avec la sortie de la commande.
 
 **Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet`, `haiku` ou `fable` sur la carte
 impose le modèle Claude pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte

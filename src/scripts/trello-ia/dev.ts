@@ -6,7 +6,7 @@ import path from "path"
 import { claudeArgsFor, ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
 import { CoolifyClient } from "./coolify"
-import { commitAndPush, DEV_ARGS, formatWorktree, implementArgs } from "./delivery"
+import { commitAndPush, DEV_ARGS, implementArgs, pendingChanges, verifyAndFix } from "./delivery"
 import { ensurePreviewDeployed } from "./deploy"
 import { WatcherError } from "./errors"
 import { Git } from "./git"
@@ -23,7 +23,7 @@ const logError = (error: unknown) => Effect.sync(() => console.error(error))
 
 export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
   Effect.gen(function* () {
-    const { baseBranch, worktreesDir } = yield* AppConfig
+    const { baseBranch, worktreesDir, fixAttempts } = yield* AppConfig
     const trello = yield* TrelloClient
     const store = yield* StateStore
     const git = yield* Git
@@ -118,8 +118,16 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       yield* store.save(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
     }
 
-    // 4. Garde-fous typage + formatage puis commit + push par l'orchestrateur
-    const changes = yield* formatWorktree(worktree)
+    // 4. Garde-fous (Prettier, ESLint, tsc) avec correction par Claude, puis commit + push par l'orchestrateur
+    const verified = yield* verifyAndFix(card, worktree, lastOutput.session_id, claudeArgs)
+    if (!verified.ok && verified.diagnostic) {
+      return yield* Effect.fail(
+        new WatcherError({
+          message: `garde-fou « ${verified.diagnostic.step} » toujours en échec après ${fixAttempts} correction(s) :\n${verified.diagnostic.output}`,
+        }),
+      )
+    }
+    const changes = yield* pendingChanges(worktree)
     if (!changes) {
       if (isIteration) {
         // Claude a jugé qu'aucune modification n'était nécessaire : on l'explique au PO
@@ -203,7 +211,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
         prUrl,
         sha,
         pushedAt,
-        sessionId: lastOutput.session_id,
+        sessionId: verified.sessionId,
         claudeArgs,
       })
       yield* git.removeWorktree(paths)

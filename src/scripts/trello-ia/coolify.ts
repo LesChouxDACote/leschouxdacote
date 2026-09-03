@@ -12,6 +12,8 @@ export interface CoolifyClientShape {
   readonly getDeployment: (uuid: string) => Effect.Effect<CoolifyDeployment, CoolifyError>
   // relance le déploiement du preview d'une PR (même commit)
   readonly triggerDeploy: (prNumber: number) => Effect.Effect<void, CoolifyError>
+  // page du déploiement dans l'UI Coolify (logs complets pour un humain)
+  readonly deploymentPage: (deployment: CoolifyDeployment) => string | undefined
 }
 
 export class CoolifyClient extends Context.Service<CoolifyClient, CoolifyClientShape>()("CoolifyClient") {}
@@ -34,6 +36,7 @@ export const CoolifyClientLive = Layer.effect(
         listDeployments: disabled,
         getDeployment: () => disabled,
         triggerDeploy: () => disabled,
+        deploymentPage: () => undefined,
       }
       return client
     }
@@ -88,6 +91,7 @@ export const CoolifyClientLive = Layer.effect(
       ),
       getDeployment: (uuid) => decoded(CoolifyDeployment, "GET", `/deployments/${uuid}`),
       triggerDeploy: (prNumber) => Effect.asVoid(request("POST", `/deploy?uuid=${appUuid}&pr=${prNumber}`)),
+      deploymentPage: (deployment) => (deployment.deployment_url ? `${apiUrl}${deployment.deployment_url}` : undefined),
     }
     return client
   }),

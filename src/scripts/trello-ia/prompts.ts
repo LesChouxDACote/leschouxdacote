@@ -38,21 +38,24 @@ Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et « yarn esli
 Si, après analyse, aucun changement de code n'est réellement nécessaire, explique pourquoi sans rien modifier.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
-export const deployFixPrompt = (
+// correction d'un problème diagnostiqué par l'orchestrateur (garde-fou avant commit, build du preview)
+export const fixPrompt = (
   card: TrelloCard,
   attempt: number,
   attempts: number,
-  logExcerpt: string,
-) => `Le déploiement du preview Coolify de la PR du ticket Trello #${card.idShort} (« ${card.name} ») a ÉCHOUÉ (correction ${attempt}/${attempts}). Le preview est construit avec « yarn build » (next build : lint ESLint, vérification des types, compilation) sur la branche du ticket.
+  source: string,
+  diagnostic: string,
+) => `Ticket Trello #${card.idShort} (« ${card.name} ») — correction ${attempt}/${attempts} : ${source}.
+Le preview est construit avec « yarn build » (next build : lint ESLint, vérification des types, compilation) sur la branche du ticket.
 
-Extrait des logs du déploiement :
+Diagnostic :
 \`\`\`
-${logExcerpt}
+${diagnostic}
 \`\`\`
 
-Analyse la cause de l'échec et corrige-la dans le dépôt.
+Analyse la cause et corrige-la dans le dépôt.
 Vérifie ensuite avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles.
-Si l'échec n'est PAS lié au code (réseau, mémoire du serveur, infrastructure), ne modifie rien et explique-le.
+Si le problème n'est PAS lié au code (réseau, mémoire du serveur, infrastructure), ne modifie rien et explique-le.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
 // le texte produit est publié tel quel : interdire tout méta-commentaire

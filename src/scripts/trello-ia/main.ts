@@ -47,7 +47,7 @@ export const main = Effect.gen(function* () {
   )
   console.log(
     coolify.enabled
-      ? `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.deployFixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`
+      ? `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.fixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`
       : "Suivi des déploiements Coolify inactif (définir COOLIFY_API_URL, COOLIFY_API_TOKEN et COOLIFY_APP_UUID)",
   )
 

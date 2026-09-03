@@ -10,7 +10,10 @@ export class StateError extends Data.TaggedError("StateError")<{
   readonly message: string
   readonly cause?: unknown
 }> {}
-export class ShellError extends Data.TaggedError("ShellError")<{ readonly message: string }> {}
+export class ShellError extends Data.TaggedError("ShellError")<{
+  readonly message: string
+  readonly output?: string // fin de la sortie complète (stdout + stderr) : diagnostic transmis à Claude
+}> {}
 export class ClaudeError extends Data.TaggedError("ClaudeError")<{ readonly message: string }> {}
 // erreurs d'orchestration (liste absente, branche déjà existante, implémentation sans changement…)
 export class WatcherError extends Data.TaggedError("WatcherError")<{ readonly message: string }> {}

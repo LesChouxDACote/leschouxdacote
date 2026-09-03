@@ -27,7 +27,7 @@ export interface AppConfigShape {
   // suivi des déploiements de preview via l'API Coolify + correction automatique des échecs (optionnel)
   readonly coolify: Option.Option<CoolifyConfig>
   readonly deployTimeoutMs: number // attente max d'un déploiement
-  readonly deployFixAttempts: number // corrections max après un déploiement échoué
+  readonly fixAttempts: number // corrections par Claude max (garde-fous avant commit, déploiement échoué)
 }
 
 export class AppConfig extends Context.Service<AppConfig, AppConfigShape>()("AppConfig") {}
@@ -75,7 +75,7 @@ export const AppConfigLive = Layer.effect(
     const pollMinutes = yield* withFallback("TRELLO_POLL_MINUTES", "3")
     const chatPollMinutes = yield* withFallback("TRELLO_CHAT_POLL_MINUTES", "1")
     const deployTimeoutMinutes = yield* withFallback("IA_DEPLOY_TIMEOUT_MINUTES", "30")
-    const deployFixAttempts = yield* withFallback("IA_DEPLOY_FIX_ATTEMPTS", "2")
+    const fixAttempts = yield* withFallback("IA_FIX_ATTEMPTS", "2")
     return {
       trelloApiKey,
       trelloToken,
@@ -95,7 +95,7 @@ export const AppConfigLive = Layer.effect(
       anthropicModel: yield* optional("ANTHROPIC_MODEL"),
       coolify: yield* coolifyConfig,
       deployTimeoutMs: Number(deployTimeoutMinutes) * 60 * 1000,
-      deployFixAttempts: Number(deployFixAttempts),
+      fixAttempts: Number(fixAttempts),
     }
   }),
 )

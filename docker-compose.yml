@@ -35,7 +35,7 @@ services:
       - COOLIFY_API_TOKEN=${COOLIFY_API_TOKEN:-}
       - COOLIFY_APP_UUID=${COOLIFY_APP_UUID:-}
       - IA_DEPLOY_TIMEOUT_MINUTES=${IA_DEPLOY_TIMEOUT_MINUTES:-30}
-      - IA_DEPLOY_FIX_ATTEMPTS=${IA_DEPLOY_FIX_ATTEMPTS:-2}
+      - IA_FIX_ATTEMPTS=${IA_FIX_ATTEMPTS:-2}
       # Identité des commits de l'orchestrateur
       - GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME:-Automatisation IA}
       - GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL:-ia@leschouxdacote.fr}

@@ -100,7 +100,8 @@ export const CoolifyDeployment = Sc.Struct({
   commit: Sc.optional(Sc.NullOr(Sc.String)),
   commit_message: Sc.optional(Sc.NullOr(Sc.String)),
   created_at: Sc.optional(Sc.NullOr(Sc.String)),
-  logs: Sc.optional(Sc.NullOr(Sc.String)), // JSON : tableau d'entrées { command, output, type, hidden… }
+  deployment_url: Sc.optional(Sc.NullOr(Sc.String)), // chemin de la page du déploiement dans l'UI Coolify
+  logs: Sc.optional(Sc.NullOr(Sc.String)), // JSON : tableau d'entrées { command, output, type, hidden… } ; absent en 4.3.x
 })
 export type CoolifyDeployment = typeof CoolifyDeployment.Type
 
