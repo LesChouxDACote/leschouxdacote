@@ -10,6 +10,8 @@ export interface CoolifyClientShape {
   readonly listDeployments: Effect.Effect<ReadonlyArray<CoolifyDeployment>, CoolifyError>
   // détail d'un déploiement, avec ses logs si le token a la permission read:sensitive
   readonly getDeployment: (uuid: string) => Effect.Effect<CoolifyDeployment, CoolifyError>
+  // dernier déploiement du preview d'une PR, avec ses logs (None : aucun déploiement trouvé)
+  readonly latestDeploymentFor: (prNumber: number) => Effect.Effect<Option.Option<CoolifyDeployment>, CoolifyError>
   // les logs des déploiements ne sont renvoyés qu'aux tokens ayant la permission read:sensitive ;
   // None si l'application n'a encore aucun déploiement
   readonly logsVisible: Effect.Effect<Option.Option<boolean>, CoolifyError>
@@ -36,6 +38,7 @@ export const CoolifyClientLive = Layer.effect(
         appUuid: "",
         listDeployments: disabled,
         getDeployment: () => disabled,
+        latestDeploymentFor: () => disabled,
         logsVisible: disabled,
         deploymentPage: () => undefined,
       }
@@ -94,6 +97,17 @@ export const CoolifyClientLive = Layer.effect(
       appUuid,
       listDeployments: listDeployments(30),
       getDeployment: (uuid) => decoded(CoolifyDeployment, "GET", `/deployments/${uuid}`),
+      latestDeploymentFor: (prNumber) =>
+        listDeployments(100).pipe(
+          Effect.flatMap((deployments) => {
+            const latest = deployments.find((deployment) => deployment.pull_request_id === prNumber)
+            return latest
+              ? decoded(CoolifyDeployment, "GET", `/deployments/${latest.deployment_uuid}`).pipe(
+                  Effect.map(Option.some),
+                )
+              : Effect.succeed(Option.none<CoolifyDeployment>())
+          }),
+        ),
       logsVisible: Effect.gen(function* () {
         const deployments = yield* listDeployments(1)
         if (deployments.length === 0) {

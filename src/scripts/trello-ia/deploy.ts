@@ -52,10 +52,10 @@ const scrub = (line: string) =>
 
 // première vraie erreur du build (lint, types, compilation…) ; les autres lignes du log sont du contexte
 const ERROR_MARKER =
-  /Failed to compile|error TS\d+|✖ \d+ problems?|Module not found|Type error:|Cannot find module|ERROR: process|npm ERR!|FATAL ERROR|Killed|exit code: [1-9]/
+  /Failed to compile|error TS\d+|✖ \d+ problems?|Module not found|Type error:|Cannot find module|ERROR:|npm ERR!|FATAL ERROR|Killed|exit code: [1-9]|ENOMEM|out of memory/
 // bruit Docker/BuildKit, métadonnées PHP de Coolify, bandeau télémétrie Next
 const NOISE =
-  /SecretsUsedInArgOrEnv|UndefinedVar|\d+ warnings? found \(use docker|^Dockerfile:\d+|^\s*\d+ \||^-{5,}$|^={5,}$|^Error type:|^Error code:|^Location:|^Stack trace|^#\d+ \/var\/www\/html|Gracefully shutting down|Next\.js now collects completely anonymous telemetry|This information is used to shape|You can learn more, including how to opt-out|nextjs\.org\/telemetry$/
+  /SecretsUsedInArgOrEnv|UndefinedVar|Error response from daemon: No such container|\d+ warnings? found \(use docker|^Dockerfile:\d+|^\s*\d+ \||^-{5,}$|^={5,}$|^Error type:|^Error code:|^Location:|^Stack trace|^#\d+ \/var\/www\/html|Gracefully shutting down|Next\.js now collects completely anonymous telemetry|This information is used to shape|You can learn more, including how to opt-out|nextjs\.org\/telemetry$/
 const ERROR_CONTEXT_BEFORE = 5
 const ERROR_WINDOW = 55
 const TAIL_LINES = 12
@@ -189,7 +189,7 @@ const reproduceBuild = (worktree: string) =>
 
 // relance le déploiement du preview sans permission « deploy » sur l'API : un commit vide poussé sur la
 // branche de la PR déclenche le preview via le webhook GitHub, comme n'importe quel push
-const retriggerDeployment = (worktree: string, branch: string, reason: string) =>
+export const retriggerDeployment = (worktree: string, branch: string, reason: string) =>
   Effect.gen(function* () {
     const { exec } = yield* Shell
     yield* exec(
@@ -332,3 +332,51 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
       }
     }
   })
+
+// état du preview d'une PR déjà livrée : dernier déploiement connu de Coolify et, s'il a échoué, son diagnostic
+export interface PreviewState {
+  readonly deployment: Option.Option<CoolifyDeployment>
+  readonly healthy: boolean // dernier déploiement terminé avec succès
+  readonly pending: boolean // déploiement en cours ou en file d'attente
+  readonly diagnostic: Option.Option<string>
+}
+
+export const previewState = (prUrl: string) =>
+  Effect.gen(function* () {
+    const coolify = yield* CoolifyClient
+    const deployment = yield* coolify.latestDeploymentFor(Number(prUrl.split("/").pop()))
+    const status = Option.isSome(deployment) ? deployment.value.status : undefined
+    const state: PreviewState = {
+      deployment,
+      healthy: status === "finished",
+      pending: status === "queued" || status === "in_progress",
+      diagnostic:
+        Option.isSome(deployment) && status === "failed"
+          ? Option.some(
+              deployment.value.logs ? excerptFromLogs(deployment.value.logs) : "(logs du déploiement non disponibles)",
+            )
+          : Option.none(),
+    }
+    return state
+  })
+
+// bloc injecté dans le prompt d'itération quand le preview n'est pas sain (undefined sinon)
+export const previewStatusBlock = (state: PreviewState) => {
+  if (state.healthy || state.pending) {
+    return undefined
+  }
+  if (Option.isNone(state.deployment)) {
+    return "État du preview de la PR : aucun déploiement trouvé côté Coolify."
+  }
+  const { commit, created_at, status } = state.deployment.value
+  const intro = `État du preview de la PR : le dernier déploiement (commit ${(commit ?? "?").slice(0, 7)}, ${created_at ?? "date inconnue"}) est « ${status} ».`
+  if (Option.isNone(state.diagnostic)) {
+    return intro
+  }
+  return `${intro}
+Corriger la cause de cet échec est la PRIORITÉ de cette itération. N'exécute pas « yarn build » toi-même (indisponible dans cet environnement) : appuie-toi sur l'extrait des logs, « yarn tsc » et « yarn eslint ».
+Extrait des logs du déploiement :
+\`\`\`
+${state.diagnostic.value}
+\`\`\``
+}

@@ -28,11 +28,12 @@ Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 export const iterationPrompt = (
   card: TrelloCard,
   ticketBlock: string,
+  previewStatus?: string, // état du dernier déploiement du preview quand il n'est pas sain (cf. deploy.ts)
 ) => `Le ticket Trello #${card.idShort} (« ${card.name} ») revient pour une NOUVELLE ITÉRATION : une première implémentation a déjà été livrée (la PR existe, la branche contient ton travail précédent), mais le PO a fait de nouveaux retours.
 
 Ticket et discussion à jour (les retours du PO sont dans les commentaires les plus récents) :
 ${ticketBlock}
-
+${previewStatus ? `\n${previewStatus}\n` : ""}
 Prends en compte les derniers retours du PO et adapte l'implémentation existante en conséquence.
 Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles (le build du preview échoue sur la moindre erreur ESLint, par exemple une apostrophe non échappée dans du JSX).
 Si, après analyse, aucun changement de code n'est réellement nécessaire, explique pourquoi sans rien modifier.
@@ -55,6 +56,7 @@ ${diagnostic}
 
 Analyse la cause et corrige-la dans le dépôt.
 Vérifie ensuite avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles.
+N'exécute pas « yarn build » toi-même (indisponible dans cet environnement) : appuie-toi sur le diagnostic ci-dessus.
 Si le problème n'est PAS lié au code (réseau, mémoire du serveur, infrastructure), ne modifie rien et explique-le.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 

@@ -31,11 +31,15 @@ export const TrelloClientLive = Layer.effect(
         const url = new URL(BASE_URL + path)
         url.searchParams.set("key", config.trelloApiKey)
         url.searchParams.set("token", config.trelloToken)
-        for (const key in params) {
-          url.searchParams.set(key, params[key])
+        // les paramètres des écritures vont dans le corps : un commentaire long dans l'URL provoque un 414
+        const body = method === "GET" ? undefined : new URLSearchParams(params)
+        if (!body) {
+          for (const key in params) {
+            url.searchParams.set(key, params[key])
+          }
         }
         const response = yield* Effect.tryPromise({
-          try: () => fetch(url, { method }),
+          try: () => fetch(url, { method, body }),
           catch: (cause) => new TrelloError({ message: `Trello ${method} ${path} : ${String(cause)}`, cause }),
         })
         if (!response.ok) {
@@ -44,7 +48,7 @@ export const TrelloClientLive = Layer.effect(
             catch: () => new TrelloError({ message: `Trello ${method} ${path} : ${response.status}` }),
           })
           return yield* Effect.fail(
-            new TrelloError({ message: `Trello ${method} ${path} : ${response.status} ${body}` }),
+            new TrelloError({ message: `Trello ${method} ${path} : ${response.status} ${body.slice(0, 300)}` }),
           )
         }
         return yield* Effect.tryPromise({

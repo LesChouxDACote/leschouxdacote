@@ -1,5 +1,5 @@
 // Développement (« Ready IA ») : plan, implémentation, PR, preview
-import { Cause, Effect } from "effect"
+import { Cause, Effect, Option } from "effect"
 import { unlinkSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import path from "path"
@@ -7,7 +7,7 @@ import { claudeArgsFor, ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
 import { CoolifyClient } from "./coolify"
 import { commitAndPush, DEV_ARGS, implementArgs, pendingChanges, verifyAndFix } from "./delivery"
-import { ensurePreviewDeployed } from "./deploy"
+import { ensurePreviewDeployed, previewState, previewStatusBlock, retriggerDeployment } from "./deploy"
 import { WatcherError } from "./errors"
 import { Git } from "./git"
 import type { ResolvedLists } from "./lists"
@@ -78,6 +78,14 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
     const context = yield* loadTicketContext(card, worktree)
     const ticketBlock = ticketContextBlock(context)
+    // itération : si le dernier déploiement du preview a échoué, ses logs entrent dans le prompt
+    const previewBefore =
+      isIteration && coolify.enabled && state?.prUrl ? Option.some(yield* previewState(state.prUrl)) : Option.none()
+    const previewStatus = Option.isSome(previewBefore) ? previewStatusBlock(previewBefore.value) : undefined
+    if (Option.isSome(previewBefore)) {
+      const status = Option.map(previewBefore.value.deployment, (deployment) => deployment.status)
+      console.log(`  Dernier déploiement du preview : ${Option.getOrElse(status, () => "introuvable")}`)
+    }
     const claudeArgs = claudeArgsFor(context.details)
     const planArgs = ["-p", planPrompt(ticketBlock), ...DEV_ARGS, ...claudeArgs]
 
@@ -89,7 +97,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
         .run(
           implementArgs(
             state.sessionId,
-            isIteration ? iterationPrompt(card, ticketBlock) : retryPrompt(card, ticketBlock),
+            isIteration ? iterationPrompt(card, ticketBlock, previewStatus) : retryPrompt(card, ticketBlock),
             claudeArgs,
           ),
           worktree,
@@ -137,6 +145,35 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
           card.id,
           truncate(`♻️ Aucun changement nécessaire d'après l'IA :\n\n${lastOutput.result}`),
         )
+        // preview absent, en échec ou en cours : on ne referme pas le ticket sans l'avoir vu en ligne
+        const previewAfter = coolify.enabled && state?.prUrl ? yield* previewState(state.prUrl) : undefined
+        if (previewAfter && state?.prUrl && !previewAfter.healthy) {
+          const pending = previewAfter.pending ? Option.getOrUndefined(previewAfter.deployment) : undefined
+          const pushedAt = pending?.created_at ? new Date(pending.created_at) : new Date()
+          const sha = pending
+            ? (pending.commit ?? "")
+            : yield* retriggerDeployment(worktree, branch, "itération sans changement, preview absent ou en échec")
+          console.log(
+            pending
+              ? "  Déploiement du preview en cours : suivi"
+              : `  Preview non sain : déploiement relancé (${sha.slice(0, 7)})`,
+          )
+          const live = yield* ensurePreviewDeployed({
+            card,
+            branch,
+            worktree,
+            prUrl: state.prUrl,
+            sha,
+            pushedAt,
+            sessionId: verified.sessionId,
+            claudeArgs,
+          })
+          yield* git.removeWorktree(paths)
+          if (live) {
+            yield* trello.moveCard(card.id, lists.done.id)
+          }
+          return
+        }
         yield* trello.moveCard(card.id, lists.done.id)
         yield* git.removeWorktree(paths)
         return
