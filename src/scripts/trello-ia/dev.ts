@@ -1,10 +1,13 @@
-// Développement (« Ready IA ») : plan, implémentation, PR
+// Développement (« Ready IA ») : plan, implémentation, PR, preview
 import { Cause, Effect } from "effect"
-import { existsSync, rmSync, unlinkSync, writeFileSync } from "fs"
+import { unlinkSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import path from "path"
 import { claudeArgsFor, ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
+import { CoolifyClient } from "./coolify"
+import { commitAndPush, DEV_ARGS, formatWorktree, implementArgs } from "./delivery"
+import { ensurePreviewDeployed } from "./deploy"
 import { WatcherError } from "./errors"
 import { Git } from "./git"
 import type { ResolvedLists } from "./lists"
@@ -13,39 +16,10 @@ import { IMPLEMENT_PROMPT, iterationPrompt, planPrompt, retryPrompt } from "./pr
 import type { ClaudeOutput, TrelloCard } from "./schemas"
 import { Shell } from "./shell"
 import { StateStore } from "./state"
-import { loadTicketContext, TICKET_DIR, ticketContextBlock, ticketPaths, truncate, uuidForTicket } from "./ticket"
+import { loadTicketContext, ticketContextBlock, ticketPaths, truncate, uuidForTicket } from "./ticket"
 import { TrelloClient } from "./trello"
 
-const DEV_ARGS = ["--output-format", "json", "--permission-mode", "acceptEdits"]
-const ALLOWED_TOOLS = [
-  "Edit",
-  "Write",
-  "Read",
-  "Glob",
-  "Grep",
-  "Bash(yarn tsc:*)",
-  "Bash(yarn lint:*)",
-  "Bash(git status:*)",
-  "Bash(git diff:*)",
-  "Bash(git log:*)",
-]
-
 const logError = (error: unknown) => Effect.sync(() => console.error(error))
-
-// fichiers touchés par le ticket : commités depuis la branche de base (tentatives précédentes)
-// et modifications en attente, existants dans le worktree
-const touchedFilesIn = (worktree: string, committedFiles: string, statusLines: string) => {
-  const pendingFiles = statusLines
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const raw = line.slice(3)
-      return (raw.includes(" -> ") ? raw.split(" -> ")[1] : raw).replace(/^"|"$/g, "")
-    })
-  return Array.from(new Set([...committedFiles.split("\n").filter(Boolean), ...pendingFiles])).filter((file) =>
-    existsSync(path.join(worktree, file)),
-  )
-}
 
 export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
   Effect.gen(function* () {
@@ -56,6 +30,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     const { exec } = yield* Shell
     const claude = yield* ClaudeRunner
     const preview = yield* Preview
+    const coolify = yield* CoolifyClient
 
     const paths = ticketPaths(worktreesDir, card)
     const { branch, worktree } = paths
@@ -105,16 +80,6 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     const ticketBlock = ticketContextBlock(context)
     const claudeArgs = claudeArgsFor(context.details)
     const planArgs = ["-p", planPrompt(ticketBlock), ...DEV_ARGS, ...claudeArgs]
-    const implementArgs = (sessionId: string, prompt: string) => [
-      "-p",
-      "--resume",
-      sessionId,
-      prompt,
-      ...DEV_ARGS,
-      ...claudeArgs,
-      "--allowedTools",
-      ...ALLOWED_TOOLS,
-    ]
 
     // 3. Plan puis implémentation par Claude, dans la session du ticket
     let lastOutput: ClaudeOutput
@@ -125,6 +90,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
           implementArgs(
             state.sessionId,
             isIteration ? iterationPrompt(card, ticketBlock) : retryPrompt(card, ticketBlock),
+            claudeArgs,
           ),
           worktree,
         )
@@ -135,7 +101,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
               const plan = yield* claude.run(planArgs, worktree)
               yield* store.save(card.idShort, { sessionId: plan.session_id, branch, status: "plan" })
               yield* trello.addComment(card.id, truncate(`📋 Plan (nouvelle tentative) :\n\n${plan.result}`))
-              return yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT), worktree)
+              return yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT, claudeArgs), worktree)
             }),
           ),
         )
@@ -148,37 +114,12 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       yield* trello.addComment(card.id, truncate(`📋 Plan :\n\n${plan.result}`))
 
       console.log("  Implémentation du plan…")
-      lastOutput = yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT), worktree)
+      lastOutput = yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT, claudeArgs), worktree)
       yield* store.save(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
     }
 
     // 4. Garde-fous typage + formatage puis commit + push par l'orchestrateur
-    console.log("  Vérification tsc…")
-    yield* exec("yarn", ["tsc", "--skipLibCheck", "--noEmit"], worktree)
-
-    const planFile = path.join(worktree, ".ia-plan.md")
-    if (existsSync(planFile)) {
-      unlinkSync(planFile)
-    }
-    rmSync(path.join(worktree, TICKET_DIR), { recursive: true, force: true }) // pièces jointes jamais commitées
-
-    // le build Next échoue sur la règle prettier/prettier : on formate tout ce que le ticket a touché,
-    // y compris les commits déjà poussés lors d'une tentative précédente (retry)
-    const committedFiles = yield* exec("git", ["diff", "--name-only", `origin/${baseBranch}...HEAD`], worktree)
-    const statusLines = yield* exec("git", ["status", "--porcelain"], worktree)
-    const touchedFiles = touchedFilesIn(worktree, committedFiles, statusLines)
-    const prettierFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx|json|css|scss|md)$/.test(file))
-    if (prettierFiles.length > 0) {
-      console.log("  Formatage Prettier…")
-      yield* exec("yarn", ["prettier", "--write", ...prettierFiles], worktree)
-    }
-    const lintFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx)$/.test(file))
-    if (lintFiles.length > 0) {
-      console.log("  ESLint --fix…")
-      yield* exec("yarn", ["eslint", "--fix", ...lintFiles], worktree)
-    }
-
-    const changes = yield* exec("git", ["status", "--porcelain"], worktree)
+    const changes = yield* formatWorktree(worktree)
     if (!changes) {
       if (isIteration) {
         // Claude a jugé qu'aucune modification n'était nécessaire : on l'explique au PO
@@ -194,11 +135,11 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       }
       return yield* Effect.fail(new WatcherError({ message: "aucun changement produit par l'implémentation" }))
     }
-    yield* exec("git", ["add", "-A"], worktree)
-    yield* exec("git", ["commit", "-m", `feat: ${card.name} (Trello #${card.idShort})`], worktree)
-    // capturé avant le push : sur une itération, le 🌐 n'est posté que quand le preview sert un build plus récent
-    const buildIdBeforePush = isIteration ? yield* preview.buildId(preview.urlFor(state?.prUrl)) : undefined
-    yield* exec("git", ["push", "-u", "origin", branch], worktree)
+    // sans API Coolify, sur une itération, le 🌐 n'est posté que quand le preview sert un build plus récent
+    const buildIdBeforePush =
+      isIteration && !coolify.enabled ? yield* preview.buildId(preview.urlFor(state?.prUrl)) : undefined
+    const pushedAt = new Date()
+    const sha = yield* commitAndPush(worktree, branch, `feat: ${card.name} (Trello #${card.idShort})`)
     console.log("  Changements commités et poussés")
 
     // 5. Pull request vers la branche de base (réutilisée si déjà ouverte : le push l'a mise à jour)
@@ -239,7 +180,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview",
     )
 
-    // 6. Rapport sur la carte et nettoyage
+    // 6. Rapport sur la carte
     yield* store.save(card.idShort, { status: "done", prUrl })
     yield* trello.addComment(
       card.id,
@@ -250,10 +191,31 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
           : "⏳ Preview en cours de déploiement",
       )}`,
     )
-    yield* trello.moveCard(card.id, lists.done.id)
-    yield* git.removeWorktree(paths)
-    // fibre détachée : le watcher continue de traiter les tickets pendant l'attente du preview
-    yield* Effect.forkDetach(preview.notifyWhenLive(card, prUrl, buildIdBeforePush).pipe(Effect.catch(logError)))
+
+    // 7. Preview et nettoyage
+    if (coolify.enabled) {
+      // suivi du déploiement via l'API Coolify, avec correction des échecs : la carte ne passe dans
+      // « IA terminé » qu'une fois le preview en ligne ; sinon elle reste dans « IA en cours » avec le ⚠️
+      const live = yield* ensurePreviewDeployed({
+        card,
+        branch,
+        worktree,
+        prUrl,
+        sha,
+        pushedAt,
+        sessionId: lastOutput.session_id,
+        claudeArgs,
+      })
+      yield* git.removeWorktree(paths)
+      if (live) {
+        yield* trello.moveCard(card.id, lists.done.id)
+      }
+    } else {
+      yield* trello.moveCard(card.id, lists.done.id)
+      yield* git.removeWorktree(paths)
+      // fibre détachée : le watcher continue de traiter les tickets pendant l'attente du preview
+      yield* Effect.forkDetach(preview.notifyWhenLive(card, prUrl, buildIdBeforePush).pipe(Effect.catch(logError)))
+    }
   })
 
 // échec (erreur typée ou défaut) : ⚠️ sur la carte, statut « failed », worktree nettoyé.

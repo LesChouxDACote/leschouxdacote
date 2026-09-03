@@ -3,6 +3,7 @@ import { mkdirSync } from "fs"
 import { processDiscussions } from "./atelier"
 import { ClaudeRunnerLive } from "./claude"
 import { AppConfig, AppConfigLive } from "./config"
+import { CoolifyClient, CoolifyClientLive } from "./coolify"
 import { processCard, reportFailure } from "./dev"
 import { GitLive } from "./git"
 import { resolveLists } from "./lists"
@@ -16,6 +17,7 @@ export const AppLayer = Layer.mergeAll(
   GitLive,
   PreviewLive,
   ClaudeRunnerLive,
+  CoolifyClientLive,
   StateStoreLive,
   TrelloClientLive,
   ShellLive,
@@ -27,6 +29,7 @@ const logCause = (prefix: string) => (cause: Cause.Cause<unknown>) =>
 export const main = Effect.gen(function* () {
   const config = yield* AppConfig
   const trello = yield* TrelloClient
+  const coolify = yield* CoolifyClient
   const me = yield* trello.getMe
   const lists = yield* resolveLists
   mkdirSync(config.worktreesDir, { recursive: true })
@@ -41,6 +44,11 @@ export const main = Effect.gen(function* () {
     Option.isSome(config.anthropicModel)
       ? `Modèle Claude forcé : ${config.anthropicModel.value}`
       : "Modèle Claude : défaut du compte (définir ANTHROPIC_MODEL pour forcer)",
+  )
+  console.log(
+    coolify.enabled
+      ? `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.deployFixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`
+      : "Suivi des déploiements Coolify inactif (définir COOLIFY_API_URL, COOLIFY_API_TOKEN et COOLIFY_APP_UUID)",
   )
 
   // cadrage : voie indépendante, pour répondre au PO même pendant une implémentation

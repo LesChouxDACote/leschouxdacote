@@ -105,6 +105,16 @@ La branche de base est configurable via `IA_BASE_BRANCH` ; si `PREVIEW_URL_TEMPL
 (ex. `https://{{pr_id}}.choux.ilieff.fr`), le lien du preview Coolify est ajouté au commentaire ✅ de la carte,
 puis un commentaire 🌐 est posté dès que le preview répond réellement (ping toutes les 30 s, 15 min max).
 
+**Suivi du déploiement et auto-correction (optionnel)** : avec `COOLIFY_API_URL`, `COOLIFY_API_TOKEN` et
+`COOLIFY_APP_UUID`, le watcher suit via l'API Coolify le déploiement du preview correspondant au commit poussé.
+La carte reste dans « IA en cours » jusqu'à ce que le preview soit en ligne (🌐, puis « IA terminé »).
+Si le déploiement échoue, il lit les logs du déploiement et les transmet à Claude (même session) qui corrige ;
+les garde-fous sont rejoués, un commit `fix:` est poussé (🛠️ puis 🔁 sur la carte) et le nouveau déploiement
+est suivi à son tour — `IA_DEPLOY_FIX_ATTEMPTS` corrections max (2 par défaut), `IA_DEPLOY_TIMEOUT_MINUTES`
+d'attente max par déploiement (30). Si Claude ne change rien (échec réseau, mémoire…), le déploiement est
+simplement relancé. Après la dernière tentative, un ⚠️ avec l'extrait des logs est posté et la carte reste
+dans « IA en cours ».
+
 **Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet`, `haiku` ou `fable` sur la carte
 impose le modèle Claude pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte
 n'importe quel identifiant (ex. `model:claude-opus-4-6`). Priorité : étiquette > `ANTHROPIC_MODEL` > défaut du compte.
@@ -129,6 +139,10 @@ Variables d'environnement à renseigner dans Coolify :
 
 - `TRELLO_API_KEY`, `TRELLO_TOKEN`, `TRELLO_BOARD_ID` (+ `TRELLO_LIST_*`, `TRELLO_POLL_MINUTES` si besoin)
 - `GH_TOKEN` : token GitHub (fine-grained : Contents + Pull requests en read/write) — sert au push et aux PR
+- `COOLIFY_API_URL` (ex. `https://coolify.example.com`), `COOLIFY_API_TOKEN` (Coolify → Keys & Tokens →
+  API tokens, droits lecture + déploiement) et `COOLIFY_APP_UUID` (UUID de l'application dev, visible dans
+  l'URL de l'application dans Coolify ou comme `COOLIFY_RESOURCE_UUID` dans ses logs de déploiement) :
+  suivi des previews et auto-correction des déploiements échoués (optionnel, les trois ensemble)
 - `GITHUB_REPO` : `owner/repo` du dépôt (le conteneur re-clone depuis GitHub, Coolify ne fournit pas `.git`)
 - `CLAUDE_CODE_OAUTH_TOKEN` : **authentification Claude recommandée** — générer le token une fois sur ta machine
   avec `claude setup-token` (abonnement Claude), puis le coller dans Coolify. Aucune connexion interactive nécessaire.

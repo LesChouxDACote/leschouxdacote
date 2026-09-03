@@ -4,7 +4,8 @@ import { AppConfig } from "./config"
 import { ShellError } from "./errors"
 
 export interface ShellShape {
-  // stdout (sans blancs terminaux) ; en cas d'échec, ShellError « commande args : stderr »
+  // stdout (sans blancs terminaux) ; en cas d'échec, ShellError « commande args : stderr » (ou la fin de stdout
+  // quand stderr est vide : tsc et ESLint y écrivent leurs erreurs)
   readonly exec: (command: string, args: ReadonlyArray<string>, cwd?: string) => Effect.Effect<string, ShellError>
 }
 
@@ -21,7 +22,9 @@ export const ShellLive = Layer.effect(
           if (error) {
             resume(
               Effect.fail(
-                new ShellError({ message: `${command} ${args.join(" ")} : ${stderr.trim() || error.message}` }),
+                new ShellError({
+                  message: `${command} ${args.join(" ")} : ${stderr.trim() || stdout.trim().slice(-2000) || error.message}`,
+                }),
               ),
             )
           } else {

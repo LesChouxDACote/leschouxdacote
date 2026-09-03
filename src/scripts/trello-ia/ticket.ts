@@ -12,9 +12,9 @@ const DISCUSSION_LIMIT = 8000 // taille max de la discussion injectée dans les 
 const MAX_ATTACHMENTS = 10
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
 
-export const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐)/ // commentaires de statut de l'automatisation, exclus des prompts
+export const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐|🛠️|🔁)/ // commentaires de statut de l'automatisation, exclus des prompts
 // détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
-export const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐)/
+export const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐|🛠️|🔁)/
 
 export interface TicketContext {
   readonly details: TrelloCardDetails

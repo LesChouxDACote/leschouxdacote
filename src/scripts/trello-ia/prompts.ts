@@ -10,7 +10,7 @@ ${ticketBlock}
 Rédige un PLAN d'implémentation concis et actionnable pour ce ticket : fichiers à modifier, étapes, points de vigilance. Consulte les pièces jointes listées le cas échéant. N'écris aucun code pour l'instant.`
 
 export const IMPLEMENT_PROMPT = `Implémente maintenant ce plan dans le dépôt.
-Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
+Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles (le build du preview échoue sur la moindre erreur ESLint, par exemple une apostrophe non échappée dans du JSX).
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
 export const retryPrompt = (
@@ -22,7 +22,7 @@ Rappel du ticket (la discussion peut contenir de nouvelles consignes) :
 ${ticketBlock}
 
 Reprends l'implémentation du plan là où elle s'est arrêtée, dans l'état actuel du dépôt.
-Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
+Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles (le build du preview échoue sur la moindre erreur ESLint, par exemple une apostrophe non échappée dans du JSX).
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
 export const iterationPrompt = (
@@ -34,8 +34,25 @@ Ticket et discussion à jour (les retours du PO sont dans les commentaires les p
 ${ticketBlock}
 
 Prends en compte les derniers retours du PO et adapte l'implémentation existante en conséquence.
-Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et corrige les erreurs éventuelles.
+Vérifie ton travail avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles (le build du preview échoue sur la moindre erreur ESLint, par exemple une apostrophe non échappée dans du JSX).
 Si, après analyse, aucun changement de code n'est réellement nécessaire, explique pourquoi sans rien modifier.
+Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
+
+export const deployFixPrompt = (
+  card: TrelloCard,
+  attempt: number,
+  attempts: number,
+  logExcerpt: string,
+) => `Le déploiement du preview Coolify de la PR du ticket Trello #${card.idShort} (« ${card.name} ») a ÉCHOUÉ (correction ${attempt}/${attempts}). Le preview est construit avec « yarn build » (next build : lint ESLint, vérification des types, compilation) sur la branche du ticket.
+
+Extrait des logs du déploiement :
+\`\`\`
+${logExcerpt}
+\`\`\`
+
+Analyse la cause de l'échec et corrige-la dans le dépôt.
+Vérifie ensuite avec « yarn tsc --skipLibCheck --noEmit » et « yarn eslint <fichiers modifiés> », puis corrige les erreurs éventuelles.
+Si l'échec n'est PAS lié au code (réseau, mémoire du serveur, infrastructure), ne modifie rien et explique-le.
 Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 
 // le texte produit est publié tel quel : interdire tout méta-commentaire

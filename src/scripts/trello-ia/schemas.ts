@@ -90,3 +90,23 @@ export type TicketState = typeof TicketState.Type
 
 export const StateFile = Sc.Record(Sc.String, TicketState)
 export type StateFile = typeof StateFile.Type
+
+// --- Coolify (API v1 : déploiements d'une application) ---
+
+export const CoolifyDeployment = Sc.Struct({
+  deployment_uuid: Sc.String,
+  status: Sc.String, // queued | in_progress | finished | failed | cancelled-by-user
+  pull_request_id: Sc.optional(Sc.NullOr(Sc.Number)),
+  commit: Sc.optional(Sc.NullOr(Sc.String)),
+  commit_message: Sc.optional(Sc.NullOr(Sc.String)),
+  created_at: Sc.optional(Sc.NullOr(Sc.String)),
+  logs: Sc.optional(Sc.NullOr(Sc.String)), // JSON : tableau d'entrées { command, output, type, hidden… }
+})
+export type CoolifyDeployment = typeof CoolifyDeployment.Type
+
+export const CoolifyLogEntry = Sc.Struct({
+  command: Sc.optional(Sc.NullOr(Sc.String)),
+  output: Sc.optional(Sc.NullOr(Sc.String)),
+  type: Sc.optional(Sc.NullOr(Sc.String)),
+  hidden: Sc.optional(Sc.NullOr(Sc.Boolean)),
+})

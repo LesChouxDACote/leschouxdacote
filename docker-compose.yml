@@ -29,6 +29,13 @@ services:
       - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
       # Optionnel : URL des previews Coolify ajoutée au commentaire Trello (ex. https://{{pr_id}}.choux.ilieff.fr)
       - PREVIEW_URL_TEMPLATE=${PREVIEW_URL_TEMPLATE:-}
+      # Optionnel : suivi des déploiements de preview via l'API Coolify + correction automatique des échecs
+      # (les trois variables vont ensemble ; UUID = application dont les previews sont déployés)
+      - COOLIFY_API_URL=${COOLIFY_API_URL:-}
+      - COOLIFY_API_TOKEN=${COOLIFY_API_TOKEN:-}
+      - COOLIFY_APP_UUID=${COOLIFY_APP_UUID:-}
+      - IA_DEPLOY_TIMEOUT_MINUTES=${IA_DEPLOY_TIMEOUT_MINUTES:-30}
+      - IA_DEPLOY_FIX_ATTEMPTS=${IA_DEPLOY_FIX_ATTEMPTS:-2}
       # Identité des commits de l'orchestrateur
       - GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME:-Automatisation IA}
       - GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL:-ia@leschouxdacote.fr}

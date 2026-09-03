@@ -2,6 +2,12 @@ import { Config, Context, Effect, Layer, Option } from "effect"
 import path from "path"
 import { EnvError } from "./errors"
 
+export interface CoolifyConfig {
+  readonly apiUrl: string // ex. https://coolify.example.com (sans slash final)
+  readonly token: string // Coolify → Keys & Tokens → API tokens
+  readonly appUuid: string // UUID de l'application dont les previews sont suivis
+}
+
 export interface AppConfigShape {
   readonly trelloApiKey: string
   readonly trelloToken: string
@@ -18,6 +24,10 @@ export interface AppConfigShape {
   readonly stateFile: string
   readonly previewUrlTemplate: Option.Option<string> // ex. https://{{pr_id}}.choux.ilieff.fr
   readonly anthropicModel: Option.Option<string>
+  // suivi des déploiements de preview via l'API Coolify + correction automatique des échecs (optionnel)
+  readonly coolify: Option.Option<CoolifyConfig>
+  readonly deployTimeoutMs: number // attente max d'un déploiement
+  readonly deployFixAttempts: number // corrections max après un déploiement échoué
 }
 
 export class AppConfig extends Context.Service<AppConfig, AppConfigShape>()("AppConfig") {}
@@ -39,6 +49,22 @@ const required = (name: string) =>
     ),
   )
 
+const COOLIFY_VARS = ["COOLIFY_API_URL", "COOLIFY_API_TOKEN", "COOLIFY_APP_UUID"]
+
+// les trois variables Coolify vont ensemble : toutes définies (suivi actif) ou aucune (suivi inactif)
+const coolifyConfig = Effect.gen(function* () {
+  const [apiUrl, token, appUuid] = yield* Effect.all(COOLIFY_VARS.map(optional))
+  const coolify = Option.all({ apiUrl, token, appUuid })
+  if (Option.isNone(coolify) && [apiUrl, token, appUuid].some(Option.isSome)) {
+    return yield* Effect.fail(
+      new EnvError({
+        message: `Configuration Coolify incomplète : définir ${COOLIFY_VARS.join(", ")} ensemble (ou aucune)`,
+      }),
+    )
+  }
+  return Option.map(coolify, (config) => ({ ...config, apiUrl: config.apiUrl.replace(/\/+$/, "") }))
+})
+
 export const AppConfigLive = Layer.effect(
   AppConfig,
   Effect.gen(function* () {
@@ -48,6 +74,8 @@ export const AppConfigLive = Layer.effect(
     const trelloBoardId = yield* required("TRELLO_BOARD_ID")
     const pollMinutes = yield* withFallback("TRELLO_POLL_MINUTES", "3")
     const chatPollMinutes = yield* withFallback("TRELLO_CHAT_POLL_MINUTES", "1")
+    const deployTimeoutMinutes = yield* withFallback("IA_DEPLOY_TIMEOUT_MINUTES", "30")
+    const deployFixAttempts = yield* withFallback("IA_DEPLOY_FIX_ATTEMPTS", "2")
     return {
       trelloApiKey,
       trelloToken,
@@ -65,6 +93,9 @@ export const AppConfigLive = Layer.effect(
       stateFile: yield* withFallback("IA_STATE_FILE", path.join(repoRoot, ".ia-sessions.json")),
       previewUrlTemplate: yield* optional("PREVIEW_URL_TEMPLATE"),
       anthropicModel: yield* optional("ANTHROPIC_MODEL"),
+      coolify: yield* coolifyConfig,
+      deployTimeoutMs: Number(deployTimeoutMinutes) * 60 * 1000,
+      deployFixAttempts: Number(deployFixAttempts),
     }
   }),
 )
