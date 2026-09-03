@@ -1,6 +1,6 @@
 import { execFile, spawn } from "child_process"
 import { createHash } from "crypto"
-import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, rmSync, unlinkSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import path from "path"
 import {
@@ -11,17 +11,16 @@ import {
   getComments,
   getLists,
   getMe,
+  initServices,
   moveCard,
-  TrelloCard,
-  TrelloCardDetails,
-  TrelloComment,
-  TrelloList,
-} from "src/helpers-api/trello"
+  readState,
+  saveTicketState,
+} from "./trello-ia/compat"
+import type { TrelloCard, TrelloCardDetails, TrelloComment, TrelloList } from "./trello-ia/schemas"
 
 const REPO_ROOT = process.cwd()
 // surchargés en Docker pour pointer vers le volume persistant (voir docker-compose.yml)
 const WORKTREES_DIR = process.env.IA_WORKTREES_DIR || path.resolve(REPO_ROOT, "..", ".ia-worktrees")
-const STATE_FILE = process.env.IA_STATE_FILE || path.join(REPO_ROOT, ".ia-sessions.json")
 // branche de départ des tickets et cible des PR (develop = previews Coolify sur l'app dev)
 const BASE_BRANCH = process.env.IA_BASE_BRANCH || "develop"
 // worktree partagé, détaché sur la branche de base : contexte code des discussions de cadrage
@@ -62,29 +61,10 @@ interface ClaudeOutput {
   modelUsage?: Record<string, unknown> // clés = identifiants des modèles utilisés
 }
 
-type TicketStatus = "plan" | "implement" | "done" | "failed"
-
-interface TicketState {
-  sessionId?: string // session de développement (plan + implémentation)
-  chatSessionId?: string // session de cadrage (Atelier IA)
-  branch?: string
-  status?: TicketStatus
-  prUrl?: string
-}
-
 interface TicketContext {
   details: TrelloCardDetails
-  comments: TrelloComment[]
+  comments: ReadonlyArray<TrelloComment>
   attachmentPaths: string[]
-}
-
-const readState = (): Record<string, TicketState> =>
-  existsSync(STATE_FILE) ? JSON.parse(readFileSync(STATE_FILE, "utf8")) : {}
-
-const saveTicketState = (idShort: number, ticket: Partial<TicketState>) => {
-  const state = readState()
-  state[idShort] = { ...state[idShort], ...ticket }
-  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2))
 }
 
 // UUID déterministe (style v5) dérivé du numéro de ticket : une session Claude par ticket et par usage
@@ -110,7 +90,7 @@ const truncate = (text: string) =>
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const lastIndexWhere = <T>(items: T[], predicate: (item: T) => boolean) => {
+const lastIndexWhere = <T>(items: ReadonlyArray<T>, predicate: (item: T) => boolean) => {
   for (let index = items.length - 1; index >= 0; index--) {
     if (predicate(items[index])) {
       return index
@@ -249,7 +229,7 @@ const loadTicketContext = async (card: TrelloCard, dir: string): Promise<TicketC
   return { details, comments, attachmentPaths }
 }
 
-const formatDiscussion = (comments: TrelloComment[]) => {
+const formatDiscussion = (comments: ReadonlyArray<TrelloComment>) => {
   const lines = comments
     .filter((comment) => !STATUS_COMMENT.test(comment.text))
     .map((comment) => `[${BOT_COMMENT.test(comment.text) ? "IA" : comment.memberName}] ${comment.text}`)
@@ -806,11 +786,7 @@ const resolveLists = async (): Promise<ResolvedLists> => {
 }
 
 const handler = async () => {
-  for (const name of ["TRELLO_API_KEY", "TRELLO_TOKEN", "TRELLO_BOARD_ID"]) {
-    if (!process.env[name]) {
-      throw new Error(`Variable d'environnement manquante : ${name}`)
-    }
-  }
+  await initServices() // configuration (TRELLO_* obligatoires) et services Effect : config, Trello, état
   const me = await getMe()
   const lists = await resolveLists()
   mkdirSync(WORKTREES_DIR, { recursive: true })
