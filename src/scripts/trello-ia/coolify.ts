@@ -16,6 +16,9 @@ export interface CoolifyClientShape {
 
 export class CoolifyClient extends Context.Service<CoolifyClient, CoolifyClientShape>()("CoolifyClient") {}
 
+// la spec OpenAPI annonce un tableau, l'API réelle (4.3.x) renvoie { count, deployments } : on accepte les deux
+const DeploymentList = Sc.Union([Sc.Array(CoolifyDeployment), Sc.Struct({ deployments: Sc.Array(CoolifyDeployment) })])
+
 const disabled = Effect.fail(
   new CoolifyError({ message: "Suivi Coolify non configuré (COOLIFY_API_URL, COOLIFY_API_TOKEN, COOLIFY_APP_UUID)" }),
 )
@@ -80,10 +83,8 @@ export const CoolifyClientLive = Layer.effect(
     const client: CoolifyClientShape = {
       enabled: true,
       appUuid,
-      listDeployments: decoded(
-        Sc.Array(CoolifyDeployment),
-        "GET",
-        `/deployments/applications/${appUuid}?skip=0&take=30`,
+      listDeployments: decoded(DeploymentList, "GET", `/deployments/applications/${appUuid}?skip=0&take=30`).pipe(
+        Effect.map((body) => ("deployments" in body ? body.deployments : body)),
       ),
       getDeployment: (uuid) => decoded(CoolifyDeployment, "GET", `/deployments/${uuid}`),
       triggerDeploy: (prNumber) => Effect.asVoid(request("POST", `/deploy?uuid=${appUuid}&pr=${prNumber}`)),
