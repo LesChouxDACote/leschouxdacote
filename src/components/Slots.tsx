@@ -3,7 +3,7 @@ import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/mate
 import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
-import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
+import { pipe, Result, Schema as Sc, SchemaIssue } from "effect"
 import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 import Modal from "src/components/Modal"
 
@@ -125,32 +125,34 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
             color="primary"
             onClick={() => {
               pipe(
-                Sc.decodeUnknownEither(
+                Sc.decodeUnknownResult(
                   pipe(
                     SlotSchema,
-                    Sc.filter((slot) => {
-                      const currentDate = new Date()
-                      const slotDate = new Date(slot.date)
-                      const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
+                    Sc.check(
+                      Sc.makeFilter((slot) => {
+                        const currentDate = new Date()
+                        const slotDate = new Date(slot.date)
+                        const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
 
-                      if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
-                        return "La date doit être après la date actuelle."
-                      }
+                        if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
+                          return "La date doit être après la date actuelle."
+                        }
 
-                      const now = new Date()
-                      const currentHour = now.toTimeString().slice(0, 5)
-                      const today = new Date().toISOString().split("T")[0]
-                      if (
-                        slotDate.toISOString().split("T")[0] === today &&
-                        heureDebut < new Date(`1970-01-01T${currentHour}:00`)
-                      ) {
-                        return "L'heure de début doit être après l'heure actuelle."
-                      }
+                        const now = new Date()
+                        const currentHour = now.toTimeString().slice(0, 5)
+                        const today = new Date().toISOString().split("T")[0]
+                        if (
+                          slotDate.toISOString().split("T")[0] === today &&
+                          heureDebut < new Date(`1970-01-01T${currentHour}:00`)
+                        ) {
+                          return "L'heure de début doit être après l'heure actuelle."
+                        }
 
-                      const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
+                        const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
 
-                      return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin."
-                    }),
+                        return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin."
+                      }),
+                    ),
                   ),
                 )({
                   date: control._formValues.date,
@@ -158,13 +160,13 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
                   heureFin: control._formValues.heureFin,
                 }),
 
-                E.map((newSlot) => {
+                Result.map((newSlot) => {
                   setError(null)
                   setSlots([...slots, newSlot])
                 }),
 
-                E.mapLeft((error) => ParseResult.ArrayFormatter.formatErrorSync(error)),
-                E.mapLeft((error) => setError(error[0].message)),
+                Result.mapError((error) => SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues),
+                Result.mapError((issues) => setError(issues[0].message)),
               )
             }}
           >

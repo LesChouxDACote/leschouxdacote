@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -15,7 +15,11 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "baseUrl": ".",
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "effect": ["./node_modules/effect/dist/index"],
+      "effect/unstable/*": ["./node_modules/effect/dist/unstable/*/index"]
+    }
   },
   "include": ["next-env.d.ts", "src/types/*.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"],
