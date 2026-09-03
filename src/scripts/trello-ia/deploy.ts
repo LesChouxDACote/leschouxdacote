@@ -55,7 +55,7 @@ const ERROR_MARKER =
   /Failed to compile|error TS\d+|✖ \d+ problems?|Module not found|Type error:|Cannot find module|ERROR: process|npm ERR!|FATAL ERROR|Killed|exit code: [1-9]/
 // bruit Docker/BuildKit, métadonnées PHP de Coolify, bandeau télémétrie Next
 const NOISE =
-  /SecretsUsedInArgOrEnv|UndefinedVar|\d+ warnings? found \(use docker|^Dockerfile:\d+|^\s*\d+ \|\s|^-{5,}$|^={5,}$|^Error type:|^Error code:|^Location:|^Stack trace|^#\d+ \/var\/www\/html|Gracefully shutting down|Next\.js now collects completely anonymous telemetry|This information is used to shape|You can learn more, including how to opt-out|nextjs\.org\/telemetry$/
+  /SecretsUsedInArgOrEnv|UndefinedVar|\d+ warnings? found \(use docker|^Dockerfile:\d+|^\s*\d+ \||^-{5,}$|^={5,}$|^Error type:|^Error code:|^Location:|^Stack trace|^#\d+ \/var\/www\/html|Gracefully shutting down|Next\.js now collects completely anonymous telemetry|This information is used to shape|You can learn more, including how to opt-out|nextjs\.org\/telemetry$/
 const ERROR_CONTEXT_BEFORE = 5
 const ERROR_WINDOW = 55
 const TAIL_LINES = 12
