@@ -84,8 +84,6 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
 
   return (
     <Stack spacing={1} alignItems="start" width="100%" mb={2}>
-      <Typography variant="h6">Stock</Typography>
-
       {!isOpen && (
         <Button variant="contained" color="primary" onClick={handleCreate}>
           Créer une réservation
@@ -94,6 +92,16 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
 
       {isOpen && (
         <>
+          <Typography variant="h6">Informations et instructions</Typography>
+          <TextField
+            multiline
+            fullWidth
+            value={instructions}
+            onChange={(event) => setInstructions(event.target.value)}
+          />
+
+          <Typography variant="h6">Stock</Typography>
+
           <Box>
             <TextField
               label="Quantité totale *"
@@ -127,14 +135,6 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
               Veuillez renseigner l&apos;unité du produit ci-dessus pour activer cette réservation.
             </Typography>
           )}
-
-          <TextField
-            label="Informations et instructions"
-            multiline
-            fullWidth
-            value={instructions}
-            onChange={(event) => setInstructions(event.target.value)}
-          />
 
           {error && (
             <Typography color="error" variant="body2">
