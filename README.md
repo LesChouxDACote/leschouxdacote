@@ -121,7 +121,7 @@ Prérequis sur la machine qui exécute le watcher :
 ### Déploiement sur Coolify (Docker)
 
 Créer une ressource « Docker Compose » pointant sur ce dépôt : le `docker-compose.yml` à la racine construit
-`docker/trello-ia/Dockerfile` (Node 20 + git + gh + claude) et lance `yarn watch-trello`.
+`docker/trello-ia/Dockerfile` (Node 22 + git + gh + claude) et lance `yarn watch-trello`.
 Le volume `/data` persiste l'authentification et les sessions Claude (nécessaires à la reprise par ticket),
 l'état des tickets (`ia-sessions.json`) et les worktrees.
 

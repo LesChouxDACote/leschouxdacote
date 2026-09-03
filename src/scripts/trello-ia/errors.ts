@@ -12,3 +12,5 @@ export class StateError extends Data.TaggedError("StateError")<{
 }> {}
 export class ShellError extends Data.TaggedError("ShellError")<{ readonly message: string }> {}
 export class ClaudeError extends Data.TaggedError("ClaudeError")<{ readonly message: string }> {}
+// erreurs d'orchestration (liste absente, branche déjà existante, implémentation sans changement…)
+export class WatcherError extends Data.TaggedError("WatcherError")<{ readonly message: string }> {}
