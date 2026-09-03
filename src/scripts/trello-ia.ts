@@ -1,8 +1,8 @@
-import { execFile, spawn } from "child_process"
 import { createHash } from "crypto"
 import { existsSync, mkdirSync, rmSync, unlinkSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import path from "path"
+import { CHAT_TIMEOUT, claudeArgsFor } from "./trello-ia/claude"
 import {
   addComment,
   downloadAttachment,
@@ -13,14 +13,24 @@ import {
   getMe,
   initServices,
   moveCard,
+  notifyWhenPreviewIsLive,
+  previewBuildId,
+  previewLineFor,
+  previewUrlFor,
   readState,
+  refreshAtelierWorktree,
+  removeWorktree,
+  removeWorktreeFiles,
+  run,
+  runClaude,
+  runClaudeNewSession,
   saveTicketState,
+  withGitLock,
 } from "./trello-ia/compat"
-import type { TrelloCard, TrelloCardDetails, TrelloComment, TrelloList } from "./trello-ia/schemas"
+import type { ClaudeOutput, TrelloCard, TrelloCardDetails, TrelloComment, TrelloList } from "./trello-ia/schemas"
 
-const REPO_ROOT = process.cwd()
 // surchargés en Docker pour pointer vers le volume persistant (voir docker-compose.yml)
-const WORKTREES_DIR = process.env.IA_WORKTREES_DIR || path.resolve(REPO_ROOT, "..", ".ia-worktrees")
+const WORKTREES_DIR = process.env.IA_WORKTREES_DIR || path.resolve(process.cwd(), "..", ".ia-worktrees")
 // branche de départ des tickets et cible des PR (develop = previews Coolify sur l'app dev)
 const BASE_BRANCH = process.env.IA_BASE_BRANCH || "develop"
 // worktree partagé, détaché sur la branche de base : contexte code des discussions de cadrage
@@ -30,8 +40,6 @@ const TRELLO_COMMENT_LIMIT = 15000 // Trello accepte 16384 caractères par comme
 const DISCUSSION_LIMIT = 8000 // taille max de la discussion injectée dans les prompts
 const MAX_ATTACHMENTS = 10
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
-const CLAUDE_TIMEOUT = 45 * 60 * 1000
-const CHAT_TIMEOUT = 10 * 60 * 1000
 const ALLOWED_TOOLS = [
   "Edit",
   "Write",
@@ -52,13 +60,6 @@ interface ResolvedLists {
   wip: TrelloList
   done: TrelloList
   refine?: TrelloList // optionnelle : sans elle, le cadrage est désactivé
-}
-
-interface ClaudeOutput {
-  result: string
-  session_id: string
-  is_error?: boolean
-  modelUsage?: Record<string, unknown> // clés = identifiants des modèles utilisés
 }
 
 interface TicketContext {
@@ -99,63 +100,6 @@ const lastIndexWhere = <T>(items: ReadonlyArray<T>, predicate: (item: T) => bool
   return -1
 }
 
-const run = (command: string, args: string[], cwd = REPO_ROOT) =>
-  new Promise<string>((resolve, reject) => {
-    execFile(command, args, { cwd, maxBuffer: 16 * 1024 * 1024 }, (error, stdout, stderr) => {
-      if (error) {
-        reject(new Error(`${command} ${args.join(" ")} : ${stderr.trim() || error.message}`))
-      } else {
-        resolve(stdout.trim())
-      }
-    })
-  })
-
-const runClaude = (args: string[], cwd: string, timeoutMs = CLAUDE_TIMEOUT) =>
-  new Promise<ClaudeOutput>((resolve, reject) => {
-    const child = spawn("claude", args, { cwd, stdio: ["ignore", "pipe", "inherit"] })
-    let stdout = ""
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk
-    })
-
-    const watchdog = setTimeout(() => {
-      child.kill()
-      reject(new Error(`claude : temps d'exécution dépassé (${Math.round(timeoutMs / 60000)} min)`))
-    }, timeoutMs)
-
-    child.on("error", (error) => {
-      clearTimeout(watchdog)
-      reject(error)
-    })
-    child.on("close", (code) => {
-      clearTimeout(watchdog)
-      let output: ClaudeOutput | undefined
-      try {
-        output = JSON.parse(stdout)
-      } catch (error) {
-        // sortie non JSON : traitée comme un échec ci-dessous
-      }
-      if (code !== 0 || !output || output.is_error) {
-        reject(
-          new Error(`claude : échec (code ${code}) : ${(output?.result || stdout || "aucune sortie").slice(-2000)}`),
-        )
-      } else {
-        console.log(`  Modèle(s) Claude : ${Object.keys(output.modelUsage ?? {}).join(", ") || "non renseigné"}`)
-        resolve(output)
-      }
-    })
-  })
-
-// première session d'un ticket : UUID déterministe, avec repli en session anonyme s'il est déjà pris
-const runClaudeNewSession = async (args: string[], sessionId: string, cwd: string, timeoutMs?: number) => {
-  try {
-    return await runClaude([...args, "--session-id", sessionId], cwd, timeoutMs)
-  } catch (error) {
-    console.error("  --session-id indisponible, session anonyme :", error)
-    return runClaude(args, cwd, timeoutMs)
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Contexte complet du ticket (carte + checklists + pièces jointes + discussion)
 // ---------------------------------------------------------------------------
@@ -163,39 +107,6 @@ const runClaudeNewSession = async (args: string[], sessionId: string, cwd: strin
 const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐)/ // commentaires de statut de l'automatisation, exclus des prompts
 // détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
 const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐)/
-
-// étiquette Trello → modèle Claude du ticket (prime sur ANTHROPIC_MODEL, cf. --model du CLI)
-const MODEL_LABELS: Record<string, string> = {
-  opus: "opus",
-  sonnet: "sonnet",
-  haiku: "haiku",
-  fable: "claude-fable-5", // pas d'alias CLI, et nécessite un compte y ayant accès
-}
-const EFFORT_LEVELS = ["low", "medium", "high", "xhigh", "max"]
-
-// étiquettes de la carte → arguments claude optionnels : modèle (opus/sonnet/haiku/fable ou
-// model:<id>) et effort (effort:low|medium|high|xhigh|max) ; sans étiquette, défauts du CLI
-const claudeArgsFor = (details: TrelloCardDetails) => {
-  const args: string[] = []
-  for (const label of details.labels) {
-    const name = (label.name || "").trim().toLowerCase()
-    const model = MODEL_LABELS[name] || (name.startsWith("model:") ? name.slice("model:".length).trim() : undefined)
-    if (model && !args.includes("--model")) {
-      console.log(`  Modèle demandé par étiquette : ${model}`)
-      args.push("--model", model)
-    }
-    if (name.startsWith("effort:") && !args.includes("--effort")) {
-      const level = name.slice("effort:".length).trim()
-      if (EFFORT_LEVELS.includes(level)) {
-        console.log(`  Effort demandé par étiquette : ${level}`)
-        args.push("--effort", level)
-      } else {
-        console.log(`  Étiquette effort ignorée (niveau inconnu : « ${level} », attendu ${EFFORT_LEVELS.join("/")})`)
-      }
-    }
-  }
-  return args
-}
 
 const fetchAttachments = async (details: TrelloCardDetails, dir: string) => {
   const ticketDir = path.join(dir, TICKET_DIR, String(details.idShort))
@@ -342,112 +253,6 @@ const ticketPaths = (card: TrelloCard) => {
   }
 }
 
-// les boucles cadrage et dev tournent en parallèle : on sérialise les commandes git qui touchent
-// l'état partagé du dépôt (fetch des mêmes refs, worktree add/remove/prune). Verrou NON réentrant.
-let gitLock: Promise<unknown> = Promise.resolve()
-const withGitLock = <T>(task: () => Promise<T>): Promise<T> => {
-  const result = gitLock.then(task)
-  gitLock = result.catch(() => undefined)
-  return result
-}
-
-// version sans verrou, à n'appeler que depuis un bloc déjà sous withGitLock
-const removeWorktreeFiles = async (card: TrelloCard) => {
-  const { branch, worktree } = ticketPaths(card)
-  if (existsSync(worktree)) {
-    await run("git", ["worktree", "remove", "--force", worktree]).catch(() => {
-      rmSync(worktree, { recursive: true, force: true })
-    })
-  }
-  await run("git", ["worktree", "prune"]).catch(() => undefined)
-  await run("git", ["branch", "-D", branch]).catch(() => undefined) // la branche distante n'est pas touchée
-}
-
-const removeWorktree = (card: TrelloCard) => withGitLock(() => removeWorktreeFiles(card))
-
-// (re)met le worktree de cadrage sur la tête de la branche de base
-const refreshAtelierWorktree = () =>
-  withGitLock(async () => {
-    await run("git", ["fetch", "origin", BASE_BRANCH])
-    const recreate = async () => {
-      await run("git", ["worktree", "remove", "--force", ATELIER_WORKTREE]).catch(() => {
-        rmSync(ATELIER_WORKTREE, { recursive: true, force: true })
-      })
-      await run("git", ["worktree", "prune"]).catch(() => undefined)
-      await run("git", ["worktree", "add", "--detach", ATELIER_WORKTREE, `origin/${BASE_BRANCH}`])
-    }
-    if (existsSync(ATELIER_WORKTREE)) {
-      await run("git", ["checkout", "--detach", `origin/${BASE_BRANCH}`], ATELIER_WORKTREE).catch(recreate)
-    } else {
-      await recreate()
-    }
-  })
-
-// ---------------------------------------------------------------------------
-// Preview Coolify
-// ---------------------------------------------------------------------------
-
-// PREVIEW_URL_TEMPLATE (ex. https://{{pr_id}}.choux.ilieff.fr, même placeholder que Coolify)
-const previewUrlFor = (prUrl: string | undefined) => {
-  const prNumber = prUrl?.split("/").pop()
-  const template = process.env.PREVIEW_URL_TEMPLATE
-  return template && prNumber ? template.replace("{{pr_id}}", prNumber) : undefined
-}
-
-const previewLineFor = (prUrl: string | undefined, label = "Preview") => {
-  const url = previewUrlFor(prUrl)
-  return url ? `\n${label} : ${url}` : ""
-}
-
-// buildId Next.js embarqué dans la page (__NEXT_DATA__) : identifie le build réellement servi
-const previewBuildId = async (url: string | undefined) => {
-  if (!url) {
-    return undefined
-  }
-  try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
-    if (!response.ok) {
-      return undefined
-    }
-    return (await response.text()).match(/"buildId":"([^"]+)"/)?.[1]
-  } catch (error) {
-    return undefined
-  }
-}
-
-// pingue le preview jusqu'à ce qu'il réponde — et, sur une itération, jusqu'à ce qu'il serve un
-// build DIFFÉRENT de l'ancien (l'ancienne version reste en ligne pendant le rebuild Coolify).
-// Lancé sans await : le watcher continue de traiter les tickets pendant l'attente.
-const notifyWhenPreviewIsLive = async (card: TrelloCard, prUrl: string, previousBuildId?: string) => {
-  const url = previewUrlFor(prUrl)
-  if (!url) {
-    return
-  }
-  console.log(
-    `  Ping du preview ${url} (toutes les 30 s, 15 min max${previousBuildId ? `, attente d'un build ≠ ${previousBuildId}` : ""})…`,
-  )
-  const deadline = Date.now() + 15 * 60 * 1000
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
-      if (response.ok) {
-        const buildId = (await response.text()).match(/"buildId":"([^"]+)"/)?.[1]
-        const isFresh = previousBuildId ? buildId !== undefined && buildId !== previousBuildId : true
-        if (isFresh) {
-          const label = previousBuildId ? "Preview mise à jour" : "Preview en ligne"
-          console.log(`  ${label} : ${url} (build ${buildId ?? "?"})`)
-          await addComment(card.id, `🌐 ${label} : ${url}`)
-          return
-        }
-      }
-    } catch (error) {
-      // DNS/certificat/build pas encore prêts : on réessaie
-    }
-    await sleep(30 * 1000)
-  }
-  console.log(`  Preview toujours pas ${previousBuildId ? "mise à jour" : "en ligne"} après 15 min : ${url}`)
-}
-
 // ---------------------------------------------------------------------------
 // Cadrage (« Atelier IA ») : discussion sur la carte, sans toucher au code
 // ---------------------------------------------------------------------------
@@ -539,7 +344,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
   // cadrage peut faire un fetch/worktree au même moment)
   const branchOnOrigin = await withGitLock(async () => {
     await run("git", ["fetch", "origin", BASE_BRANCH])
-    await removeWorktreeFiles(card) // nettoie les restes d'un run précédent
+    await removeWorktreeFiles({ branch, worktree }) // nettoie les restes d'un run précédent
     const exists = await run("git", ["ls-remote", "--exit-code", "--heads", "origin", branch])
       .then(() => true)
       .catch(() => false)
@@ -690,7 +495,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
       saveTicketState(card.idShort, { status: "done" }) // le run l'avait passé à « implement »
       await addComment(card.id, truncate(`♻️ Aucun changement nécessaire d'après l'IA :\n\n${lastOutput.result}`))
       await moveCard(card.id, lists.done.id)
-      await removeWorktree(card)
+      await removeWorktree(ticketPaths(card))
       return
     }
     throw new Error("aucun changement produit par l'implémentation")
@@ -752,7 +557,7 @@ const processCard = async (card: TrelloCard, lists: ResolvedLists) => {
     )}`,
   )
   await moveCard(card.id, lists.done.id)
-  await removeWorktree(card)
+  await removeWorktree(ticketPaths(card))
   notifyWhenPreviewIsLive(card, prUrl, buildIdBeforePush).catch(console.error) // en tâche de fond, sans bloquer la boucle
 }
 
@@ -835,7 +640,7 @@ const handler = async () => {
             const message = error instanceof Error ? error.message : String(error)
             // la carte reste dans la liste WIP : un humain décide de la remettre en Ready ou non
             await addComment(card.id, truncate(`⚠️ Automatisation IA échouée : ${message}`)).catch(console.error)
-            await removeWorktree(card).catch(console.error)
+            await removeWorktree(ticketPaths(card)).catch(console.error)
           }
         }
       } catch (error) {
