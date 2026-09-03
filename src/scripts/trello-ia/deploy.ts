@@ -50,20 +50,63 @@ const scrub = (line: string) =>
     .replace(/(https?:\/\/)[^\s/@]+@/g, "$1<REDACTED>@")
     .replace(/x-access-token:[^@\s]+/g, "x-access-token:<REDACTED>")
 
-// fin des logs du déploiement (Nixpacks/Docker y répètent l'erreur du build), sans les lignes vides
+// première vraie erreur du build (lint, types, compilation…) ; les autres lignes du log sont du contexte
+const ERROR_MARKER =
+  /Failed to compile|error TS\d+|✖ \d+ problems?|Module not found|Type error:|Cannot find module|ERROR: process|npm ERR!|FATAL ERROR|Killed|exit code: [1-9]/
+// bruit Docker/BuildKit, métadonnées PHP de Coolify, bandeau télémétrie Next
+const NOISE =
+  /SecretsUsedInArgOrEnv|UndefinedVar|\d+ warnings? found \(use docker|^Dockerfile:\d+|^\s*\d+ \|\s|^-{5,}$|^={5,}$|^Error type:|^Error code:|^Location:|^Stack trace|^#\d+ \/var\/www\/html|Gracefully shutting down|Next\.js now collects completely anonymous telemetry|This information is used to shape|You can learn more, including how to opt-out|nextjs\.org\/telemetry$/
+const ERROR_CONTEXT_BEFORE = 5
+const ERROR_WINDOW = 55
+const TAIL_LINES = 12
+
+// préfixes BuildKit (« #14 7.364 ») : les mêmes lignes réapparaissent sans eux dans le récapitulatif d'erreur
+const normalized = (line: string) =>
+  line
+    .replace(/^#\d+ /, "")
+    .replace(/^\d+\.\d+ /, "")
+    .trim()
+
+// logs du déploiement Coolify → extrait exploitable : toutes les entrées (y compris celles repliées dans l'UI),
+// sans le récapitulatif « Deployment failed » qui rejoue tout le log, sans bruit ni doublons, centré sur la
+// première erreur du build et complété par la conclusion
 export const excerptFromLogs = (logs: string) => {
-  let lines: string[]
+  let outputs: string[]
   try {
     const entries = Sc.decodeUnknownOption(Sc.Array(CoolifyLogEntry))(JSON.parse(logs))
-    lines = Option.isSome(entries)
-      ? entries.value.filter((entry) => !entry.hidden).flatMap((entry) => (entry.output ?? "").split("\n"))
-      : logs.split("\n")
+    outputs = Option.isSome(entries)
+      ? entries.value.map((entry) => {
+          const output = entry.output ?? ""
+          return output.startsWith("Deployment failed") ? output.split("\n")[0] : output
+        })
+      : [logs]
   } catch {
-    lines = logs.split("\n")
+    outputs = [logs]
   }
-  const useful = lines.map((line) => scrub(line).trimEnd()).filter((line) => line.trim() !== "")
-  const tail = useful.slice(-LOG_LINES).join("\n")
-  return tail.length > LOG_CHARS ? `…${tail.slice(-LOG_CHARS)}` : tail
+  const seen = new Set<string>()
+  const lines = outputs
+    .flatMap((output) => output.split("\n"))
+    .map((line) => scrub(line).trimEnd())
+    .filter((line) => line.trim() !== "" && !NOISE.test(line.trim()))
+    .filter((line) => {
+      const key = normalized(line)
+      if (seen.has(key)) {
+        return false
+      }
+      seen.add(key)
+      return true
+    })
+  const errorIndex = lines.findIndex((line) => ERROR_MARKER.test(line))
+  let excerpt: string
+  if (errorIndex === -1) {
+    excerpt = lines.slice(-LOG_LINES).join("\n")
+  } else {
+    const start = Math.max(0, errorIndex - ERROR_CONTEXT_BEFORE)
+    const window = lines.slice(start, start + ERROR_WINDOW)
+    const tail = lines.slice(Math.max(start + ERROR_WINDOW, lines.length - TAIL_LINES))
+    excerpt = [...window, ...(tail.length > 0 ? ["…", ...tail] : [])].join("\n")
+  }
+  return excerpt.length > LOG_CHARS ? `${excerpt.slice(0, LOG_CHARS)}\n…` : excerpt
 }
 
 // attend l'issue du déploiement de la PR pour le commit `sha` poussé à `since` (sondage toutes les 30 s)
@@ -144,6 +187,21 @@ const reproduceBuild = (worktree: string) =>
     return diagnostic
   })
 
+// relance le déploiement du preview sans permission « deploy » sur l'API : un commit vide poussé sur la
+// branche de la PR déclenche le preview via le webhook GitHub, comme n'importe quel push
+const retriggerDeployment = (worktree: string, branch: string, reason: string) =>
+  Effect.gen(function* () {
+    const { exec } = yield* Shell
+    yield* exec(
+      "git",
+      ["commit", "--allow-empty", "-m", `chore: relance du déploiement du preview (${reason})`],
+      worktree,
+    )
+    const sha = yield* exec("git", ["rev-parse", "HEAD"], worktree)
+    yield* exec("git", ["push", "-u", "origin", branch], worktree)
+    return sha
+  })
+
 export interface DeliveredTicket {
   readonly card: TrelloCard
   readonly branch: string
@@ -213,12 +271,12 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
 
           if (Option.isNone(diagnostic)) {
             // rien à corriger côté code : échec probablement passager (réseau, mémoire…), on relance tel quel
+            since = new Date()
+            sha = yield* retriggerDeployment(ticket.worktree, ticket.branch, "échec non reproduit en local")
             yield* trello.addComment(
               ticket.card.id,
-              `🔁 Le déploiement du preview a échoué mais le build passe en local : nouveau déploiement demandé à Coolify (tentative ${attemptNumber}/${fixAttempts}).${pageLine}`,
+              `🔁 Le déploiement du preview a échoué mais le build passe en local : nouveau déploiement déclenché (tentative ${attemptNumber}/${fixAttempts}).${pageLine}`,
             )
-            since = new Date()
-            yield* coolify.triggerDeploy(prNumber)
             break
           }
 
@@ -252,14 +310,12 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
           const changes = yield* pendingChanges(ticket.worktree)
           since = new Date()
           if (!changes) {
-            console.log("  Aucun changement de code : nouveau déploiement demandé à Coolify")
+            console.log("  Aucun changement de code : nouveau déploiement déclenché")
+            sha = yield* retriggerDeployment(ticket.worktree, ticket.branch, "aucun changement de code")
             yield* trello.addComment(
               ticket.card.id,
-              truncate(
-                `🔁 Aucun changement de code d'après l'IA, nouveau déploiement demandé à Coolify :\n\n${output.result}`,
-              ),
+              truncate(`🔁 Aucun changement de code d'après l'IA, nouveau déploiement déclenché :\n\n${output.result}`),
             )
-            yield* coolify.triggerDeploy(prNumber)
           } else {
             sha = yield* commitAndPush(
               ticket.worktree,

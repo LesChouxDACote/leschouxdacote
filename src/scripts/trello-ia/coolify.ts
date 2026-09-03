@@ -8,10 +8,11 @@ export interface CoolifyClientShape {
   readonly appUuid: string
   // déploiements récents de l'application (du plus récent au plus ancien)
   readonly listDeployments: Effect.Effect<ReadonlyArray<CoolifyDeployment>, CoolifyError>
-  // détail d'un déploiement, avec ses logs
+  // détail d'un déploiement, avec ses logs si le token a la permission read:sensitive
   readonly getDeployment: (uuid: string) => Effect.Effect<CoolifyDeployment, CoolifyError>
-  // relance le déploiement du preview d'une PR (même commit)
-  readonly triggerDeploy: (prNumber: number) => Effect.Effect<void, CoolifyError>
+  // les logs des déploiements ne sont renvoyés qu'aux tokens ayant la permission read:sensitive ;
+  // None si l'application n'a encore aucun déploiement
+  readonly logsVisible: Effect.Effect<Option.Option<boolean>, CoolifyError>
   // page du déploiement dans l'UI Coolify (logs complets pour un humain)
   readonly deploymentPage: (deployment: CoolifyDeployment) => string | undefined
 }
@@ -35,7 +36,7 @@ export const CoolifyClientLive = Layer.effect(
         appUuid: "",
         listDeployments: disabled,
         getDeployment: () => disabled,
-        triggerDeploy: () => disabled,
+        logsVisible: disabled,
         deploymentPage: () => undefined,
       }
       return client
@@ -83,14 +84,24 @@ export const CoolifyClientLive = Layer.effect(
         ),
       )
 
+    const listDeployments = (take: number) =>
+      decoded(DeploymentList, "GET", `/deployments/applications/${appUuid}?skip=0&take=${take}`).pipe(
+        Effect.map((body) => ("deployments" in body ? body.deployments : body)),
+      )
+
     const client: CoolifyClientShape = {
       enabled: true,
       appUuid,
-      listDeployments: decoded(DeploymentList, "GET", `/deployments/applications/${appUuid}?skip=0&take=30`).pipe(
-        Effect.map((body) => ("deployments" in body ? body.deployments : body)),
-      ),
+      listDeployments: listDeployments(30),
       getDeployment: (uuid) => decoded(CoolifyDeployment, "GET", `/deployments/${uuid}`),
-      triggerDeploy: (prNumber) => Effect.asVoid(request("POST", `/deploy?uuid=${appUuid}&pr=${prNumber}`)),
+      logsVisible: Effect.gen(function* () {
+        const deployments = yield* listDeployments(1)
+        if (deployments.length === 0) {
+          return Option.none<boolean>()
+        }
+        const json = yield* request("GET", `/deployments/${deployments[0].deployment_uuid}`)
+        return Option.some(typeof json === "object" && json !== null && "logs" in json)
+      }),
       deploymentPage: (deployment) => (deployment.deployment_url ? `${apiUrl}${deployment.deployment_url}` : undefined),
     }
     return client

@@ -45,11 +45,28 @@ export const main = Effect.gen(function* () {
       ? `Modèle Claude forcé : ${config.anthropicModel.value}`
       : "Modèle Claude : défaut du compte (définir ANTHROPIC_MODEL pour forcer)",
   )
-  console.log(
-    coolify.enabled
-      ? `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.fixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`
-      : "Suivi des déploiements Coolify inactif (définir COOLIFY_API_URL, COOLIFY_API_TOKEN et COOLIFY_APP_UUID)",
-  )
+  if (coolify.enabled) {
+    console.log(
+      `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.fixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`,
+    )
+    const logsVisible = yield* coolify.logsVisible.pipe(
+      Effect.map(
+        Option.match({
+          onNone: () => "à vérifier au premier déploiement",
+          onSome: (visible) =>
+            visible
+              ? "visibles"
+              : "masqués (donner la permission read:sensitive au token, sinon le build est rejoué en local)",
+        }),
+      ),
+      Effect.catch((error) => Effect.succeed(`inaccessibles (${error.message})`)),
+    )
+    console.log(`  Logs des déploiements via l'API : ${logsVisible}`)
+  } else {
+    console.log(
+      "Suivi des déploiements Coolify inactif (définir COOLIFY_API_URL, COOLIFY_API_TOKEN et COOLIFY_APP_UUID)",
+    )
+  }
 
   // cadrage : voie indépendante, pour répondre au PO même pendant une implémentation
   const chatLoop = lists.refine

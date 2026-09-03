@@ -108,11 +108,11 @@ puis un commentaire 🌐 est posté dès que le preview répond réellement (pin
 **Suivi du déploiement et auto-correction (optionnel)** : avec `COOLIFY_API_URL`, `COOLIFY_API_TOKEN` et
 `COOLIFY_APP_UUID`, le watcher suit via l'API Coolify le déploiement du preview correspondant au commit poussé.
 La carte reste dans « IA en cours » jusqu'à ce que le preview soit en ligne (🌐, puis « IA terminé »).
-Si le déploiement échoue, il récupère les logs du déploiement quand l'API les expose ; sinon (Coolify 4.3.x
-les masque) il rejoue `yarn build` dans le worktree du ticket pour reproduire l'erreur. Le diagnostic est
+Si le déploiement échoue, il récupère les logs du déploiement (token avec la permission `read:sensitive`) ;
+sinon il rejoue `yarn build` dans le worktree du ticket pour reproduire l'erreur. Le diagnostic est
 transmis à Claude (même session) qui corrige ; les garde-fous sont rejoués, un commit `fix:` est poussé
 (🛠️ puis 🔁 sur la carte) et le nouveau déploiement est suivi à son tour. Si l'échec n'est pas reproductible
-(réseau, mémoire…), le déploiement est simplement relancé. Après la dernière tentative, un ⚠️ avec le lien
+(réseau, mémoire…), le déploiement est simplement relancé par un commit vide. Après la dernière tentative, un ⚠️ avec le lien
 vers les logs du déploiement dans Coolify est posté et la carte reste dans « IA en cours ».
 `IA_DEPLOY_TIMEOUT_MINUTES` : attente max par déploiement (30).
 
@@ -146,7 +146,9 @@ Variables d'environnement à renseigner dans Coolify :
 - `TRELLO_API_KEY`, `TRELLO_TOKEN`, `TRELLO_BOARD_ID` (+ `TRELLO_LIST_*`, `TRELLO_POLL_MINUTES` si besoin)
 - `GH_TOKEN` : token GitHub (fine-grained : Contents + Pull requests en read/write) — sert au push et aux PR
 - `COOLIFY_API_URL` (ex. `https://coolify.example.com`), `COOLIFY_API_TOKEN` (Coolify → Keys & Tokens →
-  API tokens, droits lecture + déploiement) et `COOLIFY_APP_UUID` (UUID de l'application dev, visible dans
+  API tokens, permissions `read` **et `read:sensitive`** : sans `read:sensitive` l'API masque les logs des
+  déploiements et le watcher doit rejouer le build en local ; la permission `deploy` est inutile, les
+  relances passent par un push) et `COOLIFY_APP_UUID` (UUID de l'application dev, visible dans
   l'URL de l'application dans Coolify ou comme `COOLIFY_RESOURCE_UUID` dans ses logs de déploiement) :
   suivi des previews et auto-correction des déploiements échoués (optionnel, les trois ensemble)
 - `GITHUB_REPO` : `owner/repo` du dépôt (le conteneur re-clone depuis GitHub, Coolify ne fournit pas `.git`)
