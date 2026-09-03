@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form"
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 import Modal from "src/components/Modal"
+import ReservationBlock from "src/components/Reservation"
 
 interface SlotsFormProps {
   slots: readonly Slot[]
@@ -44,26 +45,29 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
       <h2>Créneaux</h2>
 
       {slots.map((slot, index) => (
-        <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2} key={index}>
-          <Box width="37%">
-            <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
-          </Box>
-          <Box width="23%" paddingLeft={"6px"}>
-            <Typography variant="body1">{` de ${slot.heureDebut}`}</Typography>
-          </Box>
-          <Box width="23%" paddingLeft={"6px"}>
-            <Typography variant="body1">{`à ${slot.heureFin}`}</Typography>
-          </Box>
-          <Box width="17%">
-            <IconButton
-              onClick={() => {
-                handleDeleteClick(slot)
-              }}
-            >
-              <RemoveCircle color="error" />
-            </IconButton>
-          </Box>
-        </Stack>
+        <React.Fragment key={index}>
+          <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2}>
+            <Box width="37%">
+              <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
+            </Box>
+            <Box width="23%" paddingLeft={"6px"}>
+              <Typography variant="body1">{` de ${slot.heureDebut}`}</Typography>
+            </Box>
+            <Box width="23%" paddingLeft={"6px"}>
+              <Typography variant="body1">{`à ${slot.heureFin}`}</Typography>
+            </Box>
+            <Box width="17%">
+              <IconButton
+                onClick={() => {
+                  handleDeleteClick(slot)
+                }}
+              >
+                <RemoveCircle color="error" />
+              </IconButton>
+            </Box>
+          </Stack>
+          <ReservationBlock slot={slot} index={index} slots={slots} setSlots={setSlots} />
+        </React.Fragment>
       ))}
       {error && (
         <Typography color="error" variant="body1">

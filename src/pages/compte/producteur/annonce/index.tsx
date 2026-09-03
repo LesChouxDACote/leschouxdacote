@@ -29,10 +29,19 @@ const SlotDate = Sc.DateFromString.annotations({
   override: true,
 })
 
+export const ReservationSchema = Sc.Struct({
+  totalQuantity: Sc.Number,
+  maxQuantityPerPerson: Sc.optional(Sc.NullOr(Sc.Number)),
+  instructions: Sc.optional(Sc.NullOr(Sc.String)),
+})
+
+export type Reservation = typeof ReservationSchema.Type
+
 export const SlotSchema = Sc.Struct({
   date: SlotDate,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type Slot = typeof SlotSchema.Type
@@ -53,6 +62,7 @@ export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
@@ -106,6 +116,10 @@ const EditProductPage = () => {
 
     if (!place) {
       throw new ValidationError("address", "Veuillez sélectionner l'adresse dans la liste déroulante")
+    }
+
+    if (slots.some((slot) => slot.reservation != null) && !payload.get("unit")) {
+      throw new ValidationError("unit", "L'unité est obligatoire pour activer une réservation.")
     }
 
     if (payload.get("days") === "0") {
