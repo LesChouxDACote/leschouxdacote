@@ -92,14 +92,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (authUser && user?.role === USER_ROLE.BUYER && ANONYMOUS_ROUTES.includes(pathname)) {
       return destination || "/"
     }
-    if (authUser && user?.role === USER_ROLE.ADMIN && ANONYMOUS_ROUTES.includes(pathname)) {
-      return "/csv-export"
-    }
 
-    if (!authUser && isPrivateRoute) {
+    if (!authUser && (isPrivateRoute || ADMIN_ROUTES.includes(pathname))) {
       return "/connexion?next=" + asPath
     }
-    if (authUser && user?.role !== USER_ROLE.ADMIN && ADMIN_ROUTES.includes(pathname)) {
+    if (authUser && user && !user.isAdmin && ADMIN_ROUTES.includes(pathname)) {
       return "/"
     }
   })()
