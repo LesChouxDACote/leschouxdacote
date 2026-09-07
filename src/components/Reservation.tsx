@@ -1,4 +1,4 @@
-import { Box, Button, Stack, TextField, Typography } from "@mui/material"
+import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material"
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import React, { useState } from "react"
 import { useFormContext } from "react-hook-form"
@@ -30,6 +30,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
   )
   const [instructions, setInstructions] = useState(slot.reservation?.instructions ?? "")
   const [error, setError] = useState<string | null>(null)
+  const [isValidated, setIsValidated] = useState(Boolean(slot.reservation))
 
   const updateSlot = (reservation: Reservation | null) => {
     setSlots(slots.map((s, i) => (i === index ? { ...s, reservation } : s)))
@@ -45,6 +46,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
     setMaxQuantityPerPerson("")
     setInstructions("")
     setError(null)
+    setIsValidated(false)
     updateSlot(null)
   }
 
@@ -74,6 +76,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
 
       E.map((reservation) => {
         setError(null)
+        setIsValidated(true)
         updateSlot(reservation)
       }),
 
@@ -81,6 +84,8 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
       E.mapLeft((error) => setError(error[0].message)),
     )
   }
+
+  const statusText = isValidated ? "validé" : "brouillon"
 
   return (
     <Stack spacing={1} alignItems="start" width="100%" mb={2}>
@@ -92,6 +97,8 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
 
       {isOpen && (
         <>
+          <Typography variant="body2">Statut de la réservation : {statusText}</Typography>
+
           <Typography variant="h6">Informations et instructions</Typography>
           <TextField
             multiline
@@ -102,35 +109,49 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
 
           <Typography variant="h6">Stock</Typography>
 
-          <Box>
-            <TextField
-              label="Quantité totale *"
-              type="number"
-              inputProps={{ min: 1, step: 1 }}
-              value={totalQuantity}
-              onChange={(event) => setTotalQuantity(event.target.value)}
-            />
-          </Box>
+          <Stack direction="row" spacing={2} alignItems="center" width="100%">
+            <Box flex={1}>
+              <TextField
+                label="Quantité totale *"
+                type="number"
+                inputProps={{ min: 1, step: 1 }}
+                value={totalQuantity}
+                onChange={(event) => setTotalQuantity(event.target.value)}
+                fullWidth
+              />
+            </Box>
+            {unit && (
+              <Box>
+                <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>
+              </Box>
+            )}
+          </Stack>
           <Typography variant="body2" color="textSecondary">
             {`Au bout de ${totalQuantity || 0} quantités réservées, la réservation ne sera plus possible.`}
           </Typography>
 
-          <Box>
-            <TextField
-              label="Quantité réservable maximale par personne"
-              type="number"
-              inputProps={{ min: 1, step: 1 }}
-              value={maxQuantityPerPerson}
-              onChange={(event) => setMaxQuantityPerPerson(event.target.value)}
-            />
-          </Box>
+          <Stack direction="row" spacing={2} alignItems="center" width="100%">
+            <Box flex={1}>
+              <TextField
+                label="Quantité réservable maximale par personne"
+                type="number"
+                inputProps={{ min: 1, step: 1 }}
+                value={maxQuantityPerPerson}
+                onChange={(event) => setMaxQuantityPerPerson(event.target.value)}
+                fullWidth
+              />
+            </Box>
+            {unit && (
+              <Box>
+                <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>
+              </Box>
+            )}
+          </Stack>
           <Typography variant="body2" color="textSecondary">
             Si ce champ n&apos;est pas rempli, il n&apos;y a pas de limite maximale.
           </Typography>
 
-          {unit ? (
-            <Typography variant="body2">Unité : {UNIT_LABELS[unit]}</Typography>
-          ) : (
+          {!unit && (
             <Typography variant="body2" color="error">
               Veuillez renseigner l&apos;unité du produit ci-dessus pour activer cette réservation.
             </Typography>
@@ -150,6 +171,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
               Supprimer cette réservation
             </Button>
           </Stack>
+          <Divider sx={{ my: 2, borderColor: "#666666" }} />
         </>
       )}
     </Stack>

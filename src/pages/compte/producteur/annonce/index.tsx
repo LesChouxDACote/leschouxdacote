@@ -24,6 +24,20 @@ const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff
 const Photo = styled.img`
   width: 100%;
 `
+
+const TwoColumnLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const LeftColumn = styled.div``
+
+const RightColumn = styled.div``
 const SlotDate = Sc.DateFromString.annotations({
   message: () => "Veuillez entrer une date.",
   override: true,
@@ -190,66 +204,72 @@ const EditProductPage = () => {
 
   return (
     <Layout title={title} loading={loading}>
-      <Form
-        title={title}
-        hasRequired
-        onSubmit={handleSubmit}
-        defaultValues={defaultValues}
-        resetOnChange={data?.objectID}
-      >
-        <TextInput name="title" label="Titre" required maxLength={100} />
-        <Row>
-          <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
-          <SelectInput name="unit" label="Unité">
-            <option></option>
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-            <option value="l">litre(s)</option>
-            <option value="u">pièce(s)</option>
-          </SelectInput>
-        </Row>
-        <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
-        <PriceInfos />
-        <TextInput
-          name="address"
-          label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
-          required
-          placeholder=""
-          id="place"
-          ref={handleRef}
-        />
-        <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
-        <TagsInput label="Mots-clés" />
-        {data && <Photo src={data.photo} />}
-        <TextInput
-          name="photo"
-          label={productId ? "Changer la photo" : "Photo"}
-          type="file"
-          required={productId ? false : true}
-          accept={ACCEPTED_MIMETYPES.join(",")}
-        />
-        <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
-        <TextInput
-          type="tel"
-          name="phone"
-          label="Téléphone"
-          validate={validatePhoneNumber}
-          defaultValue={user?.phone}
-        />
-        <TextInput
-          name="days"
-          label="Publier maintenant pour une durée de :"
-          type="number"
-          min={0}
-          max={MAX_PUBLICATION_DAYS}
-          step={1}
-          defaultValue={0}
-          suffix="jour(s)"
-        />
-        <ProductEndDate />
-        <SlotsForm setSlots={setSlots} slots={slots} />
-        <SubmitButton />
-      </Form>
+      <TwoColumnLayout>
+        <LeftColumn>
+          <Form
+            title={title}
+            hasRequired
+            onSubmit={handleSubmit}
+            defaultValues={defaultValues}
+            resetOnChange={data?.objectID}
+          >
+            <TextInput name="title" label="Titre" required maxLength={100} />
+            <Row>
+              <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
+              <SelectInput name="unit" label="Unité">
+                <option></option>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="l">litre(s)</option>
+                <option value="u">pièce(s)</option>
+              </SelectInput>
+            </Row>
+            <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
+            <PriceInfos />
+            <TextInput
+              name="address"
+              label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
+              required
+              placeholder=""
+              id="place"
+              ref={handleRef}
+            />
+            <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
+            <TagsInput label="Mots-clés" />
+            {data && <Photo src={data.photo} />}
+            <TextInput
+              name="photo"
+              label={productId ? "Changer la photo" : "Photo"}
+              type="file"
+              required={productId ? false : true}
+              accept={ACCEPTED_MIMETYPES.join(",")}
+            />
+            <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
+            <TextInput
+              type="tel"
+              name="phone"
+              label="Téléphone"
+              validate={validatePhoneNumber}
+              defaultValue={user?.phone}
+            />
+            <TextInput
+              name="days"
+              label="Publier maintenant pour une durée de :"
+              type="number"
+              min={0}
+              max={MAX_PUBLICATION_DAYS}
+              step={1}
+              defaultValue={0}
+              suffix="jour(s)"
+            />
+            <ProductEndDate />
+            <SubmitButton />
+          </Form>
+        </LeftColumn>
+        <RightColumn>
+          <SlotsForm setSlots={setSlots} slots={slots} />
+        </RightColumn>
+      </TwoColumnLayout>
     </Layout>
   )
 }

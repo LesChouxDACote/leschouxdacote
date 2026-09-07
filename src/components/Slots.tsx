@@ -42,7 +42,9 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
 
   return (
     <Stack spacing={2} alignItems="start">
-      <h2>Créneaux</h2>
+      <Typography variant="h2" sx={{ fontSize: "25px" }}>
+        Créneaux
+      </Typography>
 
       {slots.map((slot, index) => (
         <React.Fragment key={index}>
