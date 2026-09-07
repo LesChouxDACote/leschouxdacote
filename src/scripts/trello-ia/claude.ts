@@ -6,22 +6,22 @@ import { ClaudeOutput, TrelloCardDetails } from "./schemas"
 export const CLAUDE_TIMEOUT = Duration.minutes(45)
 export const CHAT_TIMEOUT = Duration.minutes(10)
 
-// étiquette Trello → modèle Claude du ticket (prime sur ANTHROPIC_MODEL, cf. --model du CLI)
-const MODEL_LABELS: Record<string, string> = {
-  opus: "opus",
-  sonnet: "sonnet",
-  haiku: "haiku",
-  fable: "claude-fable-5", // pas d'alias CLI, et nécessite un compte y ayant accès
-}
+// étiquette Trello → alias --model du CLI (prime sur ANTHROPIC_MODEL) ; derrière le proxy
+// LiteLLM ces alias pointent sur les modèles Nebius (ANTHROPIC_DEFAULT_*_MODEL du compose)
+const MODEL_ALIASES = ["opus", "sonnet", "haiku"]
 const EFFORT_LEVELS = ["low", "medium", "high", "xhigh", "max"]
 
-// étiquettes de la carte → arguments claude optionnels : modèle (opus/sonnet/haiku/fable ou
+// étiquettes de la carte → arguments claude optionnels : modèle (opus/sonnet/haiku ou
 // model:<id>) et effort (effort:low|medium|high|xhigh|max) ; sans étiquette, défauts du CLI
 export const claudeArgsFor = (details: TrelloCardDetails) => {
   const args: string[] = []
   for (const label of details.labels) {
     const name = (label.name || "").trim().toLowerCase()
-    const model = MODEL_LABELS[name] || (name.startsWith("model:") ? name.slice("model:".length).trim() : undefined)
+    const model = MODEL_ALIASES.includes(name)
+      ? name
+      : name.startsWith("model:")
+        ? name.slice("model:".length).trim()
+        : undefined
     if (model && !args.includes("--model")) {
       console.log(`  Modèle demandé par étiquette : ${model}`)
       args.push("--model", model)

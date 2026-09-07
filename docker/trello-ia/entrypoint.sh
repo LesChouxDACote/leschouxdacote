@@ -23,9 +23,11 @@ if [ ! -d .git ]; then
 fi
 git fetch origin "$IA_BASE_BRANCH"
 
-if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -z "$ANTHROPIC_API_KEY" ] && [ ! -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]; then
+if [ -z "$ANTHROPIC_AUTH_TOKEN" ] && [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] && [ -z "$ANTHROPIC_API_KEY" ] &&
+  [ ! -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]; then
   echo "ATTENTION : aucune authentification Claude détectée." >&2
-  echo "Définis CLAUDE_CODE_OAUTH_TOKEN (généré avec « claude setup-token » sur ta machine)" >&2
+  echo "Via le proxy LiteLLM : ANTHROPIC_AUTH_TOKEN (clé virtuelle) avec ANTHROPIC_BASE_URL." >&2
+  echo "Via Anthropic : CLAUDE_CODE_OAUTH_TOKEN (généré avec « claude setup-token » sur ta machine)" >&2
   echo "ou ANTHROPIC_API_KEY, ou lance « claude /login » depuis le terminal du conteneur." >&2
 fi
 

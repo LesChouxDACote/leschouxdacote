@@ -121,11 +121,22 @@ vers les logs du déploiement dans Coolify est posté et la carte reste dans « 
 session (🛠️ sur la carte), `IA_FIX_ATTEMPTS` fois max (2 par défaut, partagé avec la correction des
 déploiements) ; au-delà, ⚠️ avec la sortie de la commande.
 
-**Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet`, `haiku` ou `fable` sur la carte
-impose le modèle Claude pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte
-n'importe quel identifiant (ex. `model:claude-opus-4-6`). Priorité : étiquette > `ANTHROPIC_MODEL` > défaut du compte.
-Une étiquette `effort:<niveau>` (`low`, `medium`, `high`, `xhigh`, `max`) règle de la même façon le niveau
-d'effort — optionnelle et combinable avec l'étiquette de modèle ; sans elle, le défaut du CLI s'applique (`xhigh`).
+**Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet` ou `haiku` sur la carte impose le
+modèle pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte n'importe quel
+identifiant servi par le proxy (ex. `model:glm-5.2`). Priorité : étiquette > `ANTHROPIC_MODEL` > `sonnet`.
+Les trois alias sont câblés sur les modèles du proxy LiteLLM par `ANTHROPIC_DEFAULT_*_MODEL`
+(cf. `docker-compose.yml`) :
+
+| étiquette | modèle par défaut        | pour quoi                                       |
+| --------- | ------------------------ | ----------------------------------------------- |
+| `opus`    | `kimi-k3`                | gros tickets, debug profond, sessions longues   |
+| `sonnet`  | `glm-5.3-flash`          | défaut, tickets courants                        |
+| `haiku`   | `qwen3-30b-a3b-instruct` | tâches de fond de Claude Code (titres, résumés) |
+
+Une étiquette `effort:<niveau>` (`low`, `medium`, `high`, `xhigh`, `max`) règle le niveau d'effort, mais
+elle est **sans effet derrière le proxy** : le champ correspondant est désactivé par
+`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`, sans quoi l'upstream le refuse en 400. Le raisonnement se
+règle par modèle dans la config LiteLLM (`reasoning_effort`).
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :
@@ -152,8 +163,21 @@ Variables d'environnement à renseigner dans Coolify :
   l'URL de l'application dans Coolify ou comme `COOLIFY_RESOURCE_UUID` dans ses logs de déploiement) :
   suivi des previews et auto-correction des déploiements échoués (optionnel, les trois ensemble)
 - `GITHUB_REPO` : `owner/repo` du dépôt (le conteneur re-clone depuis GitHub, Coolify ne fournit pas `.git`)
-- `CLAUDE_CODE_OAUTH_TOKEN` : **authentification Claude recommandée** — générer le token une fois sur ta machine
-  avec `claude setup-token` (abonnement Claude), puis le coller dans Coolify. Aucune connexion interactive nécessaire.
-  Alternatives : `ANTHROPIC_API_KEY` (facturation API), ou ouvrir le terminal du conteneur dans Coolify et lancer
-  `claude /login` (la connexion est conservée dans le volume `/data`). La connexion ne se fait pas via les logs :
-  logs = suivi du watcher, terminal Coolify = dépannage/login manuel.
+- `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` : **authentification par défaut** — le watcher passe par le
+  proxy LiteLLM (`http://192.168.1.101:4000`), sur le même LAN que Coolify : rien à exposer, pas de domaine.
+  `ANTHROPIC_AUTH_TOKEN` est une **clé virtuelle** LiteLLM, pas la master key — la générer via `/key/generate`
+  en incluant dans `models` les cibles de `fallbacks` en plus des trois modèles, sinon les replis sont refusés :
+
+  ```bash
+  curl -s http://192.168.1.101:4000/key/generate -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
+    -H 'content-type: application/json' -d '{"key_alias":"trello-ia-watcher","models":[…]}'
+  ```
+
+  Le `key_alias` isole le spend du watcher dans `/spend/logs`, et sa révocation n'affecte pas les autres usages.
+
+- `CLAUDE_CODE_OAUTH_TOKEN` : **alternative Anthropic** — vider `ANTHROPIC_BASE_URL` et les trois
+  `ANTHROPIC_DEFAULT_*_MODEL`, puis générer le token une fois sur ta machine avec `claude setup-token`
+  (abonnement Claude) et le coller dans Coolify. Autres options : `ANTHROPIC_API_KEY` (facturation API), ou
+  ouvrir le terminal du conteneur dans Coolify et lancer `claude /login` (la connexion est conservée dans le
+  volume `/data`). La connexion ne se fait pas via les logs : logs = suivi du watcher, terminal Coolify =
+  dépannage/login manuel.

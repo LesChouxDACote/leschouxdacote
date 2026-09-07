@@ -22,11 +22,33 @@ services:
       - GITHUB_REPO=${GITHUB_REPO:-LesChouxDACote/leschouxdacote}
       # Branche de départ des tickets et cible des PR (develop → previews Coolify sur l'app dev)
       - IA_BASE_BRANCH=${IA_BASE_BRANCH:-develop}
-      # Claude : token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
+      # Claude : par défaut le watcher passe par le proxy LiteLLM (modèles Nebius).
+      # ANTHROPIC_AUTH_TOKEN = clé virtuelle LiteLLM, pas la master key.
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-http://192.168.1.101:4000}
+      - ANTHROPIC_AUTH_TOKEN=${ANTHROPIC_AUTH_TOKEN:-}
+      # Repli Anthropic : vider ANTHROPIC_BASE_URL et les trois ANTHROPIC_DEFAULT_* ci-dessous,
+      # puis renseigner un token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
       - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      # Optionnel : forcer le modèle Claude (ex. claude-opus-5, claude-sonnet-5) ; vide = défaut du compte
-      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
+      # Étiquettes Trello opus/sonnet/haiku → modèles du proxy (cf. MODEL_LABELS dans claude.ts)
+      - ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL:-kimi-k3}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-glm-5.3-flash}
+      - ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-qwen3-30b-a3b-instruct}
+      # Sans étiquette de modèle : l'alias sonnet ; sinon Claude Code demande un id claude-*
+      # inconnu du proxy. Accepte aussi un model_name LiteLLM tel quel.
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-sonnet}
+      # Compat passerelle : les champs beta (output_config des étiquettes effort:,
+      # context_management) et thinking:{type:adaptive} partent aussi vers les id non
+      # reconnus, et l'upstream OpenAI les refuse en 400 sans que Claude Code les rejoue.
+      # Les passer à 0 ne les réactive pas : il faut retirer les lignes.
+      - CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1
+      - CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1
+      - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+      # Id non claude-* : Claude Code devine la fenêtre de contexte, donc on la déclare.
+      # Valeur = la plus petite des trois fenêtres réelles côté fournisseur.
+      - CLAUDE_CODE_MAX_CONTEXT_TOKENS=${CLAUDE_CODE_MAX_CONTEXT_TOKENS:-200000}
+      # kimi-k3 en reasoning_effort high peut rester silencieux plus de 5 min (watchdog SSE)
+      - CLAUDE_STREAM_IDLE_TIMEOUT_MS=${CLAUDE_STREAM_IDLE_TIMEOUT_MS:-900000}
       # Optionnel : URL des previews Coolify ajoutée au commentaire Trello (ex. https://{{pr_id}}.choux.ilieff.fr)
       - PREVIEW_URL_TEMPLATE=${PREVIEW_URL_TEMPLATE:-}
       # Optionnel : suivi des déploiements de preview via l'API Coolify + correction automatique des échecs
