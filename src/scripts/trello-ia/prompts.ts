@@ -1,7 +1,9 @@
 import type { TrelloCard } from "./schemas"
 
-const REPO_INTRO =
-  "Tu travailles sur le dépôt « Les Choux d'à Côté » (Next.js 16, conventions décrites dans CLAUDE.md)."
+// Pas de version de framework en dur : elle dépend de la branche du ticket (develop est en
+// Next 12, la migration 16 n'est pas encore livrée). CLAUDE.md, que Claude Code lit
+// automatiquement dans le worktree, fait foi et suit la branche.
+const REPO_INTRO = "Tu travailles sur le dépôt « Les Choux d'à Côté » (stack et conventions décrites dans CLAUDE.md)."
 
 export const planPrompt = (ticketBlock: string) => `${REPO_INTRO}
 
