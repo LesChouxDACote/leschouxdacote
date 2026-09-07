@@ -1,7 +1,7 @@
 import type { TrelloCard } from "./schemas"
 
 const REPO_INTRO =
-  "Tu travailles sur le dépôt « Les Choux d'à Côté » (Next.js 12, conventions décrites dans CLAUDE.md)."
+  "Tu travailles sur le dépôt « Les Choux d'à Côté » (Next.js 16, conventions décrites dans CLAUDE.md)."
 
 export const planPrompt = (ticketBlock: string) => `${REPO_INTRO}
 
@@ -64,16 +64,16 @@ Ne fais AUCUN commit ni push : l'orchestrateur s'en charge.`
 const CHAT_STYLE = `Ta réponse sera postée telle quelle en commentaire Trello, adressée au PO, à la première personne, en français, concise (moins de 1 500 caractères).
 AUCUN méta-commentaire : n'écris jamais « voici la réponse », n'annonce pas ce que tu vas faire, ne compte pas les caractères — ton texte EST le commentaire, rien d'autre.`
 
-export const initialAnalysisPrompt = (ticketBlock: string) => `${REPO_INTRO}
-Tu es en phase de CADRAGE de ce ticket avec le PO : AUCUN développement, le code est en lecture seule.
-
+export const initialAnalysisPrompt = (ticketBlock: string, devState = "") => `${REPO_INTRO}
+Tu es en phase de CADRAGE de ce ticket avec le PO : dans cette phase tu ne développes pas, le code est en lecture seule.
+${devState ? `\n${devState}\n` : ""}
 ${ticketBlock}
 
 Analyse le besoin : reformule-le en quelques lignes, vérifie sa faisabilité dans le code existant, signale les zones d'ombre et pose au PO les 2 à 4 questions les plus utiles pour affiner le ticket.
 ${CHAT_STYLE}`
 
-export const replyPrompt = (newMessages: string) => `Nouveaux messages du PO sur le ticket :
+export const replyPrompt = (newMessages: string, devState = "") => `Nouveaux messages du PO sur le ticket :
 ${newMessages}
-
+${devState ? `\n${devState}\n` : ""}
 Réponds : clarifie, propose, challenge si nécessaire (tu peux vérifier dans le code, en lecture seule). Si le besoin te semble prêt à développer, dis-le au PO et propose-lui de déplacer la carte vers « Ready IA ».
 ${CHAT_STYLE}`

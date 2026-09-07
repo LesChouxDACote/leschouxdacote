@@ -8,6 +8,7 @@ import type { TrelloCard } from "./schemas"
 import { StateStore } from "./state"
 import {
   BOT_COMMENT,
+  devStateBlock,
   lastIndexWhere,
   loadTicketContext,
   STATUS_COMMENT,
@@ -37,12 +38,19 @@ const processDiscussion = (card: TrelloCard) =>
     console.log(
       `\n💬 Cadrage du ticket #${card.idShort} « ${card.name} » (${comments.length} commentaire(s), dernier : ${lastComment ? lastComment.memberName : "aucun"})`,
     )
-    yield* git.refreshAtelierWorktree
+    // l'état est lu avant le worktree : le cadrage doit voir la branche du ticket, pas la base
+    const state = (yield* store.read)[card.idShort]
+    yield* git.refreshAtelierWorktree(state?.branch)
     const context = yield* loadTicketContext(card, git.atelierWorktree)
     const claudeArgs = claudeArgsFor(context.details)
-    const state = (yield* store.read)[card.idShort]
     const chatSessionId = state?.chatSessionId
-    const initialArgs = ["-p", initialAnalysisPrompt(ticketContextBlock(context)), ...CHAT_ARGS, ...claudeArgs]
+    const devState = devStateBlock(state)
+    const initialArgs = [
+      "-p",
+      initialAnalysisPrompt(ticketContextBlock(context), devState),
+      ...CHAT_ARGS,
+      ...claudeArgs,
+    ]
 
     const output = chatSessionId
       ? yield* Effect.gen(function* () {
@@ -56,7 +64,7 @@ const processDiscussion = (card: TrelloCard) =>
           console.log(`  Reprise de la session de cadrage ${chatSessionId}…`)
           return yield* claude
             .run(
-              ["-p", "--resume", chatSessionId, replyPrompt(newMessages), ...CHAT_ARGS, ...claudeArgs],
+              ["-p", "--resume", chatSessionId, replyPrompt(newMessages, devState), ...CHAT_ARGS, ...claudeArgs],
               git.atelierWorktree,
               CHAT_TIMEOUT,
             )

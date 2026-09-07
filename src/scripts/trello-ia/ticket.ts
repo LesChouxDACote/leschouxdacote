@@ -3,7 +3,7 @@ import { Effect } from "effect"
 import { mkdirSync, rmSync } from "fs"
 import path from "path"
 import type { WorktreePaths } from "./git"
-import type { TrelloCard, TrelloCardDetails, TrelloComment } from "./schemas"
+import type { TicketState, TrelloCard, TrelloCardDetails, TrelloComment } from "./schemas"
 import { TrelloClient } from "./trello"
 
 export const TICKET_DIR = ".ia-ticket" // pièces jointes du ticket, téléchargées pour Claude (jamais commitées)
@@ -101,6 +101,24 @@ export const loadTicketContext = (card: TrelloCard, dir: string) =>
     const context: TicketContext = { details, comments, attachmentPaths }
     return context
   })
+
+// Sans ce bloc, le cadrage d'une carte déjà développée conclut « rien n'est implémenté » :
+// il ne voit ni la branche ni la PR, et sa session est distincte de celle du dev.
+export const devStateBlock = (state?: TicketState) => {
+  if (!state?.branch) {
+    return ""
+  }
+  const refs = [`branche ${state.branch}`]
+  if (state.prUrl) {
+    refs.push(`PR ${state.prUrl}`)
+  }
+  if (state.status) {
+    refs.push(`statut ${state.status}`)
+  }
+  return `Ce ticket a DÉJÀ été développé (${refs.join(", ")}).
+Le dépôt de cette discussion est positionné sur cette branche : le code que tu lis INCLUT ce travail.
+Ne conclus donc pas que rien n'est implémenté — vérifie l'état réel avant de répondre au PO.`
+}
 
 const formatDiscussion = (comments: ReadonlyArray<TrelloComment>) => {
   const lines = comments
