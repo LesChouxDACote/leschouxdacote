@@ -16,10 +16,27 @@ import { IMPLEMENT_PROMPT, iterationPrompt, planPrompt, retryPrompt } from "./pr
 import type { ClaudeOutput, TrelloCard } from "./schemas"
 import { Shell } from "./shell"
 import { StateStore } from "./state"
-import { loadTicketContext, ticketContextBlock, ticketPaths, truncate, uuidForTicket } from "./ticket"
+import {
+  dropImages,
+  isImageFailure,
+  loadTicketContext,
+  type TicketContext,
+  ticketContextBlock,
+  ticketPaths,
+  truncate,
+  uuidForTicket,
+} from "./ticket"
 import { TrelloClient } from "./trello"
 
 const logError = (error: unknown) => Effect.sync(() => console.error(error))
+
+// même plan, mais sans les images que le modèle n'a pas pu lire ; à lancer dans une session neuve
+const planWithoutImages = (
+  card: TrelloCard,
+  context: TicketContext,
+  worktree: string,
+  claudeArgs: ReadonlyArray<string>,
+) => Effect.map(dropImages(card, context, worktree), (block) => ["-p", planPrompt(block), ...DEV_ARGS, ...claudeArgs])
 
 export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
   Effect.gen(function* () {
@@ -106,7 +123,10 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
           Effect.catch((error) =>
             Effect.gen(function* () {
               console.error("  Reprise impossible, nouvelle session :", error)
-              const plan = yield* claude.run(planArgs, worktree)
+              const args = isImageFailure(error, context)
+                ? yield* planWithoutImages(card, context, worktree, claudeArgs)
+                : planArgs
+              const plan = yield* claude.run(args, worktree)
               yield* store.save(card.idShort, { sessionId: plan.session_id, branch, status: "plan" })
               yield* trello.addComment(card.id, truncate(`📋 Plan (nouvelle tentative) :\n\n${plan.result}`))
               return yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT, claudeArgs), worktree)
@@ -116,7 +136,16 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       yield* store.save(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
     } else {
       console.log("  Génération du plan…")
-      const plan = yield* claude.runNewSession(planArgs, uuidForTicket(card.idShort), worktree)
+      const plan = yield* claude.runNewSession(planArgs, uuidForTicket(card.idShort), worktree).pipe(
+        // le modèle n'a pas pu lire les images : on rejoue le plan sans elles, en session neuve
+        Effect.catch((error) =>
+          isImageFailure(error, context)
+            ? Effect.flatMap(planWithoutImages(card, context, worktree, claudeArgs), (args) =>
+                claude.run(args, worktree),
+              )
+            : Effect.fail(error),
+        ),
+      )
       yield* store.save(card.idShort, { sessionId: plan.session_id, branch, status: "plan" })
       writeFileSync(path.join(worktree, ".ia-plan.md"), plan.result)
       yield* trello.addComment(card.id, truncate(`📋 Plan :\n\n${plan.result}`))

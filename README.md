@@ -143,6 +143,12 @@ retours à la ligne), `🚫` seul pour toutes. Le nom cité est comparé sans te
 accents ni des espaces, et un préfixe suffit (`🚫 photo3` écarte `photo3.jpg`). Ces commentaires sont
 exclus des prompts et ne déclenchent pas de réponse de cadrage.
 
+**Images illisibles par le modèle** : si l'appel échoue sur la panne vision de l'upstream
+(« CUDA out of memory »), le watcher rejoue **une fois** la même demande sans les images, dans une
+session neuve — une reprise rejouerait l'image depuis le transcript de session — et poste un ⚠️ sur la
+carte. Les pièces jointes qui ne sont pas des images sont conservées, et le repli ne vaut que pour cette
+tentative : les images repartent au passage suivant.
+
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :

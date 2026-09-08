@@ -3,6 +3,7 @@ import { Effect } from "effect"
 import { mkdirSync, rmSync, writeFileSync } from "fs"
 import path from "path"
 import sharp from "sharp"
+import { IMAGE_FAILURE } from "./claude"
 import type { WorktreePaths } from "./git"
 import type { TicketState, TrelloCard, TrelloCardDetails, TrelloComment } from "./schemas"
 import { TrelloClient } from "./trello"
@@ -23,11 +24,16 @@ export const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐|🛠️|🔁)/
 // 🚫 seul = toutes) : elles ne sont pas téléchargées, donc pas de tokens vision dépensés dessus.
 // Volontairement absent de BOT_COMMENT : ce commentaire vient du PO, il ne doit pas passer pour une réponse du bot.
 export const IGNORE_COMMENT = /^🚫/
+// ⚠️ est déjà dans STATUS_COMMENT et BOT_COMMENT : cet avertissement n'entre pas dans les prompts
+// et ne fait pas répondre le cadrage
+const IMAGE_WARNING =
+  "⚠️ Le modèle n'a pas pu lire les images du ticket (saturation côté fournisseur) : le travail continue sans elles. Si les captures sont indispensables, relance la carte plus tard."
 
 export interface TicketContext {
   readonly details: TrelloCardDetails
   readonly comments: ReadonlyArray<TrelloComment>
   readonly attachmentPaths: ReadonlyArray<string>
+  readonly imagePaths: ReadonlyArray<string> // sous-ensemble de attachmentPaths : ce que le modèle lira comme image
 }
 
 // UUID déterministe (style v5) dérivé du numéro de ticket : une session Claude par ticket et par usage
@@ -94,8 +100,9 @@ export const attachmentsToIgnore = (comments: ReadonlyArray<TrelloComment>) => {
 export const isIgnored = (name: string, ignore: ReturnType<typeof attachmentsToIgnore>) =>
   ignore.all || ignore.names.some((cited) => normalizeName(name).startsWith(cited))
 
-// réduit une capture en place (format et nom conservés) ; une pièce jointe qui n'est pas une image
-// (PDF, zip...) ou que sharp ne sait pas lire est laissée telle quelle
+// réduit une capture en place (format et nom conservés) et répond « c'est une image » ; une pièce
+// jointe qui n'en est pas une (PDF, zip...) fait échouer sharp et reste telle quelle. C'est le test
+// d'image le plus fidèle : il échoue exactement là où l'outil Read du modèle échouerait.
 const shrinkImage = (filePath: string) =>
   Effect.promise(async () => {
     try {
@@ -103,8 +110,9 @@ const shrinkImage = (filePath: string) =>
         .resize({ width: MAX_IMAGE_PX, height: MAX_IMAGE_PX, fit: "inside", withoutEnlargement: true })
         .toBuffer()
       writeFileSync(filePath, resized)
+      return true
     } catch {
-      // rien à redimensionner
+      return false // rien à redimensionner : ce n'est pas une image
     }
   })
 
@@ -128,8 +136,9 @@ const fetchAttachments = (details: TrelloCardDetails, comments: ReadonlyArray<Tr
       })
       .slice(0, MAX_ATTACHMENTS)
     const paths: string[] = []
+    const images: string[] = []
     if (files.length === 0) {
-      return paths
+      return { paths, images }
     }
     mkdirSync(ticketDir, { recursive: true })
     for (const attachment of files) {
@@ -137,16 +146,20 @@ const fetchAttachments = (details: TrelloCardDetails, comments: ReadonlyArray<Tr
       const destPath = path.join(ticketDir, fileName)
       yield* trello.downloadAttachment(attachment.url, destPath).pipe(
         Effect.flatMap(() => shrinkImage(destPath)),
-        Effect.map(() => {
-          paths.push(path.relative(dir, destPath))
-          console.log(`  Pièce jointe téléchargée : ${path.relative(dir, destPath)}`)
+        Effect.map((isImage) => {
+          const relativePath = path.relative(dir, destPath)
+          paths.push(relativePath)
+          if (isImage) {
+            images.push(relativePath)
+          }
+          console.log(`  Pièce jointe téléchargée : ${relativePath}`)
         }),
         Effect.catch((error) =>
           Effect.sync(() => console.error(`  Pièce jointe « ${attachment.name} » ignorée :`, error)),
         ),
       )
     }
-    return paths
+    return { paths, images }
   })
 
 // contexte complet du ticket : carte détaillée, discussion et pièces jointes téléchargées dans `dir`
@@ -155,8 +168,8 @@ export const loadTicketContext = (card: TrelloCard, dir: string) =>
     const trello = yield* TrelloClient
     const details = yield* trello.getCardDetails(card.id)
     const comments = yield* trello.getComments(card.id)
-    const attachmentPaths = yield* fetchAttachments(details, comments, dir)
-    const context: TicketContext = { details, comments, attachmentPaths }
+    const { paths, images } = yield* fetchAttachments(details, comments, dir)
+    const context: TicketContext = { details, comments, attachmentPaths: paths, imagePaths: images }
     return context
   })
 
@@ -218,3 +231,29 @@ export const ticketContextBlock = (context: TicketContext) => {
   }
   return parts.join("\n")
 }
+
+// l'upstream a saturé sur les images et le ticket en a : le texte seul, lui, passe
+export const isImageFailure = (error: { readonly message: string }, context: TicketContext) =>
+  context.imagePaths.length > 0 && IMAGE_FAILURE.test(error.message)
+
+// même contexte sans les images (les PDF et autres pièces jointes restent)
+export const withoutImages = (context: TicketContext): TicketContext => ({
+  ...context,
+  attachmentPaths: context.attachmentPaths.filter((attachmentPath) => !context.imagePaths.includes(attachmentPath)),
+  imagePaths: [],
+})
+
+// repli quand le modèle ne peut pas lire les images : elles sont effacées du worktree (les prompts ne
+// les citent plus, mais Read et Glob restent autorisés), le PO est prévenu, et l'appelant reconstruit
+// sa demande sur le bloc renvoyé — dans une session NEUVE : une reprise rejouerait l'image depuis le
+// transcript de la session et échouerait à l'identique.
+export const dropImages = (card: TrelloCard, context: TicketContext, dir: string) =>
+  Effect.gen(function* () {
+    const trello = yield* TrelloClient
+    console.log(`  Images illisibles par le modèle : nouvelle tentative sans elles (${context.imagePaths.length})`)
+    for (const imagePath of context.imagePaths) {
+      rmSync(path.join(dir, imagePath), { force: true })
+    }
+    yield* trello.addComment(card.id, IMAGE_WARNING)
+    return ticketContextBlock(withoutImages(context))
+  })

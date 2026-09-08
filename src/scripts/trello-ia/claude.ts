@@ -6,6 +6,11 @@ import { ClaudeOutput, TrelloCardDetails } from "./schemas"
 export const CLAUDE_TIMEOUT = Duration.minutes(45)
 export const CHAT_TIMEOUT = Duration.minutes(10)
 
+// panne vision de l'upstream : son encodeur d'images sature (GPU plein côté fournisseur) et rejette
+// toute requête contenant une image, alors que le texte seul passe. Sert à déclencher le repli sans
+// les images (cf. dropImages dans ticket.ts) ; volontairement étroit, un autre échec reste un échec.
+export const IMAGE_FAILURE = /CUDA out of memory|image input is not|could not be loaded as a valid image/i
+
 // étiquette Trello → alias --model du CLI (prime sur ANTHROPIC_MODEL) ; derrière le proxy
 // LiteLLM ces alias pointent sur les modèles Nebius (ANTHROPIC_DEFAULT_*_MODEL du compose)
 const MODEL_ALIASES = ["opus", "sonnet", "haiku"]
@@ -67,10 +72,17 @@ const parseOutput = (stdout: string): ClaudeOutput | undefined => {
 
 const spawnClaude = (args: ReadonlyArray<string>, cwd: string) =>
   Effect.callback<ClaudeOutput, ClaudeError>((resume) => {
-    const child = spawn("claude", [...args], { cwd, stdio: ["ignore", "pipe", "inherit"] })
+    const child = spawn("claude", [...args], { cwd, stdio: ["ignore", "pipe", "pipe"] })
     let stdout = ""
+    let stderr = ""
     child.stdout.on("data", (chunk) => {
       stdout += chunk
+    })
+    // stderr réémis tel quel (log live du watcher) mais aussi conservé : les erreurs d'API du CLI
+    // n'arrivent que par là, et c'est ce texte qui permet de reconnaître la panne vision
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk
+      process.stderr.write(chunk)
     })
     child.on("error", (error) => resume(Effect.fail(new ClaudeError({ message: error.message }))))
     child.on("close", (code) => {
@@ -79,7 +91,9 @@ const spawnClaude = (args: ReadonlyArray<string>, cwd: string) =>
         resume(
           Effect.fail(
             new ClaudeError({
-              message: `claude : échec (code ${code}) : ${(output?.result || stdout || "aucune sortie").slice(-2000)}`,
+              message: `claude : échec (code ${code}) : ${(output?.result || stdout || "aucune sortie").slice(-2000)}${
+                stderr.trim() ? `\n${stderr.trim().slice(-2000)}` : ""
+              }`,
             }),
           ),
         )
