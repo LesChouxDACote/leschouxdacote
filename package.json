@@ -16,10 +16,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RaphaelPI/leschouxdacote"
+    "url": "https://github.com/LesChouxDACote/leschouxdacote"
   },
   "bugs": {
-    "url": "https://github.com/RaphaelPI/leschouxdacote/issues",
+    "url": "https://github.com/LesChouxDACote/leschouxdacote/issues",
     "email": "antoine@rousseau.im"
   },
   "scripts": {

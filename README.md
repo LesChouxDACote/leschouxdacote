@@ -123,20 +123,20 @@ déploiements) ; au-delà, ⚠️ avec la sortie de la commande.
 
 **Choix du modèle par carte** : une étiquette Trello `opus`, `sonnet` ou `haiku` sur la carte impose le
 modèle pour ce ticket (cadrage et développement) ; la forme avancée `model:<id>` accepte n'importe quel
-identifiant servi par le proxy (ex. `model:glm-5.2`). Priorité : étiquette > `ANTHROPIC_MODEL` > `sonnet`.
-Les trois alias sont câblés sur les modèles du proxy LiteLLM par `ANTHROPIC_DEFAULT_*_MODEL`
-(cf. `docker-compose.yml`) :
+identifiant servi par le proxy (ex. `model:glm-5.2`). Priorité : étiquette > `IA_MODEL_DEFAULT` > `sonnet`.
+Les trois alias sont câblés sur les modèles du proxy LiteLLM par `IA_MODEL_OPUS`, `IA_MODEL_SONNET` et
+`IA_MODEL_HAIKU` (cf. `docker-compose.yml`) :
 
-| étiquette | modèle par défaut        | pour quoi                                       |
-| --------- | ------------------------ | ----------------------------------------------- |
-| `opus`    | `kimi-k3`                | gros tickets, debug profond, sessions longues   |
-| `sonnet`  | `glm-5.3-flash`          | défaut, tickets courants                        |
-| `haiku`   | `qwen3-30b-a3b-instruct` | tâches de fond de Claude Code (titres, résumés) |
+| étiquette | variable          | modèle par défaut        | pour quoi                                       |
+| --------- | ----------------- | ------------------------ | ----------------------------------------------- |
+| `opus`    | `IA_MODEL_OPUS`   | `kimi-k3`                | gros tickets, debug profond, sessions longues   |
+| `sonnet`  | `IA_MODEL_SONNET` | `glm-5.3-flash`          | défaut, tickets courants                        |
+| `haiku`   | `IA_MODEL_HAIKU`  | `qwen3-30b-a3b-instruct` | tâches de fond de Claude Code (titres, résumés) |
 
 Une étiquette `effort:<niveau>` (`low`, `medium`, `high`, `xhigh`, `max`) règle le niveau d'effort, mais
 elle est **sans effet derrière le proxy** : le champ correspondant est désactivé par
-`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`, sans quoi l'upstream le refuse en 400. Le raisonnement se
-règle par modèle dans la config LiteLLM (`reasoning_effort`).
+`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` (`docker/trello-ia/Dockerfile`), sans quoi l'upstream le refuse
+en 400. Le raisonnement se règle par modèle dans la config LiteLLM (`reasoning_effort`).
 **Photos à ignorer** : un commentaire 🚫 sur la carte écarte des pièces jointes **avant leur
 téléchargement** (aucun token vision dépensé) — `🚫 capture-2.png, vieille photo.png` (virgules ou
 retours à la ligne), `🚫` seul pour toutes. Le nom cité est comparé sans tenir compte de la casse, des
@@ -169,9 +169,9 @@ Variables d'environnement à renseigner dans Coolify :
   l'URL de l'application dans Coolify ou comme `COOLIFY_RESOURCE_UUID` dans ses logs de déploiement) :
   suivi des previews et auto-correction des déploiements échoués (optionnel, les trois ensemble)
 - `GITHUB_REPO` : `owner/repo` du dépôt (le conteneur re-clone depuis GitHub, Coolify ne fournit pas `.git`)
-- `ANTHROPIC_BASE_URL` + `ANTHROPIC_AUTH_TOKEN` : **authentification par défaut** — le watcher passe par le
+- `LITELLM_BASE_URL` + `LITELLM_VIRTUAL_KEY` : **authentification par défaut** — le watcher passe par le
   proxy LiteLLM (`http://192.168.1.101:4000`), sur le même LAN que Coolify : rien à exposer, pas de domaine.
-  `ANTHROPIC_AUTH_TOKEN` est une **clé virtuelle** LiteLLM, pas la master key — la générer via `/key/generate`
+  `LITELLM_VIRTUAL_KEY` est une **clé virtuelle** LiteLLM, pas la master key — la générer via `/key/generate`
   en incluant dans `models` les cibles de `fallbacks` en plus des trois modèles, sinon les replis sont refusés :
 
   ```bash
@@ -181,9 +181,27 @@ Variables d'environnement à renseigner dans Coolify :
 
   Le `key_alias` isole le spend du watcher dans `/spend/logs`, et sa révocation n'affecte pas les autres usages.
 
-- `CLAUDE_CODE_OAUTH_TOKEN` : **alternative Anthropic** — vider `ANTHROPIC_BASE_URL` et les trois
-  `ANTHROPIC_DEFAULT_*_MODEL`, puis générer le token une fois sur ta machine avec `claude setup-token`
-  (abonnement Claude) et le coller dans Coolify. Autres options : `ANTHROPIC_API_KEY` (facturation API), ou
-  ouvrir le terminal du conteneur dans Coolify et lancer `claude /login` (la connexion est conservée dans le
-  volume `/data`). La connexion ne se fait pas via les logs : logs = suivi du watcher, terminal Coolify =
+  **Renommage à faire dans Coolify** (les variables portaient avant les noms attendus par le CLI `claude`,
+  que le `docker-compose.yml` renseigne maintenant lui-même) :
+
+  | ancien nom                       | nouveau nom           | si on oublie                                 |
+  | -------------------------------- | --------------------- | -------------------------------------------- |
+  | `ANTHROPIC_AUTH_TOKEN`           | `LITELLM_VIRTUAL_KEY` | **auth cassée** au premier ticket — critique |
+  | `ANTHROPIC_BASE_URL`             | `LITELLM_BASE_URL`    | rien, le défaut est la même URL              |
+  | `ANTHROPIC_DEFAULT_OPUS_MODEL`   | `IA_MODEL_OPUS`       | rien, le défaut est le même modèle           |
+  | `ANTHROPIC_DEFAULT_SONNET_MODEL` | `IA_MODEL_SONNET`     | rien                                         |
+  | `ANTHROPIC_DEFAULT_HAIKU_MODEL`  | `IA_MODEL_HAIKU`      | rien                                         |
+  | `ANTHROPIC_MODEL`                | `IA_MODEL_DEFAULT`    | rien, le défaut est `sonnet`                 |
+
+  Seul `LITELLM_VIRTUAL_KEY` n'a pas de valeur par défaut : oublier de le renommer laisse le watcher
+  démarrer (l'entrypoint ne fait qu'avertir) puis échouer au premier appel `claude`. `ANTHROPIC_API_KEY`,
+  s'il traîne dans Coolify, peut être supprimé : il n'est plus transmis au conteneur.
+
+- `CLAUDE_CODE_OAUTH_TOKEN` : **alternative Anthropic** — générer le token une fois sur ta machine avec
+  `claude setup-token` (abonnement Claude) et le coller dans Coolify, ou ouvrir le terminal du conteneur
+  dans Coolify et lancer `claude /login` (la connexion est conservée dans le volume `/data`).
+  Il faut en plus **retirer du `docker-compose.yml`** les quatre lignes à défaut non vide qui épinglent le
+  conteneur sur le proxy (`ANTHROPIC_BASE_URL` et les trois `ANTHROPIC_DEFAULT_*_MODEL`) : les vider dans
+  Coolify ne suffit pas, la syntaxe `${VAR:-défaut}` fait retomber une valeur vide sur le défaut.
+  La connexion ne se fait pas via les logs : logs = suivi du watcher, terminal Coolify =
   dépannage/login manuel.

@@ -33,13 +33,8 @@ jobs:
           FIREBASE_EMAIL: ${{ secrets.FIREBASE_EMAIL_DEV }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_DEV }}
           NEXT_PUBLIC_FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT_DEV }}
-          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
           MAILJET_PUBLIC_KEY: ${{ secrets.MAILJET_PUBLIC_KEY }}
           MAILJET_PRIVATE_KEY: ${{ secrets.MAILJET_PRIVATE_KEY }}
-          NEXT_PUBLIC_ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
-          NEXT_PUBLIC_ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-          NEXT_PUBLIC_ALGOLIA_INDEX: ${{ secrets.ALGOLIA_INDEX_DEV }}
-          NEXT_PUBLIC_ALGOLIA_TAGS: ${{ secrets.ALGOLIA_TAGS }}
           NEXT_PUBLIC_URL: https://develop.leschouxdacote.fr/
 
   prod:
@@ -69,11 +64,6 @@ jobs:
           FIREBASE_EMAIL: ${{ secrets.FIREBASE_EMAIL_PROD }}
           FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_PROD }}
           NEXT_PUBLIC_FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT_PROD }}
-          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
           MAILJET_PUBLIC_KEY: ${{ secrets.MAILJET_PUBLIC_KEY }}
           MAILJET_PRIVATE_KEY: ${{ secrets.MAILJET_PRIVATE_KEY }}
-          NEXT_PUBLIC_ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
-          NEXT_PUBLIC_ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
-          NEXT_PUBLIC_ALGOLIA_INDEX: ${{ secrets.ALGOLIA_INDEX_PROD }}
-          NEXT_PUBLIC_ALGOLIA_TAGS: ${{ secrets.ALGOLIA_TAGS }}
           NEXT_PUBLIC_URL: https://leschouxdacote.fr

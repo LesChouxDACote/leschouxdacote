@@ -33,6 +33,14 @@ ENV CLAUDE_CONFIG_DIR=/data/claude \
     IA_STATE_FILE=/data/ia-sessions.json \
     IA_WORKTREES_DIR=/data/worktrees
 
+# Compat passerelle LiteLLM : les champs beta (output_config des étiquettes effort:,
+# context_management) et thinking:{type:adaptive} partent aussi vers les id non reconnus, et
+# l'upstream OpenAI les refuse en 400 sans que Claude Code les rejoue. Constantes d'image et
+# non réglages : les passer à 0 ne les réactive pas, il faut retirer les lignes.
+ENV CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1 \
+    CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 \
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+
 RUN chmod +x docker/trello-ia/entrypoint.sh
 
 ENTRYPOINT ["docker/trello-ia/entrypoint.sh"]

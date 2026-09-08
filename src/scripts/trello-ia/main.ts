@@ -40,11 +40,6 @@ export const main = Effect.gen(function* () {
       `Cadrage actif sur la liste « ${lists.refine.name} » (toutes les ${config.chatPollMs / 60000} min, en parallèle du dev)`,
     )
   }
-  console.log(
-    Option.isSome(config.anthropicModel)
-      ? `Modèle Claude forcé : ${config.anthropicModel.value}`
-      : "Modèle Claude : défaut du compte (définir ANTHROPIC_MODEL pour forcer)",
-  )
   if (coolify.enabled) {
     console.log(
       `Suivi des déploiements Coolify actif (application ${coolify.appUuid}, ${config.fixAttempts} correction(s) max, ${config.deployTimeoutMs / 60000} min max par déploiement)`,

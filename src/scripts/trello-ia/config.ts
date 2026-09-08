@@ -23,7 +23,6 @@ export interface AppConfigShape {
   readonly worktreesDir: string
   readonly stateFile: string
   readonly previewUrlTemplate: Option.Option<string> // ex. https://{{pr_id}}.choux.ilieff.fr
-  readonly anthropicModel: Option.Option<string>
   // suivi des déploiements de preview via l'API Coolify + correction automatique des échecs (optionnel)
   readonly coolify: Option.Option<CoolifyConfig>
   readonly deployTimeoutMs: number // attente max d'un déploiement
@@ -88,11 +87,10 @@ export const AppConfigLive = Layer.effect(
       chatPollMs: Number(chatPollMinutes) * 60 * 1000,
       baseBranch: yield* withFallback("IA_BASE_BRANCH", "develop"),
       repoRoot,
-      // surchargés en Docker pour pointer vers le volume persistant (voir docker-compose.yml)
+      // surchargés en Docker pour pointer vers le volume persistant (ENV du Dockerfile)
       worktreesDir: yield* withFallback("IA_WORKTREES_DIR", path.resolve(repoRoot, "..", ".ia-worktrees")),
       stateFile: yield* withFallback("IA_STATE_FILE", path.join(repoRoot, ".ia-sessions.json")),
       previewUrlTemplate: yield* optional("PREVIEW_URL_TEMPLATE"),
-      anthropicModel: yield* optional("ANTHROPIC_MODEL"),
       coolify: yield* coolifyConfig,
       deployTimeoutMs: Number(deployTimeoutMinutes) * 60 * 1000,
       fixAttempts: Number(fixAttempts),
