@@ -1,7 +1,8 @@
 import { createHash } from "crypto"
 import { Effect } from "effect"
-import { mkdirSync, rmSync } from "fs"
+import { mkdirSync, rmSync, writeFileSync } from "fs"
 import path from "path"
+import sharp from "sharp"
 import type { WorktreePaths } from "./git"
 import type { TicketState, TrelloCard, TrelloCardDetails, TrelloComment } from "./schemas"
 import { TrelloClient } from "./trello"
@@ -11,6 +12,9 @@ const TRELLO_COMMENT_LIMIT = 15000 // Trello accepte 16384 caractères par comme
 const DISCUSSION_LIMIT = 8000 // taille max de la discussion injectée dans les prompts
 const MAX_ATTACHMENTS = 10
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
+// côté max des captures envoyées au modèle : une capture pleine taille fait saturer le GPU du
+// modèle vision (500 « CUDA out of memory »), et le repli coûte plus cher que le modèle demandé
+const MAX_IMAGE_PX = 1024
 
 export const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐|🛠️|🔁)/ // commentaires de statut de l'automatisation, exclus des prompts
 // détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
@@ -60,6 +64,20 @@ export const lastIndexWhere = <T>(items: ReadonlyArray<T>, predicate: (item: T) 
   return -1
 }
 
+// réduit une capture en place (format et nom conservés) ; une pièce jointe qui n'est pas une image
+// (PDF, zip...) ou que sharp ne sait pas lire est laissée telle quelle
+const shrinkImage = (filePath: string) =>
+  Effect.promise(async () => {
+    try {
+      const resized = await sharp(filePath)
+        .resize({ width: MAX_IMAGE_PX, height: MAX_IMAGE_PX, fit: "inside", withoutEnlargement: true })
+        .toBuffer()
+      writeFileSync(filePath, resized)
+    } catch {
+      // rien à redimensionner
+    }
+  })
+
 // télécharge les pièces jointes (fichiers Trello ≤ 10 Mo, 10 max) dans <dir>/.ia-ticket/<n°> ;
 // une pièce jointe en échec est ignorée (log), les autres sont conservées
 const fetchAttachments = (details: TrelloCardDetails, dir: string) =>
@@ -79,6 +97,7 @@ const fetchAttachments = (details: TrelloCardDetails, dir: string) =>
       const fileName = attachment.name.replace(/[^\w.-]+/g, "_") || attachment.id
       const destPath = path.join(ticketDir, fileName)
       yield* trello.downloadAttachment(attachment.url, destPath).pipe(
+        Effect.flatMap(() => shrinkImage(destPath)),
         Effect.map(() => {
           paths.push(path.relative(dir, destPath))
           console.log(`  Pièce jointe téléchargée : ${path.relative(dir, destPath)}`)
