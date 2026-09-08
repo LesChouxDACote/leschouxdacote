@@ -52,6 +52,11 @@ une étiquette « opus » (le plus costaud, pour les gros tickets), « sonnet »
 (le réglage par défaut, pour les tickets courants) ou « haiku » (le plus
 rapide, pour les petites tâches). Sans étiquette, « sonnet » s'applique.
 
+Si l'IA n'arrive pas à ouvrir tes captures (panne passagère du service qui
+la fait tourner), elle te prévient par un commentaire ⚠️ et continue avec le
+texte du ticket, sans les images. Si elles sont indispensables, remets la
+carte dans « Ready IA » un peu plus tard.
+
 Photos que l'IA ne doit pas regarder : écris un commentaire qui commence par
 🚫, suivi des noms des pièces jointes concernées, séparés par des virgules :
    🚫 capture-2.png, vieille photo.png

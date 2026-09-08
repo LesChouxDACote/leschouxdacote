@@ -2,7 +2,7 @@
 //   yarn ts-node --files src/scripts/trello-ia/ticket.check.ts
 import assert from "assert"
 import type { TrelloComment } from "./schemas"
-import { attachmentsToIgnore, isIgnored } from "./ticket"
+import { attachmentsToIgnore, isIgnored, isImageFailure, type TicketContext, withoutImages } from "./ticket"
 
 const comment = (text: string): TrelloComment => ({ id: "1", date: "", memberId: "m", memberName: "PO", text })
 const rules = (...texts: string[]) => attachmentsToIgnore(texts.map(comment))
@@ -35,4 +35,27 @@ assert(isIgnored("a.png", two) && isIgnored("b.png", two) && !isIgnored("c.png",
 // aucune discussion : rien n'est écarté
 assert(!isIgnored("photo.png", rules()))
 
-console.log("✅ règles 🚫 : tous les cas passent")
+// --- repli « texte seul » quand l'upstream sature sur les images ---
+
+const context = (attachmentPaths: string[], imagePaths: string[]) =>
+  ({ details: {}, comments: [], attachmentPaths, imagePaths }) as unknown as TicketContext
+const withImage = context([".ia-ticket/216/notes.pdf", ".ia-ticket/216/capture.png"], [".ia-ticket/216/capture.png"])
+// texte réellement remonté par le proxy le 08/09/2026
+const cuda = {
+  message:
+    "claude : échec (code 1) : API Error: 500 InternalServerError: OpenAIException - Internal server error: CUDA out of memory. Tried to allocate 20.00 MiB.",
+}
+
+assert(isImageFailure(cuda, withImage))
+// un échec ordinaire reste un échec : pas de seconde tentative
+assert(!isImageFailure({ message: "claude : temps d'exécution dépassé (45 min)" }, withImage))
+assert(!isImageFailure({ message: "claude : échec (code 1) : garde-fou eslint en échec" }, withImage))
+// même message, mais le ticket n'a aucune image : rien à retirer
+assert(!isImageFailure(cuda, context([".ia-ticket/216/notes.pdf"], [])))
+
+// le repli retire les images et garde les autres pièces jointes
+const reduced = withoutImages(withImage)
+assert(reduced.attachmentPaths.length === 1 && reduced.attachmentPaths[0].endsWith("notes.pdf"))
+assert(reduced.imagePaths.length === 0)
+
+console.log("✅ règles 🚫 et repli sans images : tous les cas passent")

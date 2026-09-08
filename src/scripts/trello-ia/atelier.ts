@@ -9,10 +9,13 @@ import { StateStore } from "./state"
 import {
   BOT_COMMENT,
   devStateBlock,
+  dropImages,
   IGNORE_COMMENT,
+  isImageFailure,
   lastIndexWhere,
   loadTicketContext,
   STATUS_COMMENT,
+  type TicketContext,
   ticketContextBlock,
   truncate,
   uuidForTicket,
@@ -21,6 +24,21 @@ import { TrelloClient } from "./trello"
 
 // cadrage : lecture seule garantie par le mode plan
 const CHAT_ARGS = ["--output-format", "json", "--permission-mode", "plan"]
+
+// même analyse initiale, sans les images que le modèle n'a pas pu lire ; à lancer en session neuve
+const analysisWithoutImages = (
+  card: TrelloCard,
+  context: TicketContext,
+  dir: string,
+  devState: string,
+  claudeArgs: ReadonlyArray<string>,
+) =>
+  Effect.map(dropImages(card, context, dir), (block) => [
+    "-p",
+    initialAnalysisPrompt(block, devState),
+    ...CHAT_ARGS,
+    ...claudeArgs,
+  ])
 
 const processDiscussion = (card: TrelloCard) =>
   Effect.gen(function* () {
@@ -74,19 +92,33 @@ const processDiscussion = (card: TrelloCard) =>
             .pipe(
               Effect.catch((error) =>
                 Effect.sync(() => console.error("  Reprise du cadrage impossible, nouvelle session :", error)).pipe(
-                  Effect.andThen(claude.run(initialArgs, git.atelierWorktree, CHAT_TIMEOUT)),
+                  Effect.andThen(
+                    isImageFailure(error, context)
+                      ? Effect.flatMap(
+                          analysisWithoutImages(card, context, git.atelierWorktree, devState, claudeArgs),
+                          (args) => claude.run(args, git.atelierWorktree, CHAT_TIMEOUT),
+                        )
+                      : claude.run(initialArgs, git.atelierWorktree, CHAT_TIMEOUT),
+                  ),
                 ),
               ),
             )
         })
       : yield* Effect.gen(function* () {
           console.log("  Analyse initiale du besoin…")
-          return yield* claude.runNewSession(
-            initialArgs,
-            uuidForTicket(card.idShort, "chat"),
-            git.atelierWorktree,
-            CHAT_TIMEOUT,
-          )
+          return yield* claude
+            .runNewSession(initialArgs, uuidForTicket(card.idShort, "chat"), git.atelierWorktree, CHAT_TIMEOUT)
+            .pipe(
+              // le modèle n'a pas pu lire les images : on rejoue l'analyse sans elles, en session neuve
+              Effect.catch((error) =>
+                isImageFailure(error, context)
+                  ? Effect.flatMap(
+                      analysisWithoutImages(card, context, git.atelierWorktree, devState, claudeArgs),
+                      (args) => claude.run(args, git.atelierWorktree, CHAT_TIMEOUT),
+                    )
+                  : Effect.fail(error),
+              ),
+            )
         })
 
     yield* store.save(card.idShort, { chatSessionId: output.session_id })
