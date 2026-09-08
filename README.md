@@ -137,6 +137,12 @@ Une étiquette `effort:<niveau>` (`low`, `medium`, `high`, `xhigh`, `max`) règl
 elle est **sans effet derrière le proxy** : le champ correspondant est désactivé par
 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`, sans quoi l'upstream le refuse en 400. Le raisonnement se
 règle par modèle dans la config LiteLLM (`reasoning_effort`).
+**Photos à ignorer** : un commentaire 🚫 sur la carte écarte des pièces jointes **avant leur
+téléchargement** (aucun token vision dépensé) — `🚫 capture-2.png, vieille photo.png` (virgules ou
+retours à la ligne), `🚫` seul pour toutes. Le nom cité est comparé sans tenir compte de la casse, des
+accents ni des espaces, et un préfixe suffit (`🚫 photo3` écarte `photo3.jpg`). Ces commentaires sont
+exclus des prompts et ne déclenchent pas de réponse de cadrage.
+
 En cas d'échec la carte reste dans « IA en cours » avec un commentaire ⚠️ ; la remettre dans « Ready IA » relance le ticket en reprenant sa session.
 
 Prérequis sur la machine qui exécute le watcher :

@@ -30,7 +30,7 @@ services:
       # puis renseigner un token généré avec « claude setup-token » (ou ANTHROPIC_API_KEY)
       - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      # Étiquettes Trello opus/sonnet/haiku → modèles du proxy (cf. MODEL_LABELS dans claude.ts)
+      # Étiquettes Trello opus/sonnet/haiku → modèles du proxy (cf. MODEL_ALIASES dans claude.ts)
       - ANTHROPIC_DEFAULT_OPUS_MODEL=${ANTHROPIC_DEFAULT_OPUS_MODEL:-kimi-k3}
       - ANTHROPIC_DEFAULT_SONNET_MODEL=${ANTHROPIC_DEFAULT_SONNET_MODEL:-glm-5.3-flash}
       - ANTHROPIC_DEFAULT_HAIKU_MODEL=${ANTHROPIC_DEFAULT_HAIKU_MODEL:-qwen3-30b-a3b-instruct}

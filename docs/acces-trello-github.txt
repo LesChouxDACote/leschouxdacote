@@ -48,9 +48,18 @@ Comment ça marche au quotidien :
    elle l'avait laissé et met à jour la même proposition.
 
 Astuce : tu peux choisir le « cerveau » utilisé pour une carte en lui posant
-une étiquette « opus » (le plus malin, par défaut), « sonnet » (plus rapide,
-pour les tickets simples) ou « fable » (le plus puissant, pour les tickets
-critiques). Sans étiquette, le réglage par défaut s'applique.
+une étiquette « opus » (le plus costaud, pour les gros tickets), « sonnet »
+(le réglage par défaut, pour les tickets courants) ou « haiku » (le plus
+rapide, pour les petites tâches). Sans étiquette, « sonnet » s'applique.
+
+Photos que l'IA ne doit pas regarder : écris un commentaire qui commence par
+🚫, suivi des noms des pièces jointes concernées, séparés par des virgules :
+   🚫 capture-2.png, vieille photo.png
+Elles ne lui seront pas envoyées du tout, ce qui coûte d'autant moins cher.
+Un 🚫 tout seul, sans aucun nom, écarte toutes les pièces jointes de la
+carte. Le nom peut être écrit sans les accents ni les majuscules, et le
+début suffit (« 🚫 photo3 » écarte « photo3.jpg »). Ce commentaire ne
+déclenche aucune réponse de l'IA.
 
 
 3. LE JETON GITHUB (GH_TOKEN)

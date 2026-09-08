@@ -16,9 +16,13 @@ const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
 // modèle vision (500 « CUDA out of memory »), et le repli coûte plus cher que le modèle demandé
 const MAX_IMAGE_PX = 1024
 
-export const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐|🛠️|🔁)/ // commentaires de statut de l'automatisation, exclus des prompts
+export const STATUS_COMMENT = /^(📋|✅|♻️|⚠️|🌐|🛠️|🔁|🚫)/ // commentaires de statut de l'automatisation, exclus des prompts
 // détection par préfixe et non par auteur : le PO peut commenter avec le compte Trello du token
 export const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐|🛠️|🔁)/
+// commentaire du PO listant les pièces jointes à ne pas envoyer au modèle (« 🚫 photo.png, capture 2.png »,
+// 🚫 seul = toutes) : elles ne sont pas téléchargées, donc pas de tokens vision dépensés dessus.
+// Volontairement absent de BOT_COMMENT : ce commentaire vient du PO, il ne doit pas passer pour une réponse du bot.
+export const IGNORE_COMMENT = /^🚫/
 
 export interface TicketContext {
   readonly details: TrelloCardDetails
@@ -64,6 +68,32 @@ export const lastIndexWhere = <T>(items: ReadonlyArray<T>, predicate: (item: T) 
   return -1
 }
 
+// même normalisation des deux côtés : le nom cité par le PO subit la sanitisation appliquée au nom
+// de fichier téléchargé (ticket.ts, plus bas), donc espaces, accents et casse ne comptent pas
+const normalizeName = (name: string) =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w.-]+/g, "_")
+
+// pièces jointes citées dans les commentaires 🚫 de la discussion ; un 🚫 sans nom les vise toutes
+export const attachmentsToIgnore = (comments: ReadonlyArray<TrelloComment>) => {
+  const names: string[] = []
+  let all = false
+  for (const comment of comments.filter((comment) => IGNORE_COMMENT.test(comment.text))) {
+    const cited = comment.text.replace(IGNORE_COMMENT, "").split(/[,\n]/).map(normalizeName).filter(Boolean)
+    if (cited.length === 0) {
+      all = true
+    }
+    names.push(...cited)
+  }
+  return { all, names }
+}
+
+// correspondance exacte ou par préfixe : « photo3 » suffit pour « photo3.jpg »
+export const isIgnored = (name: string, ignore: ReturnType<typeof attachmentsToIgnore>) =>
+  ignore.all || ignore.names.some((cited) => normalizeName(name).startsWith(cited))
+
 // réduit une capture en place (format et nom conservés) ; une pièce jointe qui n'est pas une image
 // (PDF, zip...) ou que sharp ne sait pas lire est laissée telle quelle
 const shrinkImage = (filePath: string) =>
@@ -78,15 +108,24 @@ const shrinkImage = (filePath: string) =>
     }
   })
 
-// télécharge les pièces jointes (fichiers Trello ≤ 10 Mo, 10 max) dans <dir>/.ia-ticket/<n°> ;
-// une pièce jointe en échec est ignorée (log), les autres sont conservées
-const fetchAttachments = (details: TrelloCardDetails, dir: string) =>
+// télécharge les pièces jointes (fichiers Trello ≤ 10 Mo, 10 max) dans <dir>/.ia-ticket/<n°>, sauf celles
+// écartées par un commentaire 🚫 ; une pièce jointe en échec est ignorée (log), les autres sont conservées
+const fetchAttachments = (details: TrelloCardDetails, comments: ReadonlyArray<TrelloComment>, dir: string) =>
   Effect.gen(function* () {
     const trello = yield* TrelloClient
     const ticketDir = path.join(dir, TICKET_DIR, String(details.idShort))
     rmSync(ticketDir, { recursive: true, force: true })
+    const ignore = attachmentsToIgnore(comments)
     const files = details.attachments
       .filter((attachment) => attachment.bytes !== null && attachment.bytes <= MAX_ATTACHMENT_BYTES)
+      // écarté avant la limite de 10 : les photos ignorées ne prennent pas la place des autres
+      .filter((attachment) => {
+        if (!isIgnored(attachment.name, ignore)) {
+          return true
+        }
+        console.log(`  Pièce jointe « ${attachment.name} » ignorée (🚫 dans la discussion)`)
+        return false
+      })
       .slice(0, MAX_ATTACHMENTS)
     const paths: string[] = []
     if (files.length === 0) {
@@ -116,7 +155,7 @@ export const loadTicketContext = (card: TrelloCard, dir: string) =>
     const trello = yield* TrelloClient
     const details = yield* trello.getCardDetails(card.id)
     const comments = yield* trello.getComments(card.id)
-    const attachmentPaths = yield* fetchAttachments(details, dir)
+    const attachmentPaths = yield* fetchAttachments(details, comments, dir)
     const context: TicketContext = { details, comments, attachmentPaths }
     return context
   })

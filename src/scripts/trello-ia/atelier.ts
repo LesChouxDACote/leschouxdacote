@@ -9,6 +9,7 @@ import { StateStore } from "./state"
 import {
   BOT_COMMENT,
   devStateBlock,
+  IGNORE_COMMENT,
   lastIndexWhere,
   loadTicketContext,
   STATUS_COMMENT,
@@ -28,7 +29,9 @@ const processDiscussion = (card: TrelloCard) =>
     const claude = yield* ClaudeRunner
     const store = yield* StateStore
 
-    const comments = yield* trello.getComments(card.id)
+    // les notes 🚫 (pièces jointes à écarter) ne sont pas des messages de la discussion :
+    // sans ce filtre, l'une d'elles déclencherait un tour de cadrage pour rien
+    const comments = (yield* trello.getComments(card.id)).filter((comment) => !IGNORE_COMMENT.test(comment.text))
     const lastComment = comments[comments.length - 1]
     if (lastComment && BOT_COMMENT.test(lastComment.text)) {
       console.log(`💬 #${card.idShort} « ${card.name} » : en attente d'une réponse du PO`)
