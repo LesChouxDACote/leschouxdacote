@@ -29,6 +29,8 @@ const TwoColumnLayout = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
+  width: 100%;
+  max-width: ${1100}px;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -204,15 +206,15 @@ const EditProductPage = () => {
 
   return (
     <Layout title={title} loading={loading}>
-      <TwoColumnLayout>
-        <LeftColumn>
-          <Form
-            title={title}
-            hasRequired
-            onSubmit={handleSubmit}
-            defaultValues={defaultValues}
-            resetOnChange={data?.objectID}
-          >
+      <Form
+        title={title}
+        hasRequired
+        onSubmit={handleSubmit}
+        defaultValues={defaultValues}
+        resetOnChange={data?.objectID}
+      >
+        <TwoColumnLayout>
+          <LeftColumn>
             <TextInput name="title" label="Titre" required maxLength={100} />
             <Row>
               <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
@@ -264,12 +266,12 @@ const EditProductPage = () => {
             />
             <ProductEndDate />
             <SubmitButton />
-          </Form>
-        </LeftColumn>
-        <RightColumn>
-          <SlotsForm setSlots={setSlots} slots={slots} />
-        </RightColumn>
-      </TwoColumnLayout>
+          </LeftColumn>
+          <RightColumn>
+            <SlotsForm setSlots={setSlots} slots={slots} />
+          </RightColumn>
+        </TwoColumnLayout>
+      </Form>
     </Layout>
   )
 }
