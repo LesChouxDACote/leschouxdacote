@@ -78,17 +78,17 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
       )}
 
       <Stack direction="row" spacing={2} alignItems="center" width={"100%"}>
-        <Box width="37%">
+        <Box width="37%" minWidth={0}>
           <Controller
             name="date"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField {...field} label="Date *" type="date" InputLabelProps={{ shrink: true }} />
+              <TextField {...field} label="Date *" type="date" InputLabelProps={{ shrink: true }} fullWidth />
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box width="23%" minWidth={0}>
           <Controller
             name="heureDebut"
             control={control}
@@ -109,7 +109,7 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box width="23%" minWidth={0}>
           <Controller
             name="heureFin"
             control={control}

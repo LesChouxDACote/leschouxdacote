@@ -9,7 +9,7 @@ import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
-import { MAX_PUBLICATION_DAYS } from "src/constants"
+import { LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { useObjectQuery } from "src/helpers/firebase"
@@ -27,19 +27,23 @@ const Photo = styled.img`
 
 const TwoColumnLayout = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
   width: 100%;
-  max-width: ${1100}px;
+  max-width: ${LAYOUT.maxWidth}px;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
 `
 
-const LeftColumn = styled.div``
+const LeftColumn = styled.div`
+  min-width: 0;
+`
 
-const RightColumn = styled.div``
+const RightColumn = styled.div`
+  min-width: 0;
+`
 const SlotDate = Sc.DateFromString.annotations({
   message: () => "Veuillez entrer une date.",
   override: true,
@@ -209,6 +213,7 @@ const EditProductPage = () => {
       <Form
         title={title}
         hasRequired
+        wide
         onSubmit={handleSubmit}
         defaultValues={defaultValues}
         resetOnChange={data?.objectID}

@@ -110,7 +110,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
           <Typography variant="h6">Stock</Typography>
 
           <Stack direction="row" spacing={2} alignItems="center" width="100%">
-            <Box flex={1}>
+            <Box flex={1} minWidth={0}>
               <TextField
                 label="Quantité totale *"
                 type="number"
@@ -131,7 +131,7 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
           </Typography>
 
           <Stack direction="row" spacing={2} alignItems="center" width="100%">
-            <Box flex={1}>
+            <Box flex={1} minWidth={0}>
               <TextField
                 label="Quantité réservable maximale par personne"
                 type="number"
