@@ -5,6 +5,7 @@ import path from "path"
 import sharp from "sharp"
 import { IMAGE_FAILURE } from "./claude"
 import type { WorktreePaths } from "./git"
+import { log, logErr } from "./log"
 import type { TicketState, TrelloCard, TrelloCardDetails, TrelloComment } from "./schemas"
 import { TrelloClient } from "./trello"
 
@@ -131,7 +132,7 @@ const fetchAttachments = (details: TrelloCardDetails, comments: ReadonlyArray<Tr
         if (!isIgnored(attachment.name, ignore)) {
           return true
         }
-        console.log(`  Pièce jointe « ${attachment.name} » ignorée (🚫 dans la discussion)`)
+        log(`  Pièce jointe « ${attachment.name} » ignorée (🚫 dans la discussion)`)
         return false
       })
       .slice(0, MAX_ATTACHMENTS)
@@ -152,11 +153,9 @@ const fetchAttachments = (details: TrelloCardDetails, comments: ReadonlyArray<Tr
           if (isImage) {
             images.push(relativePath)
           }
-          console.log(`  Pièce jointe téléchargée : ${relativePath}`)
+          log(`  Pièce jointe téléchargée : ${relativePath}${isImage ? " (image, envoyée au modèle)" : ""}`)
         }),
-        Effect.catch((error) =>
-          Effect.sync(() => console.error(`  Pièce jointe « ${attachment.name} » ignorée :`, error)),
-        ),
+        Effect.catch((error) => Effect.sync(() => logErr(`  Pièce jointe « ${attachment.name} » ignorée :`, error))),
       )
     }
     return { paths, images }
@@ -250,7 +249,7 @@ export const withoutImages = (context: TicketContext): TicketContext => ({
 export const dropImages = (card: TrelloCard, context: TicketContext, dir: string) =>
   Effect.gen(function* () {
     const trello = yield* TrelloClient
-    console.log(`  Images illisibles par le modèle : nouvelle tentative sans elles (${context.imagePaths.length})`)
+    log(`  Images illisibles par le modèle : ${context.imagePaths.length} ignorée(s), nouvelle tentative sans elles`)
     for (const imagePath of context.imagePaths) {
       rmSync(path.join(dir, imagePath), { force: true })
     }

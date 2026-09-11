@@ -3,6 +3,7 @@ import { Cause, Effect } from "effect"
 import { CHAT_TIMEOUT, claudeArgsFor, ClaudeRunner } from "./claude"
 import { Git } from "./git"
 import type { ResolvedLists } from "./lists"
+import { log, logErr } from "./log"
 import { initialAnalysisPrompt, replyPrompt } from "./prompts"
 import type { TrelloCard } from "./schemas"
 import { StateStore } from "./state"
@@ -52,11 +53,10 @@ const processDiscussion = (card: TrelloCard) =>
     const comments = (yield* trello.getComments(card.id)).filter((comment) => !IGNORE_COMMENT.test(comment.text))
     const lastComment = comments[comments.length - 1]
     if (lastComment && BOT_COMMENT.test(lastComment.text)) {
-      console.log(`💬 #${card.idShort} « ${card.name} » : en attente d'une réponse du PO`)
-      return // dernier mot au bot : on attend la réponse du PO
+      return // dernier mot au bot : on attend la réponse du PO, rien à logger tant que rien ne bouge
     }
 
-    console.log(
+    log(
       `\n💬 Cadrage du ticket #${card.idShort} « ${card.name} » (${comments.length} commentaire(s), dernier : ${lastComment ? lastComment.memberName : "aucun"})`,
     )
     // l'état est lu avant le worktree : le cadrage doit voir la branche du ticket, pas la base
@@ -82,7 +82,7 @@ const processDiscussion = (card: TrelloCard) =>
               .filter((comment) => !STATUS_COMMENT.test(comment.text))
               .map((comment) => `[${comment.memberName}] ${comment.text}`)
               .join("\n---\n") || "(carte relancée sans nouveau message)"
-          console.log(`  Reprise de la session de cadrage ${chatSessionId}…`)
+          log(`  Reprise de la session de cadrage ${chatSessionId}…`)
           return yield* claude
             .run(
               ["-p", "--resume", chatSessionId, replyPrompt(newMessages, devState), ...CHAT_ARGS, ...claudeArgs],
@@ -91,7 +91,7 @@ const processDiscussion = (card: TrelloCard) =>
             )
             .pipe(
               Effect.catch((error) =>
-                Effect.sync(() => console.error("  Reprise du cadrage impossible, nouvelle session :", error)).pipe(
+                Effect.sync(() => logErr("  Reprise du cadrage impossible, nouvelle session :", error)).pipe(
                   Effect.andThen(
                     isImageFailure(error, context)
                       ? Effect.flatMap(
@@ -105,7 +105,7 @@ const processDiscussion = (card: TrelloCard) =>
             )
         })
       : yield* Effect.gen(function* () {
-          console.log("  Analyse initiale du besoin…")
+          log("  Analyse initiale du besoin…")
           return yield* claude
             .runNewSession(initialArgs, uuidForTicket(card.idShort, "chat"), git.atelierWorktree, CHAT_TIMEOUT)
             .pipe(
@@ -133,13 +133,10 @@ export const processDiscussions = (lists: ResolvedLists) =>
     }
     const trello = yield* TrelloClient
     const cards = yield* trello.getCards(lists.refine.id)
-    if (cards.length > 0) {
-      console.log(`\nAtelier : ${cards.length} carte(s) dans « ${lists.refine.name} »`)
-    }
     for (const card of cards) {
       yield* processDiscussion(card).pipe(
         Effect.catchCause((cause) =>
-          Effect.sync(() => console.error(`Cadrage du ticket #${card.idShort} :`, Cause.squash(cause))),
+          Effect.sync(() => logErr(`Cadrage du ticket #${card.idShort} :`, Cause.squash(cause))),
         ),
       )
     }

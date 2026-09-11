@@ -2,6 +2,7 @@ import { Context, Effect, Layer, Schema as Sc } from "effect"
 import { writeFileSync } from "fs"
 import { AppConfig } from "./config"
 import { TrelloError } from "./errors"
+import { log } from "./log"
 import { TrelloCard, TrelloCardDetails, TrelloComment, TrelloCommentAction, TrelloList, TrelloMember } from "./schemas"
 
 const BASE_URL = "https://api.trello.com/1"
@@ -136,7 +137,7 @@ export const TrelloClientLive = Layer.effect(
       addComment: (cardId, text) =>
         request("POST", `/cards/${cardId}/actions/comments`, { text }).pipe(
           Effect.map(() => {
-            console.log(`  Commentaire Trello ajouté : ${text.split("\n")[0].slice(0, 80)}`)
+            log(`  Commentaire Trello ajouté : ${text.split("\n")[0].slice(0, 80)}`)
           }),
         ),
     }

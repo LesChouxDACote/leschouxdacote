@@ -1,6 +1,7 @@
 import { spawn } from "child_process"
 import { Context, Duration, Effect, Layer, Option, Schema as Sc } from "effect"
 import { ClaudeError } from "./errors"
+import { log, logErr } from "./log"
 import { ClaudeOutput, TrelloCardDetails } from "./schemas"
 
 export const CLAUDE_TIMEOUT = Duration.minutes(45)
@@ -28,16 +29,16 @@ export const claudeArgsFor = (details: TrelloCardDetails) => {
         ? name.slice("model:".length).trim()
         : undefined
     if (model && !args.includes("--model")) {
-      console.log(`  Modèle demandé par étiquette : ${model}`)
+      log(`  Modèle demandé par étiquette : ${model}`)
       args.push("--model", model)
     }
     if (name.startsWith("effort:") && !args.includes("--effort")) {
       const level = name.slice("effort:".length).trim()
       if (EFFORT_LEVELS.includes(level)) {
-        console.log(`  Effort demandé par étiquette : ${level}`)
+        log(`  Effort demandé par étiquette : ${level}`)
         args.push("--effort", level)
       } else {
-        console.log(`  Étiquette effort ignorée (niveau inconnu : « ${level} », attendu ${EFFORT_LEVELS.join("/")})`)
+        log(`  Étiquette effort ignorée (niveau inconnu : « ${level} », attendu ${EFFORT_LEVELS.join("/")})`)
       }
     }
   }
@@ -98,7 +99,7 @@ const spawnClaude = (args: ReadonlyArray<string>, cwd: string) =>
           ),
         )
       } else {
-        console.log(`  Modèle(s) Claude : ${Object.keys(output.modelUsage ?? {}).join(", ") || "non renseigné"}`)
+        log(`  Modèle(s) Claude : ${Object.keys(output.modelUsage ?? {}).join(", ") || "non renseigné"}`)
         resume(Effect.succeed(output))
       }
     })
@@ -126,7 +127,7 @@ const run: ClaudeRunnerShape["run"] = (args, cwd, timeout = CLAUDE_TIMEOUT) => {
 const runNewSession: ClaudeRunnerShape["runNewSession"] = (args, sessionId, cwd, timeout) =>
   run([...args, "--session-id", sessionId], cwd, timeout).pipe(
     Effect.catch((error) =>
-      Effect.sync(() => console.error("  --session-id indisponible, session anonyme :", error)).pipe(
+      Effect.sync(() => logErr("  --session-id indisponible, session anonyme :", error)).pipe(
         Effect.andThen(run(args, cwd, timeout)),
       ),
     ),

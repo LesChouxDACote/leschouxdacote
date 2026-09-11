@@ -1,6 +1,7 @@
 import { Context, Effect, Layer, Option, Schedule } from "effect"
 import { AppConfig } from "./config"
 import { TrelloError } from "./errors"
+import { log } from "./log"
 import { TrelloCard } from "./schemas"
 import { TrelloClient } from "./trello"
 
@@ -75,7 +76,7 @@ export const PreviewLive = Layer.effect(
         }),
       )
       return Effect.gen(function* () {
-        console.log(
+        log(
           `  Ping du preview ${url} (toutes les 30 s, 15 min max${previousBuildId ? `, attente d'un build ≠ ${previousBuildId}` : ""})…`,
         )
         const fresh = yield* attempt.pipe(
@@ -85,10 +86,10 @@ export const PreviewLive = Layer.effect(
         )
         if (Option.isSome(fresh)) {
           const label = previousBuildId ? "Preview mise à jour" : "Preview en ligne"
-          console.log(`  ${label} : ${url} (build ${fresh.value ?? "?"})`)
+          log(`  ${label} : ${url} (build ${fresh.value ?? "?"})`)
           yield* trello.addComment(card.id, `🌐 ${label} : ${url}`)
         } else {
-          console.log(`  Preview toujours pas ${previousBuildId ? "mise à jour" : "en ligne"} après 15 min : ${url}`)
+          log(`  Preview toujours pas ${previousBuildId ? "mise à jour" : "en ligne"} après 15 min : ${url}`)
         }
       })
     }

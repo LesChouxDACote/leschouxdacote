@@ -4,6 +4,7 @@ import { ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
 import { CoolifyClient } from "./coolify"
 import { commitAndPush, Diagnostic, implementArgs, pendingChanges, verifyAndFix } from "./delivery"
+import { log, logErr } from "./log"
 import { Preview } from "./preview"
 import { fixPrompt } from "./prompts"
 import { CoolifyDeployment, CoolifyLogEntry, TrelloCard } from "./schemas"
@@ -141,7 +142,7 @@ export const waitForDeployment = (prNumber: number, sha: string, since: Date) =>
       // API indisponible : on réessaie au prochain tour
       Effect.catch((error) =>
         Effect.sync(() => {
-          console.error("  Coolify injoignable, nouvel essai dans 30 s :", error)
+          logErr("  Coolify injoignable, nouvel essai dans 30 s :", error)
           return Option.none<DeploymentOutcome>()
         }),
       ),
@@ -161,7 +162,7 @@ export const waitForDeployment = (prNumber: number, sha: string, since: Date) =>
 const reproduceBuild = (worktree: string) =>
   Effect.gen(function* () {
     const { exec } = yield* Shell
-    console.log("  Logs du déploiement non exposés par l'API Coolify : reproduction du build en local (yarn build)…")
+    log("  Logs du déploiement non exposés par l'API Coolify : reproduction du build en local (yarn build)…")
     const diagnostic = yield* exec("yarn", ["build"], worktree, { BUILD_CPUS: "1" }).pipe(
       Effect.as(Option.none<Diagnostic>()),
       Effect.catch((error) =>
@@ -178,12 +179,12 @@ const reproduceBuild = (worktree: string) =>
         duration: BUILD_TIMEOUT,
         orElse: () =>
           Effect.sync(() => {
-            console.log("  yarn build local : temps dépassé")
+            log("  yarn build local : temps dépassé")
             return Option.none<Diagnostic>()
           }),
       }),
     )
-    console.log(Option.isSome(diagnostic) ? "  Échec du build reproduit en local" : "  Échec non reproduit en local")
+    log(Option.isSome(diagnostic) ? "  Échec du build reproduit en local" : "  Échec non reproduit en local")
     return diagnostic
   })
 
@@ -229,7 +230,7 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
 
     const giveUp = (text: string) =>
       Effect.gen(function* () {
-        console.log(`  ${text.split("\n")[0]}`)
+        log(`  ${text.split("\n")[0]}`)
         yield* trello.addComment(ticket.card.id, truncate(text))
         return false
       })
@@ -238,11 +239,11 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
     let since = ticket.pushedAt
     let sessionId = ticket.sessionId
     for (let attempt = 0; ; attempt++) {
-      console.log(`  Suivi du déploiement Coolify du preview (PR #${prNumber}, commit ${sha.slice(0, 7)})…`)
+      log(`  Suivi du déploiement Coolify du preview (PR #${prNumber}, commit ${sha.slice(0, 7)})…`)
       const outcome = yield* waitForDeployment(prNumber, sha, since)
       switch (outcome.kind) {
         case "finished":
-          console.log(`  Preview déployé${url ? ` : ${url}` : ""}`)
+          log(`  Preview déployé${url ? ` : ${url}` : ""}`)
           yield* trello.addComment(ticket.card.id, `🌐 Preview en ligne${url ? ` : ${url}` : ""}`)
           return true
         case "not-found":
@@ -264,7 +265,7 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
             )
           }
           const attemptNumber = attempt + 1
-          console.log(`  Déploiement échoué (tentative de correction ${attemptNumber}/${fixAttempts})`)
+          log(`  Déploiement échoué (tentative de correction ${attemptNumber}/${fixAttempts})`)
           const diagnostic = Option.isSome(outcome.logExcerpt)
             ? Option.some<Diagnostic>({ step: "déploiement Coolify", output: outcome.logExcerpt.value })
             : yield* reproduceBuild(ticket.worktree)
@@ -310,7 +311,7 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
           const changes = yield* pendingChanges(ticket.worktree)
           since = new Date()
           if (!changes) {
-            console.log("  Aucun changement de code : nouveau déploiement déclenché")
+            log("  Aucun changement de code : nouveau déploiement déclenché")
             sha = yield* retriggerDeployment(ticket.worktree, ticket.branch, "aucun changement de code")
             yield* trello.addComment(
               ticket.card.id,
@@ -322,7 +323,7 @@ export const ensurePreviewDeployed = (ticket: DeliveredTicket) =>
               ticket.branch,
               `fix: déploiement du preview (Trello #${ticket.card.idShort})`,
             )
-            console.log(`  Correctif poussé (${sha.slice(0, 7)})`)
+            log(`  Correctif poussé (${sha.slice(0, 7)})`)
             yield* trello.addComment(
               ticket.card.id,
               truncate(`🔁 Correctif poussé (${sha.slice(0, 7)}), nouveau déploiement en cours :\n\n${output.result}`),

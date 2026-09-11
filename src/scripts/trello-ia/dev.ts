@@ -11,6 +11,7 @@ import { ensurePreviewDeployed, previewState, previewStatusBlock, retriggerDeplo
 import { WatcherError } from "./errors"
 import { Git } from "./git"
 import type { ResolvedLists } from "./lists"
+import { log, logErr } from "./log"
 import { Preview } from "./preview"
 import { IMPLEMENT_PROMPT, iterationPrompt, planPrompt, retryPrompt } from "./prompts"
 import type { ClaudeOutput, TrelloCard } from "./schemas"
@@ -28,7 +29,7 @@ import {
 } from "./ticket"
 import { TrelloClient } from "./trello"
 
-const logError = (error: unknown) => Effect.sync(() => console.error(error))
+const logError = (error: unknown) => Effect.sync(() => logErr(error))
 
 // même plan, mais sans les images que le modèle n'a pas pu lire ; à lancer dans une session neuve
 const planWithoutImages = (
@@ -55,7 +56,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     // ticket déjà livré remis en Ready = le PO demande une itération sur la même branche/PR
     const isIteration = state?.status === "done"
 
-    console.log(`\n▶ Ticket #${card.idShort} « ${card.name} » → ${branch}${isIteration ? " (itération)" : ""}`)
+    log(`\n▶ Ticket #${card.idShort} « ${card.name} » → ${branch}${isIteration ? " (itération)" : ""}`)
     yield* trello.moveCard(card.id, lists.wip.id) // « claim » : évite tout retraitement pendant le run
 
     // 1. Worktree isolé sur une branche issue de la branche de base (sous verrou : la voie de
@@ -87,9 +88,9 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     )
     if (!branchOnOrigin) {
       yield* exec("git", ["push", "-u", "origin", branch], worktree)
-      console.log(`  Branche ${branch} créée depuis ${baseBranch} et poussée`)
+      log(`  Branche ${branch} créée depuis ${baseBranch} et poussée`)
     }
-    console.log("  yarn install…")
+    log("  yarn install…")
     yield* exec("yarn", ["install"], worktree)
 
     // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
@@ -101,7 +102,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     const previewStatus = Option.isSome(previewBefore) ? previewStatusBlock(previewBefore.value) : undefined
     if (Option.isSome(previewBefore)) {
       const status = Option.map(previewBefore.value.deployment, (deployment) => deployment.status)
-      console.log(`  Dernier déploiement du preview : ${Option.getOrElse(status, () => "introuvable")}`)
+      log(`  Dernier déploiement du preview : ${Option.getOrElse(status, () => "introuvable")}`)
     }
     const claudeArgs = claudeArgsFor(context.details)
     const planArgs = ["-p", planPrompt(ticketBlock), ...DEV_ARGS, ...claudeArgs]
@@ -109,7 +110,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     // 3. Plan puis implémentation par Claude, dans la session du ticket
     let lastOutput: ClaudeOutput
     if (state?.sessionId) {
-      console.log(`  Reprise de la session existante ${state.sessionId}${isIteration ? " (itération)" : ""}…`)
+      log(`  Reprise de la session existante ${state.sessionId}${isIteration ? " (itération)" : ""}…`)
       lastOutput = yield* claude
         .run(
           implementArgs(
@@ -122,7 +123,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
         .pipe(
           Effect.catch((error) =>
             Effect.gen(function* () {
-              console.error("  Reprise impossible, nouvelle session :", error)
+              logErr("  Reprise impossible, nouvelle session :", error)
               const args = isImageFailure(error, context)
                 ? yield* planWithoutImages(card, context, worktree, claudeArgs)
                 : planArgs
@@ -135,7 +136,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
         )
       yield* store.save(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
     } else {
-      console.log("  Génération du plan…")
+      log("  Génération du plan…")
       const plan = yield* claude.runNewSession(planArgs, uuidForTicket(card.idShort), worktree).pipe(
         // le modèle n'a pas pu lire les images : on rejoue le plan sans elles, en session neuve
         Effect.catch((error) =>
@@ -150,7 +151,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       writeFileSync(path.join(worktree, ".ia-plan.md"), plan.result)
       yield* trello.addComment(card.id, truncate(`📋 Plan :\n\n${plan.result}`))
 
-      console.log("  Implémentation du plan…")
+      log("  Implémentation du plan…")
       lastOutput = yield* claude.run(implementArgs(plan.session_id, IMPLEMENT_PROMPT, claudeArgs), worktree)
       yield* store.save(card.idShort, { sessionId: lastOutput.session_id, branch, status: "implement" })
     }
@@ -168,7 +169,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     if (!changes) {
       if (isIteration) {
         // Claude a jugé qu'aucune modification n'était nécessaire : on l'explique au PO
-        console.log("  Itération sans changement de code")
+        log("  Itération sans changement de code")
         yield* store.save(card.idShort, { status: "done" }) // le run l'avait passé à « implement »
         yield* trello.addComment(
           card.id,
@@ -182,7 +183,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
           const sha = pending
             ? (pending.commit ?? "")
             : yield* retriggerDeployment(worktree, branch, "itération sans changement, preview absent ou en échec")
-          console.log(
+          log(
             pending
               ? "  Déploiement du preview en cours : suivi"
               : `  Preview non sain : déploiement relancé (${sha.slice(0, 7)})`,
@@ -214,7 +215,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       isIteration && !coolify.enabled ? yield* preview.buildId(preview.urlFor(state?.prUrl)) : undefined
     const pushedAt = new Date()
     const sha = yield* commitAndPush(worktree, branch, `feat: ${card.name} (Trello #${card.idShort})`)
-    console.log("  Changements commités et poussés")
+    log("  Changements commités et poussés")
 
     // 5. Pull request vers la branche de base (réutilisée si déjà ouverte : le push l'a mise à jour)
     const existingPrOutput = yield* exec(
@@ -224,7 +225,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
     ).pipe(Effect.orElseSucceed(() => ""))
     let prUrl = existingPrOutput.split("\n").filter(Boolean)[0] || ""
     if (prUrl) {
-      console.log(`  PR existante mise à jour : ${prUrl}`)
+      log(`  PR existante mise à jour : ${prUrl}`)
     } else {
       const bodyFile = path.join(tmpdir(), `ia-pr-${card.idShort}.md`)
       writeFileSync(
@@ -247,12 +248,10 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
         ],
         worktree,
       ).pipe(Effect.ensuring(Effect.sync(() => unlinkSync(bodyFile))))
-      console.log(`  PR créée : ${prUrl}`)
+      log(`  PR créée : ${prUrl}`)
     }
     const previewUrl = preview.urlFor(prUrl)
-    console.log(
-      previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview",
-    )
+    log(previewUrl ? `  Preview attendue : ${previewUrl}` : "  PREVIEW_URL_TEMPLATE non définie : pas de lien preview")
 
     // 6. Rapport sur la carte
     yield* store.save(card.idShort, { status: "done", prUrl })
@@ -297,7 +296,7 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
 export const reportFailure = (card: TrelloCard, cause: Cause.Cause<unknown>) =>
   Effect.gen(function* () {
     const error = Cause.squash(cause)
-    console.error(error)
+    logErr(error)
     const { worktreesDir } = yield* AppConfig
     const trello = yield* TrelloClient
     const store = yield* StateStore

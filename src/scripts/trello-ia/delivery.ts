@@ -6,6 +6,7 @@ import path from "path"
 import { ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
 import type { ShellError } from "./errors"
+import { log } from "./log"
 import { fixPrompt } from "./prompts"
 import type { TrelloCard } from "./schemas"
 import { Shell } from "./shell"
@@ -92,7 +93,7 @@ export const checkWorktree = (worktree: string) =>
     const touchedFiles = touchedFilesIn(worktree, committedFiles, statusLines)
     const prettierFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx|json|css|scss|md)$/.test(file))
     if (prettierFiles.length > 0) {
-      console.log("  Formatage Prettier…")
+      log("  Formatage Prettier…")
       yield* exec("yarn", ["prettier", "--write", ...prettierFiles], worktree)
     }
 
@@ -110,7 +111,7 @@ export const checkWorktree = (worktree: string) =>
       { step: "yarn eslint (src)", run: exec("yarn", ["eslint", "src/**/*.{js,jsx,ts,tsx}"], worktree) },
     ]
     for (const check of checks) {
-      console.log(`  ${check.step}…`)
+      log(`  ${check.step}…`)
       const failure = yield* check.run.pipe(
         Effect.as(Option.none<Diagnostic>()),
         Effect.catch((error) =>
@@ -149,9 +150,7 @@ export const verifyAndFix = (
         return verification
       }
       const attemptNumber = attempt + 1
-      console.log(
-        `  ${diagnostic.value.step} en échec : correction par Claude (tentative ${attemptNumber}/${fixAttempts})…`,
-      )
+      log(`  ${diagnostic.value.step} en échec : correction par Claude (tentative ${attemptNumber}/${fixAttempts})…`)
       yield* trello.addComment(
         card.id,
         truncate(

@@ -3,6 +3,7 @@ import { existsSync, rmSync } from "fs"
 import path from "path"
 import { AppConfig } from "./config"
 import { ShellError } from "./errors"
+import { log } from "./log"
 import { Shell } from "./shell"
 
 export interface WorktreePaths {
@@ -73,7 +74,7 @@ export const GitLive = Layer.effect(
               Effect.as(`origin/${branch}`),
               Effect.catch(() =>
                 Effect.sync(() => {
-                  console.log(`  Branche ${branch} introuvable sur origin, cadrage sur ${baseBranch}`)
+                  log(`  Branche ${branch} introuvable sur origin, cadrage sur ${baseBranch}`)
                 }).pipe(Effect.as(`origin/${baseBranch}`)),
               ),
             )

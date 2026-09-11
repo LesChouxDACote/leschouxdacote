@@ -1,6 +1,7 @@
 import { Effect } from "effect"
 import { AppConfig } from "./config"
 import { WatcherError } from "./errors"
+import { log } from "./log"
 import type { TrelloList } from "./schemas"
 import { TrelloClient } from "./trello"
 
@@ -25,7 +26,7 @@ export const resolveLists = Effect.gen(function* () {
   }
   const refine = findByName(config.listRefine)
   if (!refine) {
-    console.log(`Liste « ${config.listRefine} » absente du board : cadrage IA désactivé`)
+    log(`Liste « ${config.listRefine} » absente du board : cadrage IA désactivé`)
   }
   const resolved: ResolvedLists = {
     ready: yield* mustFind(config.listReady),
