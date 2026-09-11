@@ -29,6 +29,13 @@ interface ReservationErrors {
 
 const MAX_QUANTITY = Number.MAX_SAFE_INTEGER
 
+// La date d'un créneau est à minuit UTC (input date "YYYY-MM-DD") : un créneau reste affichable
+// jusqu'à sa fin réelle (date + heure de fin), et pas seulement jusqu'à minuit.
+const getSlotEnd = (slot: ReservableSlot) => {
+  const day = slot.date.toISOString().slice(0, 10)
+  return new Date(`${day}T${slot.heureFin}`).getTime()
+}
+
 const getValidationSchema = (maxQuantityPerPerson: number | null | undefined, unitLabel: string) =>
   object().shape({
     quantity: number()
@@ -162,14 +169,15 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
     setNow(Date.now())
   }, [])
 
-  // La page est générée statiquement : les créneaux passés ne peuvent être filtrés
-  // qu'une fois la date courante connue, côté client.
+  // La page est générée statiquement : l'heure courante n'est connue qu'une fois la page chargée
+  // dans le navigateur. On ne rend donc rien avant, pour éviter que le bouton « Réserver »
+  // n'apparaisse un instant puis ne disparaisse au chargement.
   const upcomingSlots = useMemo(
-    () => (now === null ? slots : slots.filter((slot) => slot.date.getTime() >= now)),
+    () => (now === null ? [] : slots.filter((slot) => getSlotEnd(slot) >= now)),
     [slots, now],
   )
 
-  if (now !== null && upcomingSlots.length === 0) {
+  if (now === null || upcomingSlots.length === 0) {
     return null
   }
 
