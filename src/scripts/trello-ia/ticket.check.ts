@@ -17,6 +17,16 @@ const many = rules("🚫 capture-2.png, photo3.jpg\nvieille photo.png")
 assert(isIgnored("photo3.jpg", many) && isIgnored("vieille photo.png", many))
 assert(!isIgnored("maquette.png", many))
 
+// plusieurs 🚫 dans UN SEUL commentaire (une ligne par pièce jointe) : le marqueur ne doit pas
+// rester collé au nom de la 2ᵉ ligne, sinon elle ne correspond plus jamais
+const multiMarker = rules('🚫Avant de cliquer sur "Réserver".png\n🚫Après avoir cliqué sur "Réserver".png')
+assert(isIgnored('Avant de cliquer sur "Réserver".png', multiMarker))
+assert(isIgnored('Après avoir cliqué sur "Réserver".png', multiMarker))
+
+// guillemets cités par le PO mais absents du nom réel de la pièce jointe (Trello ne les stocke pas
+// forcément) : la normalisation retire toute la ponctuation, pas seulement la casse et les accents
+assert(isIgnored("Avant de cliquer sur Réserver.png", rules('🚫 Avant de cliquer sur "Réserver".png')))
+
 // 🚫 seul : toutes les pièces jointes
 const all = rules("🚫")
 assert(isIgnored("maquette.png", all) && isIgnored("cahier-des-charges.pdf", all))

@@ -24,7 +24,7 @@ export const BOT_COMMENT = /^(🤖|📋|✅|♻️|⚠️|🌐|🛠️|🔁)/
 // commentaire du PO listant les pièces jointes à ne pas envoyer au modèle (« 🚫 photo.png, capture 2.png »,
 // 🚫 seul = toutes) : elles ne sont pas téléchargées, donc pas de tokens vision dépensés dessus.
 // Volontairement absent de BOT_COMMENT : ce commentaire vient du PO, il ne doit pas passer pour une réponse du bot.
-export const IGNORE_COMMENT = /^🚫/
+export const IGNORE_COMMENT = /^\s*🚫/
 // ⚠️ est déjà dans STATUS_COMMENT et BOT_COMMENT : cet avertissement n'entre pas dans les prompts
 // et ne fait pas répondre le cadrage
 const IMAGE_WARNING =
@@ -75,20 +75,28 @@ export const lastIndexWhere = <T>(items: ReadonlyArray<T>, predicate: (item: T) 
   return -1
 }
 
-// même normalisation des deux côtés : le nom cité par le PO subit la sanitisation appliquée au nom
-// de fichier téléchargé (ticket.ts, plus bas), donc espaces, accents et casse ne comptent pas
+// même normalisation des deux côtés (nom cité par le PO vs nom réel de la pièce jointe) : espaces,
+// guillemets, apostrophes, accents et casse ne doivent jamais faire échouer le rapprochement — le PO
+// recopie souvent le nom à l'œil, et Trello ne stocke pas forcément les guillemets d'un nom de fichier
 const normalizeName = (name: string) =>
   name
+    .normalize("NFD") // décompose les lettres accentuées (é → e + accent), comme slugify plus haut
+    .replace(/[\u0300-\u036f]/g, "") // puis retire les accents
     .trim()
     .toLowerCase()
-    .replace(/[^\w.-]+/g, "_")
+    .replace(/[^a-z0-9.]+/g, "") // tout le reste (espaces, ponctuation) : retiré, pas juste remplacé
 
 // pièces jointes citées dans les commentaires 🚫 de la discussion ; un 🚫 sans nom les vise toutes
 export const attachmentsToIgnore = (comments: ReadonlyArray<TrelloComment>) => {
   const names: string[] = []
   let all = false
   for (const comment of comments.filter((comment) => IGNORE_COMMENT.test(comment.text))) {
-    const cited = comment.text.replace(IGNORE_COMMENT, "").split(/[,\n]/).map(normalizeName).filter(Boolean)
+    // le 🚫 peut se répéter sur plusieurs lignes d'un même commentaire ; le retirer seulement en tête
+    // du texte entier laissait un 🚫 collé au nom de la 2ᵉ ligne, qui ne correspondait alors plus jamais
+    const cited = comment.text
+      .split(/[,\n]/)
+      .map((part) => normalizeName(part.replace(IGNORE_COMMENT, "")))
+      .filter(Boolean)
     if (cited.length === 0) {
       all = true
     }
