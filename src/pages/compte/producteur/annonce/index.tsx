@@ -9,7 +9,7 @@ import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
-import { MAX_PUBLICATION_DAYS } from "src/constants"
+import { LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { useObjectQuery } from "src/helpers/firebase"
@@ -24,15 +24,44 @@ const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff
 const Photo = styled.img`
   width: 100%;
 `
+
+const TwoColumnLayout = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: ${LAYOUT.maxWidth}px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const LeftColumn = styled.div`
+  min-width: 0;
+`
+
+const RightColumn = styled.div`
+  min-width: 0;
+`
 const SlotDate = Sc.DateFromString.annotations({
   message: () => "Veuillez entrer une date.",
   override: true,
 })
 
+export const ReservationSchema = Sc.Struct({
+  totalQuantity: Sc.Number,
+  maxQuantityPerPerson: Sc.optional(Sc.NullOr(Sc.Number)),
+  instructions: Sc.optional(Sc.NullOr(Sc.String)),
+})
+
+export type Reservation = typeof ReservationSchema.Type
+
 export const SlotSchema = Sc.Struct({
   date: SlotDate,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type Slot = typeof SlotSchema.Type
@@ -53,6 +82,7 @@ export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
@@ -106,6 +136,10 @@ const EditProductPage = () => {
 
     if (!place) {
       throw new ValidationError("address", "Veuillez sélectionner l'adresse dans la liste déroulante")
+    }
+
+    if (slots.some((slot) => slot.reservation != null) && !payload.get("unit")) {
+      throw new ValidationError("unit", "L'unité est obligatoire pour activer une réservation.")
     }
 
     if (payload.get("days") === "0") {
@@ -179,62 +213,69 @@ const EditProductPage = () => {
       <Form
         title={title}
         hasRequired
+        wide
         onSubmit={handleSubmit}
         defaultValues={defaultValues}
         resetOnChange={data?.objectID}
       >
-        <TextInput name="title" label="Titre" required maxLength={100} />
-        <Row>
-          <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
-          <SelectInput name="unit" label="Unité">
-            <option></option>
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-            <option value="l">litre(s)</option>
-            <option value="u">pièce(s)</option>
-          </SelectInput>
-        </Row>
-        <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
-        <PriceInfos />
-        <TextInput
-          name="address"
-          label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
-          required
-          placeholder=""
-          id="place"
-          ref={handleRef}
-        />
-        <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
-        <TagsInput label="Mots-clés" />
-        {data && <Photo src={data.photo} />}
-        <TextInput
-          name="photo"
-          label={productId ? "Changer la photo" : "Photo"}
-          type="file"
-          required={productId ? false : true}
-          accept={ACCEPTED_MIMETYPES.join(",")}
-        />
-        <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
-        <TextInput
-          type="tel"
-          name="phone"
-          label="Téléphone"
-          validate={validatePhoneNumber}
-          defaultValue={user?.phone}
-        />
-        <TextInput
-          name="days"
-          label="Publier maintenant pour une durée de :"
-          type="number"
-          min={0}
-          max={MAX_PUBLICATION_DAYS}
-          step={1}
-          defaultValue={0}
-          suffix="jour(s)"
-        />
-        <ProductEndDate />
-        <SlotsForm setSlots={setSlots} slots={slots} />
-        <SubmitButton />
+        <TwoColumnLayout>
+          <LeftColumn>
+            <TextInput name="title" label="Titre" required maxLength={100} />
+            <Row>
+              <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
+              <SelectInput name="unit" label="Unité">
+                <option></option>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="l">litre(s)</option>
+                <option value="u">pièce(s)</option>
+              </SelectInput>
+            </Row>
+            <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
+            <PriceInfos />
+            <TextInput
+              name="address"
+              label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
+              required
+              placeholder=""
+              id="place"
+              ref={handleRef}
+            />
+            <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
+            <TagsInput label="Mots-clés" />
+            {data && <Photo src={data.photo} />}
+            <TextInput
+              name="photo"
+              label={productId ? "Changer la photo" : "Photo"}
+              type="file"
+              required={productId ? false : true}
+              accept={ACCEPTED_MIMETYPES.join(",")}
+            />
+            <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
+            <TextInput
+              type="tel"
+              name="phone"
+              label="Téléphone"
+              validate={validatePhoneNumber}
+              defaultValue={user?.phone}
+            />
+            <TextInput
+              name="days"
+              label="Publier maintenant pour une durée de :"
+              type="number"
+              min={0}
+              max={MAX_PUBLICATION_DAYS}
+              step={1}
+              defaultValue={0}
+              suffix="jour(s)"
+            />
+            <ProductEndDate />
+            <SubmitButton />
+          </LeftColumn>
+          <RightColumn>
+            <SlotsForm setSlots={setSlots} slots={slots} />
+          </RightColumn>
+        </TwoColumnLayout>
       </Form>
     </Layout>
   )
