@@ -25,9 +25,9 @@ export class ValidationError extends Error {
   }
 }
 
-const StyledForm = styled.form`
+const StyledForm = styled.form<{ $wide?: boolean }>`
   width: 100%;
-  max-width: ${LAYOUT.formWidth}px;
+  max-width: ${({ $wide }) => ($wide ? "none" : `${LAYOUT.formWidth}px`)};
   margin: 0 auto;
 `
 const Title = styled.h1`
@@ -47,6 +47,7 @@ interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>>
   onSubmit: Submit<A>
   defaultValues?: DefaultValues<T>
   resetOnChange?: any
+  wide?: boolean
 }
 
 export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
@@ -55,6 +56,7 @@ export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
   onSubmit,
   defaultValues,
   resetOnChange,
+  wide,
   children,
   ...delegated
 }: FormProps<A, T>) {
@@ -83,7 +85,7 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
 
   return (
     <FormProvider {...form}>
-      <StyledForm method="POST" onSubmit={handleSubmit} {...delegated}>
+      <StyledForm method="POST" onSubmit={handleSubmit} $wide={wide} {...delegated}>
         {title && <Title>{title}</Title>}
         {hasRequired && <Required>* champs obligatoires</Required>}
         {children}
