@@ -94,7 +94,7 @@ const SectionTitle = styled.h3`
 
 const Instructions = styled(Text)`
   font-style: italic;
-  margin-bottom: 15px;
+  margin-top: 15px;
 `
 
 const SlotsLabel = styled.div`
@@ -255,7 +255,6 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
           </CloseButton>
 
           <SectionTitle>Réservation</SectionTitle>
-          {instructions && <Instructions $color={COLORS.input}>{instructions}</Instructions>}
 
           <SlotsLabel>
             Choisissez votre créneau <span style={{ color: COLORS.red }}>*</span>
@@ -276,6 +275,7 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
             ))}
           </SlotsRow>
           {errors.slot && <SlotError>{errors.slot}</SlotError>}
+          {instructions && <Instructions $color={COLORS.input}>{instructions}</Instructions>}
 
           <FieldsRow>
             <QuantityRow>
@@ -329,7 +329,7 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
               Valider la réservation
             </GreenButton>
             <Button variant="contained" onClick={handleCancel}>
-              Annuler
+              Annuler la réservation
             </Button>
           </ActionsRow>
         </Section>
