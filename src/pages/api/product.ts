@@ -95,6 +95,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     const position = { lat: Number(fields.lat), lng: Number(fields.lng) }
     console.log(slots.map((a) => a))
 
+    if (slots.some((slot) => slot.reservation != null) && !fields.unit) {
+      return respond(res, {
+        unit: "L'unité est obligatoire pour activer une réservation.",
+      })
+    }
+
     const product: RegisteringProduct = {
       created: existing ? new Date(existing.created) : now,
       uid: fields.uid,
