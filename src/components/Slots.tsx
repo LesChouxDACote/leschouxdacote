@@ -1,18 +1,20 @@
 import { RemoveCircle } from "@mui/icons-material"
 import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/material"
-import React, { useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 import Modal from "src/components/Modal"
+import ReservationBlock from "src/components/Reservation"
 
 interface SlotsFormProps {
   slots: readonly Slot[]
   setSlots: React.Dispatch<React.SetStateAction<readonly Slot[]>>
+  onDraftDirtyChange?: (dirty: boolean) => void
 }
 
-const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
+const SlotsForm = ({ setSlots, slots, onDraftDirtyChange }: SlotsFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [slotToDelete, setSlotToDelete] = useState<Slot | null>(null)
@@ -39,31 +41,59 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
 
   const [error, setError] = React.useState<string | null>(null)
 
+  // Les brouillons de réservation non validés comptent comme des modifications non enregistrées
+  const draftDirtySlotsRef = useRef(new Set<number>())
+  const [hasDraftDirty, setHasDraftDirty] = useState(false)
+
+  const handleDraftDirty = useCallback((index: number, dirty: boolean) => {
+    if (dirty) {
+      draftDirtySlotsRef.current.add(index)
+    } else {
+      draftDirtySlotsRef.current.delete(index)
+    }
+    setHasDraftDirty(draftDirtySlotsRef.current.size > 0)
+  }, [])
+
+  useEffect(() => {
+    onDraftDirtyChange?.(hasDraftDirty)
+  }, [hasDraftDirty, onDraftDirtyChange])
+
   return (
     <Stack spacing={2} alignItems="start">
-      <h2>Créneaux</h2>
+      <Typography variant="h2" sx={{ fontSize: "25px" }}>
+        Créneaux
+      </Typography>
 
       {slots.map((slot, index) => (
-        <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2} key={index}>
-          <Box width="37%">
-            <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
-          </Box>
-          <Box width="23%" paddingLeft={"6px"}>
-            <Typography variant="body1">{` de ${slot.heureDebut}`}</Typography>
-          </Box>
-          <Box width="23%" paddingLeft={"6px"}>
-            <Typography variant="body1">{`à ${slot.heureFin}`}</Typography>
-          </Box>
-          <Box width="17%">
-            <IconButton
-              onClick={() => {
-                handleDeleteClick(slot)
-              }}
-            >
-              <RemoveCircle color="error" />
-            </IconButton>
-          </Box>
-        </Stack>
+        <React.Fragment key={index}>
+          <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2}>
+            <Box width="37%">
+              <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
+            </Box>
+            <Box width="23%" paddingLeft={"6px"}>
+              <Typography variant="body1">{` de ${slot.heureDebut}`}</Typography>
+            </Box>
+            <Box width="23%" paddingLeft={"6px"}>
+              <Typography variant="body1">{`à ${slot.heureFin}`}</Typography>
+            </Box>
+            <Box width="17%">
+              <IconButton
+                onClick={() => {
+                  handleDeleteClick(slot)
+                }}
+              >
+                <RemoveCircle color="error" />
+              </IconButton>
+            </Box>
+          </Stack>
+          <ReservationBlock
+            slot={slot}
+            index={index}
+            slots={slots}
+            setSlots={setSlots}
+            onDirtyChange={handleDraftDirty}
+          />
+        </React.Fragment>
       ))}
       {error && (
         <Typography color="error" variant="body1">
@@ -72,17 +102,17 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
       )}
 
       <Stack direction="row" spacing={2} alignItems="center" width={"100%"}>
-        <Box width="37%">
+        <Box width="37%" minWidth={0}>
           <Controller
             name="date"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField {...field} label="Date *" type="date" InputLabelProps={{ shrink: true }} />
+              <TextField {...field} label="Date *" type="date" InputLabelProps={{ shrink: true }} fullWidth />
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box width="23%" minWidth={0}>
           <Controller
             name="heureDebut"
             control={control}
@@ -103,7 +133,7 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box width="23%" minWidth={0}>
           <Controller
             name="heureFin"
             control={control}
