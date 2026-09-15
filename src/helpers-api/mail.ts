@@ -28,3 +28,21 @@ export const sendTemplateEmail = async (
   const infos = body.Messages[0]
   return { to: infos.To[0].Email, status: infos.Status }
 }
+
+// E-mail simple (HTML + texte), sans template Mailjet.
+export const sendEmail = async (recipient: string, subject: string, html: string, text: string) => {
+  const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
+
+  const message: Email.SendParamsMessage = {
+    From: { Email: CONTACT_EMAIL, Name: "Les Choux d'à Côté" },
+    To: [{ Email: recipient }],
+    Subject: subject,
+    HTMLPart: html,
+    TextPart: text,
+  }
+
+  const { body } = await mailjet.post("send", { version: "v3.1" }).request({ Messages: [message] })
+
+  const infos = body.Messages[0]
+  return { to: infos.To[0].Email, status: infos.Status }
+}

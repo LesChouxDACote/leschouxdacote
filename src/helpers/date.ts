@@ -26,3 +26,14 @@ export const formatEnd = (days: number, start?: number | Date | null) => {
   const end = addDays(start || new Date(), days)
   return formatDateTime(end)
 }
+
+// La date d'un créneau est à minuit UTC (input date "YYYY-MM-DD") : un créneau n'est passé
+// qu'après sa fin réelle (date + heure de fin), et pas à minuit.
+export const getSlotEnd = (date: Date, heureFin: string) => {
+  const day = date.toISOString().slice(0, 10)
+  return new Date(`${day}T${heureFin}`).getTime()
+}
+
+// Identifiant stable d'un créneau au sein d'une annonce (clé des totaux de réservation).
+export const getSlotKey = (date: Date, heureDebut: string, heureFin: string) =>
+  `${date.getTime()}_${heureDebut}_${heureFin}`

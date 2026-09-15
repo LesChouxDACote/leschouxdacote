@@ -60,6 +60,24 @@ interface Producer extends BaseUser {
 }
 type User = Buyer | Producer | Admin
 
+// Buyer reservation on a product slot. Firestore collection "bookings" (top-level: denied by
+// default in firestore.rules, read/written only through /api/reservation). Never stored in the
+// product doc: the ad page is statically generated and products are publicly readable.
+// One active booking per buyer per product: the doc ID is `${productId}_${uid}`, so changing
+// slot rewrites the same doc and frees the previous slot.
+interface Booking extends Identified {
+  productId: string
+  uid: string // user ID (buyer)
+  slotDate: number // slot date, timestamp in ms (UTC midnight)
+  heureDebut: string
+  heureFin: string
+  quantity: number
+  phone: string
+  email: string
+  firstname: string // denormalized from users/{uid} at booking time
+  lastname: string
+}
+
 interface RegisteringUser extends Registering<Producer> {
   created: Date
   password: string
