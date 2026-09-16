@@ -80,8 +80,15 @@ const handler = async (
 
     const body: ReservationsResponse = { owner, booked }
     if (owner) {
-      // Informations personnelles des acheteurs : réservées au producteur propriétaire.
+      // Informations personnelles des acheteurs et créneaux persistés : réservés au producteur
+      // propriétaire (la page de gestion reflète l'annonce enregistrée, pas les modifications du
+      // formulaire en cours).
       body.bookings = bookings
+      body.slots = (product.slots ?? [])
+        .filter(
+          (slot): slot is ApiSlot & { reservation: NonNullable<ApiSlot["reservation"]> } => slot.reservation != null,
+        )
+        .sort((a, b) => a.date - b.date || a.heureDebut.localeCompare(b.heureDebut))
     }
     return res.status(200).json(body)
   }

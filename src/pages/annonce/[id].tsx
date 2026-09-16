@@ -8,7 +8,6 @@ import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
 import * as A from "effect/Array"
 import Link from "src/components/Link"
-import MyReservations from "src/components/MyReservations"
 import Products from "src/components/Products"
 import ReservationSection from "src/components/ReservationSection"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
@@ -310,9 +309,6 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                 ))}
               </ProductSlots>
             </ProductSection>
-            {reservationSlots.length > 0 && (
-              <MyReservations productId={product.objectID} producerUid={product.uid} slots={reservationSlots} />
-            )}
             {reservationSlots.length > 0 && (
               <ReservationSection productId={product.objectID} slots={reservationSlots} unit={product.unit ?? null} />
             )}

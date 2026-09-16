@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
+import MyReservations from "src/components/MyReservations"
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
@@ -274,6 +275,7 @@ const EditProductPage = () => {
           </LeftColumn>
           <RightColumn>
             <SlotsForm setSlots={setSlots} slots={slots} />
+            {productId && <MyReservations productId={productId} />}
           </RightColumn>
         </TwoColumnLayout>
       </Form>

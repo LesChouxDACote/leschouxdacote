@@ -1,18 +1,15 @@
 import styled from "@emotion/styled"
 import { useEffect, useMemo, useState } from "react"
-import type { ReservableSlot } from "src/components/ReservationSection"
 import { Text } from "src/components/Text"
 import { COLORS, LAYOUT, SIZES } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { formatDate, getSlotEnd, getSlotKey } from "src/helpers/date"
 import api from "src/helpers/api"
-import type { ReservationsResponse } from "src/models/Booking"
+import type { BookingSlot, ReservationsResponse } from "src/models/Booking"
 import type { Booking } from "src/types/model"
 
 interface MyReservationsProps {
   productId: string
-  producerUid: string
-  slots: readonly ReservableSlot[]
 }
 
 interface SlotGroup {
@@ -92,13 +89,15 @@ const Total = styled(Text)`
   margin-top: 10px;
 `
 
-const MyReservations = ({ productId, producerUid, slots }: MyReservationsProps) => {
-  const { authUser } = useUser()
+// Section « Mes réservations » du producteur, affichée dans la page de gestion de l'annonce
+// (compte producteur) uniquement. Autonome : elle s'appuie sur les créneaux et réservations
+// persistés renvoyés par l'API, pas sur le formulaire en cours d'édition.
+const MyReservations = ({ productId }: MyReservationsProps) => {
+  const { loading } = useUser()
   const [response, setResponse] = useState<ReservationsResponse | null>(null)
-  const isOwner = authUser?.uid === producerUid
 
   useEffect(() => {
-    if (!isOwner) {
+    if (loading || !productId) {
       return
     }
     let cancelled = false
@@ -110,35 +109,37 @@ const MyReservations = ({ productId, producerUid, slots }: MyReservationsProps) 
         }
       })
       .catch(() => {
-        // Totaux et réservations indisponibles : la section reste vide.
+        // Réservations indisponibles : la section reste masquée.
       })
     return () => {
       cancelled = true
     }
-  }, [isOwner, productId])
+  }, [loading, productId])
 
   const groups = useMemo<SlotGroup[]>(() => {
+    const slots = response?.slots ?? []
     const bookings = response?.bookings ?? []
 
-    const groups: SlotGroup[] = slots.map((slot) => {
+    const groups: SlotGroup[] = slots.map((slot: BookingSlot) => {
+      const date = new Date(slot.date)
       const rows = bookings.filter(
         (booking) =>
-          booking.slotDate === slot.date.getTime() &&
+          booking.slotDate === slot.date &&
           booking.heureDebut === slot.heureDebut &&
           booking.heureFin === slot.heureFin,
       )
       return {
-        title: formatDate(slot.date),
+        title: formatDate(date),
         hours: `${formatHours(slot.heureDebut)} - ${formatHours(slot.heureFin)}`,
         rows,
         total: rows.reduce((sum, booking) => sum + booking.quantity, 0),
         totalQuantity: slot.reservation.totalQuantity,
-        isPast: getSlotEnd(slot.date, slot.heureFin) < Date.now(),
+        isPast: getSlotEnd(date, slot.heureFin) < Date.now(),
       }
     })
 
-    // Réservations dont le créneau a été supprimé de l'annonce depuis : regroupées entre elles,
-    // sans quantité totale de référence.
+    // Réservations dont le créneau n'existe plus dans l'annonce enregistrée : regroupées entre
+    // elles, sans quantité totale de référence.
     const grouped = new Set(groups.flatMap((group) => group.rows))
     const orphans = new Map<string, Booking[]>()
     for (const booking of bookings) {
@@ -150,20 +151,21 @@ const MyReservations = ({ productId, producerUid, slots }: MyReservationsProps) 
       }
     }
     orphans.forEach((rows) => {
+      const date = new Date(rows[0].slotDate)
       groups.push({
-        title: formatDate(new Date(rows[0].slotDate)),
+        title: formatDate(date),
         hours: `${formatHours(rows[0].heureDebut)} - ${formatHours(rows[0].heureFin)}`,
         rows,
         total: rows.reduce((sum, booking) => sum + booking.quantity, 0),
         totalQuantity: null,
-        isPast: getSlotEnd(new Date(rows[0].slotDate), rows[0].heureFin) < Date.now(),
+        isPast: getSlotEnd(date, rows[0].heureFin) < Date.now(),
       })
     })
 
     return groups
-  }, [response, slots])
+  }, [response])
 
-  if (!isOwner || !response?.bookings) {
+  if (loading || !response?.owner || (response.slots ?? []).length === 0) {
     return null
   }
 
