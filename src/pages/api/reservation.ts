@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
-import { firestore, getObject, getToken } from "src/helpers-api/firebase"
+import { firestore, getObject, getToken, toMillis } from "src/helpers-api/firebase"
 import { sendEmail } from "src/helpers-api/mail"
 import { UNIT_LABELS } from "src/constants"
 import { formatDate, getSlotEnd, getSlotKey } from "src/helpers/date"
@@ -25,8 +25,9 @@ interface ReservationErrors {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Le doc produit lu via getObject expose les dates des créneaux en ms (les Timestamps Firestore
-// sont convertis), d'où ce type local plutôt que Product.slots (date: Date côté client).
+// getProduct normalise les dates des créneaux en ms (les Timestamps Firestore imbriqués dans
+// slots ne sont pas convertis par getObject, qui ne traite que le premier niveau), d'où ce type
+// local plutôt que Product.slots (date: Date côté client).
 interface ApiSlot {
   date: number
   heureDebut: string
@@ -49,7 +50,16 @@ const getUnitLabel = (unit: Unit | null | undefined) => (unit ? UNIT_LABELS[unit
 
 const getProduct = async (id: string) => {
   const doc = await firestore.collection("products").doc(id).get()
-  return doc.exists ? (getObject(doc) as ApiProduct) : null
+  if (!doc.exists) {
+    return null
+  }
+  const product = getObject(doc) as ApiProduct
+  // getObject ne convertit que les Timestamps de premier niveau : les dates des créneaux
+  // arrivent donc en Timestamps bruts. Normalisation en ms, nécessaire pour la comparaison avec
+  // la date envoyée par l'acheteur (POST) et pour la réponse GET. Valeur inattendue : 0 (créneau
+  // traité comme passé).
+  product.slots = (product.slots ?? []).map((slot) => ({ ...slot, date: toMillis(slot.date) ?? 0 }))
+  return product
 }
 
 const handler = async (

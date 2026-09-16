@@ -18,6 +18,17 @@ export const firestore = app.firestore()
 export const storage = app.storage()
 export const GeoPoint = admin.firestore.GeoPoint
 export const FieldValue = admin.firestore.FieldValue
+export const Timestamp = admin.firestore.Timestamp
+
+// getObject ne convertit en millisecondes que les Timestamps de premier niveau du document :
+// pour les valeurs imbriquées (ex. dates des créneaux dans le tableau slots), passer par ce
+// helper. Une valeur inattendue (ni Timestamp ni nombre) renvoie null.
+export const toMillis = (value: unknown): number | null => {
+  if (value instanceof Timestamp) {
+    return value.toMillis()
+  }
+  return typeof value === "number" ? value : null
+}
 
 export const getObject = <T extends DataObject = DataObject>(doc: admin.firestore.DocumentSnapshot) => {
   if (!doc.exists) {
