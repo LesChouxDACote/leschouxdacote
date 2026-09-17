@@ -89,6 +89,14 @@ const handler = async (
     const owner = Boolean(token && token.uid === product.uid)
 
     const body: ReservationsResponse = { owner, booked }
+    if (token) {
+      // La réservation de l'appelant connecté uniquement (préremplissage du formulaire côté
+      // acheteur) : ses données personnelles restent confinées à leur propriétaire.
+      const own = bookings.find((booking) => booking.uid === token.uid)
+      if (own) {
+        body.booking = own
+      }
+    }
     if (owner) {
       // Informations personnelles des acheteurs et créneaux persistés : réservés au producteur
       // propriétaire (la page de gestion reflète l'annonce enregistrée, pas les modifications du

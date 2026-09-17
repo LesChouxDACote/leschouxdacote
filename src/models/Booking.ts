@@ -15,10 +15,12 @@ export interface BookingSlot {
 
 // Réponse de GET /api/reservation : les totaux par créneau sont publics (état « complet » visible
 // côté acheteur), la liste détaillée (données personnelles) et les créneaux persistés ne sont
-// renvoyés qu'au producteur propriétaire de l'annonce.
+// renvoyés qu'au producteur propriétaire de l'annonce, et la réservation de l'appelant connecté
+// uniquement à cet appelant (préremplissage du formulaire côté acheteur).
 export interface ReservationsResponse {
   owner: boolean
   booked: Record<string, number> // clé = getSlotKey(date, heureDebut, heureFin)
   slots?: BookingSlot[]
   bookings?: Booking[]
+  booking?: Booking // réservation de l'appelant connecté (absente s'il n'en a pas)
 }

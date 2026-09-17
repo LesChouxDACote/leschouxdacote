@@ -14,7 +14,7 @@ import api from "src/helpers/api"
 import { validatePhoneNumber } from "src/helpers/validators"
 import type { ReservationsResponse } from "src/models/Booking"
 import type { Reservation } from "src/pages/compte/producteur/annonce"
-import type { Unit } from "src/types/model"
+import type { Booking, Unit } from "src/types/model"
 
 export interface ReservableSlot {
   date: Date
@@ -163,21 +163,28 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [booked, setBooked] = useState<Record<string, number>>({})
+  const [booking, setBooking] = useState<Booking | null>(null)
   const [now, setNow] = useState<number | null>(null)
 
   const fetchBooked = useCallback(async () => {
     try {
       const data = await api.get<ReservationsResponse>("reservation", { productId })
       setBooked(data.booked ?? {})
+      setBooking(data.booking ?? null)
     } catch {
       // Totaux indisponibles : les créneaux restent affichés sans état « complet ».
     }
   }, [productId])
 
   useEffect(() => {
+    // L'authentification doit être résolue pour que l'appel porte le token : sans lui, l'API ne
+    // renverrait pas la réservation de l'acheteur connecté (préremplissage).
+    if (loading) {
+      return
+    }
     setNow(Date.now())
     fetchBooked()
-  }, [fetchBooked])
+  }, [loading, fetchBooked])
 
   // La page est générée statiquement : l'heure courante n'est connue qu'une fois la page chargée
   // dans le navigateur. On ne rend donc rien avant, pour éviter que le bouton « Réserver »
@@ -195,7 +202,18 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
 
   const getSlotBooked = (slot: ReservableSlot) => booked[getSlotKey(slot.date, slot.heureDebut, slot.heureFin)] ?? 0
 
-  const isFull = (slot: ReservableSlot) => getSlotBooked(slot) >= slot.reservation.totalQuantity
+  // La réservation en cours de l'acheteur compte dans le total du créneau : elle est déduite pour
+  // évaluer ce qui lui reste disponible (le serveur exclut de même sa propre réservation), sinon
+  // son créneau apparaîtrait « complet » et la validation serait bloquée à tort.
+  const getOwnQuantity = (slot: ReservableSlot) =>
+    booking &&
+    booking.slotDate === slot.date.getTime() &&
+    booking.heureDebut === slot.heureDebut &&
+    booking.heureFin === slot.heureFin
+      ? booking.quantity
+      : 0
+
+  const isFull = (slot: ReservableSlot) => getSlotBooked(slot) - getOwnQuantity(slot) >= slot.reservation.totalQuantity
 
   const handleOpen = () => {
     if (loading) {
@@ -205,7 +223,27 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
       replace("/connexion?next=" + asPath)
       return
     }
-    setEmail((current) => current || authUser.email)
+    if (booking) {
+      // Dernière réservation enregistrée : le formulaire est prérempli avec son état. Le créneau
+      // n'est présélectionné que s'il est encore à venir ; sinon (passé ou supprimé), l'acheteur
+      // en choisit un autre et la validation remplace l'ancienne réservation.
+      const slot =
+        slots.find(
+          (item) =>
+            item.date.getTime() === booking.slotDate &&
+            item.heureDebut === booking.heureDebut &&
+            item.heureFin === booking.heureFin,
+        ) ?? null
+      setSelectedSlot(slot && getSlotEnd(slot.date, slot.heureFin) >= Date.now() ? slot : null)
+      setQuantity(String(booking.quantity))
+      setPhone(booking.phone)
+      setEmail(booking.email)
+    } else {
+      setEmail((current) => current || authUser.email)
+    }
+    setErrors({})
+    setGlobalError(null)
+    setSubmitted(false)
     setOpen(true)
   }
 
@@ -281,7 +319,7 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
     <>
       <TriggerWrapper>
         <TriggerButton $variant="green" onClick={handleOpen}>
-          Réserver
+          {booking ? "Modifier ma réservation" : "Réserver"}
         </TriggerButton>
         {submitted && !open && <Text $color={COLORS.green}>Votre réservation a bien été validée.</Text>}
       </TriggerWrapper>
