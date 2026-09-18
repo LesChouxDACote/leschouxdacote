@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import { differenceInCalendarDays } from "date-fns"
-import { Schema as Sc } from "effect"
-import { stringify } from "effect/FastCheck"
+import { Schema as Sc, SchemaTransformation } from "effect"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
@@ -24,10 +23,7 @@ const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff
 const Photo = styled.img`
   width: 100%;
 `
-const SlotDate = Sc.DateFromString.annotations({
-  message: () => "Veuillez entrer une date.",
-  override: true,
-})
+const SlotDate = Sc.DateFromString.pipe(Sc.annotate({ message: "Veuillez entrer une date." }))
 
 export const SlotSchema = Sc.Struct({
   date: SlotDate,
@@ -37,17 +33,16 @@ export const SlotSchema = Sc.Struct({
 
 export type Slot = typeof SlotSchema.Type
 
-export const SlotDateFirestore = Sc.transform(
-  Sc.Struct({
-    seconds: Sc.Int,
-  }),
-  Sc.DateFromSelf,
-
-  {
-    decode: (timestamp) => new Date(timestamp.seconds * 1000),
-    encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
-    strict: true,
-  },
+export const SlotDateFirestore = Sc.Struct({
+  seconds: Sc.Int,
+}).pipe(
+  Sc.decodeTo(
+    Sc.Date,
+    SchemaTransformation.transform({
+      decode: (timestamp) => new Date(timestamp.seconds * 1000),
+      encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
+    }),
+  ),
 )
 export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
@@ -122,7 +117,7 @@ const EditProductPage = () => {
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
-    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
+    payload.append("slots", JSON.stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)
@@ -136,40 +131,44 @@ const EditProductPage = () => {
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
-  const handleRef = async (el: HTMLInputElement | null) => {
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const handleRef = (el: HTMLInputElement | null) => {
     if (!el || autocomplete.current) {
       return
     }
 
-    await loadGmaps()
+    void loadGmaps().then(() => {
+      autocomplete.current = new google.maps.places.Autocomplete(el, {
+        componentRestrictions: { country: "fr" },
+        fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
+        // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
+      })
+      autocomplete.current.addListener("place_changed", () => {
+        const res = autocomplete.current?.getPlace()
+        if (!res || !res.geometry || !res.address_components || !res.place_id) {
+          setPlace(null)
+          return
+        }
 
-    autocomplete.current = new google.maps.places.Autocomplete(el, {
-      componentRestrictions: { country: "fr" },
-      fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
-      // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
-    })
-    autocomplete.current.addListener("place_changed", () => {
-      const res = autocomplete.current?.getPlace()
-      if (!res || !res.geometry || !res.address_components || !res.place_id) {
-        setPlace(null)
-        return
-      }
+        const city = getCity(res)
+        const dpt = getDpt(res)
+        if (!city || !dpt) {
+          setPlace(null)
+          return
+        }
 
-      const city = getCity(res)
-      const dpt = getDpt(res)
-      if (!city || !dpt) {
-        setPlace(null)
-        return
-      }
-
-      const { location } = res.geometry
-      setPlace({
-        id: res.place_id,
-        lat: location.lat(),
-        lng: location.lng(),
-        city,
-        dpt,
+        const { location } = res.geometry
+        if (!location) {
+          setPlace(null)
+          return
+        }
+        setPlace({
+          id: res.place_id,
+          lat: location.lat(),
+          lng: location.lng(),
+          city,
+          dpt,
+        })
       })
     })
   }

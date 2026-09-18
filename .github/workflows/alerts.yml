@@ -9,31 +9,21 @@ jobs:
   dev:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x] # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      # corepack avant setup-node : sinon setup-node résout le Yarn 1 préinstallé du runner
+      # et met en cache son dossier au lieu de celui de Yarn 4
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
+          cache: yarn
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
@@ -50,31 +40,21 @@ jobs:
   prod:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x] # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      # corepack avant setup-node : sinon setup-node résout le Yarn 1 préinstallé du runner
+      # et met en cache son dossier au lieu de celui de Yarn 4
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
+          cache: yarn
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 

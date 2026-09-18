@@ -6,7 +6,7 @@ import LogoutIcon from "@mui/icons-material/Logout"
 import PersonIcon from "@mui/icons-material/Person"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
+import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import NextLink from "next/link"
 import { useRouter } from "next/router"
@@ -63,11 +63,9 @@ const ListItemLink: FC<LinkProps> = ({ href, children }) => {
   const { pathname } = useRouter()
 
   return (
-    <NextLink href={href} passHref>
-      <ListItem button component="a" selected={pathname === href}>
-        {children}
-      </ListItem>
-    </NextLink>
+    <ListItemButton component={NextLink} href={href} selected={pathname === href}>
+      {children}
+    </ListItemButton>
   )
 }
 
@@ -119,10 +117,10 @@ const Menu = () => {
       <Divider />
       <List>
         {authUser ? (
-          <ListItem button onClick={signout}>
+          <ListItemButton onClick={signout}>
             <LogoutIcon />
             <ListItemText>Se déconnecter</ListItemText>
-          </ListItem>
+          </ListItemButton>
         ) : (
           <ListItemLink href="/connexion">
             <LoginIcon />

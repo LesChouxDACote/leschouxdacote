@@ -1,12 +1,10 @@
 import styled from "@emotion/styled"
-import { Order, pipe, Schema as Sc } from "effect"
-import * as O from "effect/Option"
+import { Array as A, Option as O, Order, pipe, Schema as Sc } from "effect"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
-import * as A from "effect/Array"
 import Link from "src/components/Link"
 import Products from "src/components/Products"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
@@ -235,8 +233,8 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
   const sortedByDateSlots = pipe(
     product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : [],
     A.sortBy(
-      Order.mapInput(Order.number, (slot) => slot.date.getTime()),
-      Order.mapInput(Order.string, (slot) => slot.heureDebut),
+      Order.mapInput(Order.Number, (slot) => slot.date.getTime()),
+      Order.mapInput(Order.String, (slot) => slot.heureDebut),
     ),
     A.takeRight(10),
   )

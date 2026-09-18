@@ -103,8 +103,8 @@ const SearchBar = ({ className }: Props) => {
     setQuery(router.query)
   }, [router.query])
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
-  const input = useRef<HTMLInputElement>()
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const input = useRef<HTMLInputElement | null>(null)
 
   const handleRef = (el: HTMLInputElement | null) => {
     loadGmaps().then(() => {
@@ -128,13 +128,15 @@ const SearchBar = ({ className }: Props) => {
         const { location } = place.geometry
         const type = getType(place.types)
         const zoom = ZOOM[type]
-        setQuery((previous) => ({
-          what: previous.what,
-          where: place.name,
-          type,
-          ll: `${location.lat()},${location.lng()}`,
-          z: String(zoom),
-        }))
+        if (location) {
+          setQuery((previous) => ({
+            what: previous.what,
+            where: place.name,
+            type,
+            ll: `${location.lat()},${location.lng()}`,
+            z: String(zoom),
+          }))
+        }
       })
     })
   }

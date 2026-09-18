@@ -1,5 +1,6 @@
 import { css } from "@emotion/react"
 import styled from "@emotion/styled"
+import NextLink from "next/link"
 import { darken, lighten } from "polished"
 import React from "react"
 import { COLORS, SIZES } from "src/constants"
@@ -48,7 +49,8 @@ const getButtonCss = ($variant: ButtonVariant) => css`
 export const Button = styled.button<ButtonProps>`
   ${({ $variant }) => getButtonCss($variant || "white")}
 `
-export const LinkButton = styled.a<ButtonProps>`
+// LinkButton = styled NextLink : Next 13+ forwarde className/ref vers le <a> rendu
+export const LinkButton = styled(NextLink)<ButtonProps>`
   ${({ $variant }) => getButtonCss($variant || "white")}
   display: inline-block;
 `

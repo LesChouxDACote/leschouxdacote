@@ -1,6 +1,5 @@
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
-import React from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { StyledButton, ValidationError } from "src/components/Form"
 import { Input, Radio, Radios, Required, StyledForm, Title } from "src/components/YupForm"

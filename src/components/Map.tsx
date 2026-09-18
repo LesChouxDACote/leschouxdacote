@@ -1,6 +1,5 @@
 import styled from "@emotion/styled"
-import MapboxLanguage from "@mapbox/mapbox-gl-language"
-import mapboxgl, { AnyLayer, GeoJSONSource, Map, MapboxEvent, PopupOptions } from "mapbox-gl"
+import mapboxgl, { AnyLayer, GeoJSONSource, Map, PopupOptions } from "mapbox-gl"
 import "mapbox-gl/dist/mapbox-gl.css"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
@@ -82,7 +81,9 @@ const Container = styled.div`
   }
 `
 
-type MoveEvent = MapboxEvent<MouseEvent | TouchEvent | WheelEvent | undefined>
+// mapbox-gl v3 : zoomend/dragend émettent des events sans originalEvent
+// (handleMove ignore le cas) ; on accepte le plus petit dénominateur commun
+type MoveEvent = { type: string; target: Map; originalEvent?: MouseEvent | TouchEvent | WheelEvent }
 
 interface MapProps {
   products: ProductEncoded[]
@@ -95,7 +96,7 @@ interface Place {
 
 const Mapbox = ({ products }: MapProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<Map>()
+  const mapRef = useRef<Map | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState(false)
   const [placePopup, setPlacePopup] = useState<Place>()
@@ -130,8 +131,8 @@ const Mapbox = ({ products }: MapProps) => {
 
     map.addControl(new mapboxgl.NavigationControl(NAV_OPTIONS))
 
-    const language = new MapboxLanguage()
-    map.addControl(language)
+    // mapbox-gl v3 : langue native des libellés, remplace le plugin mapbox-gl-language
+    map.setLanguage("fr")
 
     map.on("load", () => {
       map.loadImage(MARKER_URI, (error, image) => {
@@ -160,6 +161,10 @@ const Mapbox = ({ products }: MapProps) => {
       }
       const { lat, lng } = map.getCenter()
       const bounds = map.getBounds()
+      if (!bounds) {
+        // bounds non disponibles pendant le rendu de la carte => ignorer
+        return
+      }
       const diagonal = bounds.getNorthWest().distanceTo(bounds.getSouthEast())
       const radius = Math.round(diagonal / 2)
 

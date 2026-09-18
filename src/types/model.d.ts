@@ -100,7 +100,8 @@ interface RegisteringProduct extends Registering<Product> {
   updated?: Date
   published?: Date
   expires: Date
-  _geoloc: GeoPoint
+  // RegisteringProduct n'est utilisé que côté serveur (API routes) : GeoPoint admin
+  _geoloc: import("firebase-admin/firestore").GeoPoint
 }
 
 interface ProductPayload extends Omit<RegisteringProduct, "created" | "updated" | "expires" | "published" | "_geoloc"> {

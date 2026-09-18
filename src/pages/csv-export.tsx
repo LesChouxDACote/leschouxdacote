@@ -1,7 +1,7 @@
-import Layout from "src/layout"
 import styled from "@emotion/styled"
 import { LAYOUT } from "src/constants"
 import { auth } from "src/helpers/firebase"
+import Layout from "src/layout"
 
 const Title = styled.h1`
   text-align: center;

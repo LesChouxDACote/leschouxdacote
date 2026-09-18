@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+coverage
+.git
+.env
+.env.*
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+.vercel
+.ia-worktrees
+.ia-sessions.json
