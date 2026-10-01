@@ -1,7 +1,29 @@
-import algoliasearch from "algoliasearch"
+import type { SearchResponse } from "@algolia/client-search"
+import { algoliasearch } from "algoliasearch"
+import type { SearchIndex } from "src/helpers/algolia"
 
 const client = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID as string, process.env.ALGOLIA_ADMIN_KEY as string)
 
-export const productsIndex = client.initIndex(process.env.NEXT_PUBLIC_ALGOLIA_INDEX as string)
+// algoliasearch v5 a retiré initIndex() : on émule l'API index de la v4
+const initIndex = (indexName: string): SearchIndex => ({
+  async search<T>(query: string, options?: Record<string, any>) {
+    // les options de recherche s'étalent à la racine de la requête : `params` est réservé
+    // à la variante query string URL-encodée (SearchParamsString)
+    const { results } = await client.search<T>({
+      requests: [{ indexName, query, ...options }],
+    })
+    return { hits: (results[0] as SearchResponse<T> | undefined)?.hits ?? [] }
+  },
+  saveObject: (object) => client.saveObject({ indexName, body: object }),
+  deleteObject: (objectID) => client.deleteObject({ indexName, objectID }),
+  partialUpdateObject: (object) => {
+    const { objectID, ...attributes } = object
+    return client.partialUpdateObject({ indexName, objectID, attributesToUpdate: attributes })
+  },
+  partialUpdateObjects: (objects) => client.partialUpdateObjects({ indexName, objects }),
+  setSettings: (settings) => client.setSettings({ indexName, indexSettings: settings as any }),
+})
 
-export const tagsIndex = client.initIndex(process.env.NEXT_PUBLIC_ALGOLIA_TAGS as string)
+export const productsIndex = initIndex(process.env.NEXT_PUBLIC_ALGOLIA_INDEX as string)
+
+export const tagsIndex = initIndex(process.env.NEXT_PUBLIC_ALGOLIA_TAGS as string)

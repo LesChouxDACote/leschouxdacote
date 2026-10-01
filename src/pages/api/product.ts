@@ -1,4 +1,5 @@
 import { addDays } from "date-fns"
+import { Schema as Sc } from "effect"
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
@@ -6,9 +7,8 @@ import { firestore, GeoPoint, getObject, getToken } from "src/helpers-api/fireba
 import { getFormData } from "src/helpers-api/form"
 import { resize, upload } from "src/helpers-api/image"
 import { normalizeNumber } from "src/helpers/validators"
-import { Schema as Sc } from "effect"
-import type { Producer, Product, ProductPayload, RegisteringProduct } from "src/types/model"
 import { SlotSchema } from "src/pages/compte/producteur/annonce"
+import type { Producer, Product, ProductPayload, RegisteringProduct } from "src/types/model"
 
 const checkRequired = (data: Record<string, any>, fields: string[]) => {
   const found = fields.find((field) => !data[field])
@@ -73,9 +73,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     }
 
     let photo: string
-    if (files.photo?.size) {
+    const photoFile = files.photo?.[0]
+    if (photoFile?.size) {
       try {
-        const resized = await resize(files.photo.filepath)
+        const resized = await resize(photoFile.filepath)
         photo = await upload(resized, ref.id)
       } catch (error) {
         return respond(res, {

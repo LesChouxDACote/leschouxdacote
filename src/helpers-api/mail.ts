@@ -1,4 +1,4 @@
-import { connect, Email } from "node-mailjet"
+import Mailjet, { type SendEmailV3_1 } from "node-mailjet"
 import { CONTACT_EMAIL } from "src/constants"
 
 export enum MailjetTemplate {
@@ -12,9 +12,12 @@ export const sendTemplateEmail = async (
   variables: Record<string, any>,
   subject?: string,
 ) => {
-  const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
+  const mailjet = new Mailjet({
+    apiKey: process.env.MAILJET_PUBLIC_KEY as string,
+    apiSecret: process.env.MAILJET_PRIVATE_KEY as string,
+  })
 
-  const message: Email.SendParamsMessage = {
+  const message: SendEmailV3_1.Message = {
     From: { Email: CONTACT_EMAIL, Name: "Les Choux d'à Côté" },
     To: [{ Email: recipient }],
     TemplateLanguage: true,
@@ -23,7 +26,9 @@ export const sendTemplateEmail = async (
     Subject: subject,
   }
 
-  const { body } = await mailjet.post("send", { version: "v3.1" }).request({ Messages: [message] })
+  const { body } = await mailjet
+    .post("send", { version: "v3.1" })
+    .request<SendEmailV3_1.Response>({ Messages: [message] })
 
   const infos = body.Messages[0]
   return { to: infos.To[0].Email, status: infos.Status }

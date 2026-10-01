@@ -1,17 +1,17 @@
 /************************************** SHORTHAND TYPES **************************************/
 
-type FirebaseUser = firebase.default.User
-type UserCredential = firebase.default.auth.UserCredential
+type FirebaseUser = import("firebase/auth").User
+type UserCredential = import("firebase/auth").UserCredential
 
-type FieldPath = firebase.default.firestore.FieldPath
-type WhereFilterOp = firebase.default.firestore.WhereFilterOp
-type DocumentData = firebase.default.firestore.DocumentData
-type DocumentSnapshot<D = DocumentData> = firebase.default.firestore.DocumentSnapshot<D>
-type CollectionReference<D = DocumentData> = firebase.default.firestore.CollectionReference<D>
-type Query<D = DocumentData> = firebase.default.firestore.Query<D>
-type QuerySnapshot<D = DocumentData> = firebase.default.firestore.QuerySnapshot<D>
-type Timestamp = firebase.default.firestore.Timestamp
-type GeoPoint = firebase.default.firestore.GeoPoint
+type FieldPath = import("firebase/firestore").FieldPath
+type WhereFilterOp = import("firebase/firestore").WhereFilterOp
+type DocumentData = import("firebase/firestore").DocumentData
+type DocumentSnapshot<D = DocumentData> = import("firebase/firestore").DocumentSnapshot<D>
+type CollectionReference<D = DocumentData> = import("firebase/firestore").CollectionReference<D>
+type Query<D = DocumentData> = import("firebase/firestore").Query<D>
+type QuerySnapshot<D = DocumentData> = import("firebase/firestore").QuerySnapshot<D>
+type Timestamp = import("firebase/firestore").Timestamp
+type GeoPoint = import("firebase/firestore").GeoPoint
 
 /*********************************************************************************************/
 

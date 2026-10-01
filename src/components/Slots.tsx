@@ -3,9 +3,9 @@ import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/mate
 import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
-import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
-import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
+import { pipe, Result, Schema as Sc, SchemaIssue } from "effect"
 import Modal from "src/components/Modal"
+import { Slot, SlotSchema } from "src/pages/compte/producteur/annonce"
 
 interface SlotsFormProps {
   slots: readonly Slot[]
@@ -40,21 +40,21 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
   const [error, setError] = React.useState<string | null>(null)
 
   return (
-    <Stack spacing={2} alignItems="start">
+    <Stack spacing={2} sx={{ alignItems: "start" }}>
       <h2>Créneaux</h2>
 
       {slots.map((slot, index) => (
-        <Stack direction="row" spacing={2} alignItems="center" width="100%" mb={2} key={index}>
-          <Box width="37%">
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%", mb: 2 }} key={index}>
+          <Box sx={{ width: "37%" }}>
             <Typography variant="body1">{`Le ${slot.date.toLocaleDateString()}`}</Typography>
           </Box>
-          <Box width="23%" paddingLeft={"6px"}>
+          <Box sx={{ width: "23%", paddingLeft: "6px" }}>
             <Typography variant="body1">{` de ${slot.heureDebut}`}</Typography>
           </Box>
-          <Box width="23%" paddingLeft={"6px"}>
+          <Box sx={{ width: "23%", paddingLeft: "6px" }}>
             <Typography variant="body1">{`à ${slot.heureFin}`}</Typography>
           </Box>
-          <Box width="17%">
+          <Box sx={{ width: "17%" }}>
             <IconButton
               onClick={() => {
                 handleDeleteClick(slot)
@@ -71,18 +71,18 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
         </Typography>
       )}
 
-      <Stack direction="row" spacing={2} alignItems="center" width={"100%"}>
-        <Box width="37%">
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+        <Box sx={{ width: "37%" }}>
           <Controller
             name="date"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextField {...field} label="Date *" type="date" InputLabelProps={{ shrink: true }} />
+              <TextField {...field} label="Date *" type="date" slotProps={{ inputLabel: { shrink: true } }} />
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box sx={{ width: "23%" }}>
           <Controller
             name="heureDebut"
             control={control}
@@ -92,18 +92,13 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
                 {...field}
                 label="Heure début *"
                 type="time"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true }, htmlInput: { step: 300 } }} // step 300 = 5 min
                 style={{ minWidth: "5rem" }}
-                InputProps={{
-                  inputProps: {
-                    step: 300, // 5 min
-                  },
-                }}
               />
             )}
           />
         </Box>
-        <Box width="23%">
+        <Box sx={{ width: "23%" }}>
           <Controller
             name="heureFin"
             control={control}
@@ -113,44 +108,46 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
                 {...field}
                 label="Heure fin *"
                 type="time"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 style={{ minWidth: "5rem" }}
               />
             )}
           />
         </Box>
-        <Box width="17%">
+        <Box sx={{ width: "17%" }}>
           <Button
             variant="contained"
             color="primary"
             onClick={() => {
               pipe(
-                Sc.decodeUnknownEither(
+                Sc.decodeUnknownResult(
                   pipe(
                     SlotSchema,
-                    Sc.filter((slot) => {
-                      const currentDate = new Date()
-                      const slotDate = new Date(slot.date)
-                      const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
+                    Sc.check(
+                      Sc.makeFilter((slot) => {
+                        const currentDate = new Date()
+                        const slotDate = new Date(slot.date)
+                        const heureDebut = new Date(`1970-01-01T${slot.heureDebut}:00`)
 
-                      if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
-                        return "La date doit être après la date actuelle."
-                      }
+                        if (slotDate.toDateString() !== currentDate.toDateString() && slotDate < currentDate) {
+                          return "La date doit être après la date actuelle."
+                        }
 
-                      const now = new Date()
-                      const currentHour = now.toTimeString().slice(0, 5)
-                      const today = new Date().toISOString().split("T")[0]
-                      if (
-                        slotDate.toISOString().split("T")[0] === today &&
-                        heureDebut < new Date(`1970-01-01T${currentHour}:00`)
-                      ) {
-                        return "L'heure de début doit être après l'heure actuelle."
-                      }
+                        const now = new Date()
+                        const currentHour = now.toTimeString().slice(0, 5)
+                        const today = new Date().toISOString().split("T")[0]
+                        if (
+                          slotDate.toISOString().split("T")[0] === today &&
+                          heureDebut < new Date(`1970-01-01T${currentHour}:00`)
+                        ) {
+                          return "L'heure de début doit être après l'heure actuelle."
+                        }
 
-                      const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
+                        const heureFin = new Date(`1970-01-01T${slot.heureFin}:00`)
 
-                      return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin."
-                    }),
+                        return heureDebut < heureFin || "L'heure de début doit être avant l'heure de fin."
+                      }),
+                    ),
                   ),
                 )({
                   date: control._formValues.date,
@@ -158,13 +155,13 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
                   heureFin: control._formValues.heureFin,
                 }),
 
-                E.map((newSlot) => {
+                Result.map((newSlot) => {
                   setError(null)
                   setSlots([...slots, newSlot])
                 }),
 
-                E.mapLeft((error) => ParseResult.ArrayFormatter.formatErrorSync(error)),
-                E.mapLeft((error) => setError(error[0].message)),
+                Result.mapError((error) => SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues),
+                Result.mapError((issues) => setError(issues[0].message)),
               )
             }}
           >

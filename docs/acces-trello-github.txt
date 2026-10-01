@@ -1,0 +1,104 @@
+RÉCUPÉRER LES ACCÈS TRELLO ET GITHUB POUR L'AUTOMATISATION IA
+==============================================================
+
+L'automatisation a besoin de « clés » pour agir à notre place sur Trello et
+GitHub. Il y en a 3 à récupérer. Compte environ 10 minutes.
+
+ATTENTION : ces clés sont des mots de passe. Ne les envoie jamais par mail ou
+Slack en clair — dépose-les dans Vaultwarden.
+
+
+1. LA CLÉ API TRELLO (TRELLO_API_KEY)
+-------------------------------------
+
+1. Connecte-toi à Trello avec le compte qui a accès au board.
+2. Va sur https://trello.com/power-ups/admin
+3. Clique sur « Nouveau » (ou « New ») pour créer une intégration :
+   donne-lui un nom, par exemple « Automatisation IA », choisis notre espace
+   de travail, et mets n'importe quelle adresse du site dans les champs
+   demandés (par exemple https://leschouxdacote.fr).
+4. Une fois créée, ouvre l'onglet « Clé API » : la longue suite de lettres et
+   de chiffres affichée est la clé API. Copie-la.
+
+
+2. LE JETON TRELLO (TRELLO_TOKEN)
+---------------------------------
+
+1. Sur la même page que la clé API, repère la phrase du type « vous pouvez
+   générer manuellement un jeton » et clique sur le lien « Jeton » / « Token ».
+2. Trello te demande d'autoriser l'accès : clique sur « Autoriser ».
+3. Une page affiche le jeton : copie-le. C'est lui qui donne réellement le
+   droit d'agir sur nos boards, il est aussi sensible qu'un mot de passe.
+
+À faire aussi sur le board concerné : créer quatre colonnes nommées exactement
+« Atelier IA », « Ready IA », « IA en cours » et « IA terminé ».
+
+Comment ça marche au quotidien :
+1. Dépose une carte dans « Atelier IA » pour discuter du besoin avec l'IA :
+   elle lit toute la carte (description, checklists, pièces jointes, images…),
+   reformule le besoin, pose des questions en commentaire, et répond à chacun
+   de tes commentaires. À cette étape, elle ne touche jamais au code.
+2. Quand le besoin est clair, déplace toi-même la carte vers « Ready IA » :
+   c'est ça qui lance le développement (l'IA garde en mémoire toute la
+   discussion de cadrage).
+3. La carte passe en « IA en cours » pendant le travail, puis « IA terminé »
+   avec les liens vers la modification proposée et le site de test.
+4. Pas satisfait du résultat ? Écris en commentaire ce que tu veux changer,
+   puis remets la carte dans « Ready IA » : l'IA reprend son travail là où
+   elle l'avait laissé et met à jour la même proposition.
+
+Astuce : tu peux choisir le « cerveau » utilisé pour une carte en lui posant
+une étiquette « opus » (le plus costaud, pour les gros tickets), « sonnet »
+(le réglage par défaut, pour les tickets courants) ou « haiku » (le plus
+rapide, pour les petites tâches). Sans étiquette, « sonnet » s'applique.
+
+Si l'IA n'arrive pas à ouvrir tes captures (panne passagère du service qui
+la fait tourner), elle te prévient par un commentaire ⚠️ et continue avec le
+texte du ticket, sans les images. Si elles sont indispensables, remets la
+carte dans « Ready IA » un peu plus tard.
+
+Photos que l'IA ne doit pas regarder : écris un commentaire qui commence par
+🚫, suivi des noms des pièces jointes concernées, séparés par des virgules :
+   🚫 capture-2.png, vieille photo.png
+Elles ne lui seront pas envoyées du tout, ce qui coûte d'autant moins cher.
+Un 🚫 tout seul, sans aucun nom, écarte toutes les pièces jointes de la
+carte. Le nom peut être écrit sans les accents ni les majuscules, et le
+début suffit (« 🚫 photo3 » écarte « photo3.jpg »). Ce commentaire ne
+déclenche aucune réponse de l'IA.
+
+
+3. LE JETON GITHUB (GH_TOKEN)
+-----------------------------
+
+Il permet à l'automatisation de proposer ses modifications de code (branches
+et « pull requests »). Il faut un compte GitHub qui a le droit d'écrire sur le
+dépôt LesChouxDACote/leschouxdacote — si tu n'es pas sûr, demande à Charles
+ou Jérôme.
+
+1. Connecte-toi sur https://github.com, clique sur ta photo en haut à droite,
+   puis « Settings ».
+2. Tout en bas du menu de gauche : « Developer settings »
+   → « Personal access tokens » → « Fine-grained tokens »
+   → « Generate new token ».
+3. Remplis :
+   - Token name : Automatisation IA
+   - Resource owner : choisis l'organisation LesChouxDACote
+     (pas ton compte perso)
+   - Expiration : 90 jours ou plus (il faudra le renouveler à l'échéance)
+   - Repository access : « Only select repositories »
+     → coche uniquement leschouxdacote
+   - Permissions (section « Repository permissions ») :
+     mets « Contents » sur Read and write
+     et « Pull requests » sur Read and write. Rien d'autre.
+4. Clique sur « Generate token » et copie immédiatement le jeton affiché
+   (il commence par github_pat_) : il ne sera plus jamais montré.
+
+
+ET ENSUITE ?
+------------
+
+Dépose les 3 valeurs dans Vaultwarden avec leurs noms (TRELLO_API_KEY,
+TRELLO_TOKEN, GH_TOKEN) et préviens la personne qui gère le serveur : elle
+les branchera dans l'outil de déploiement (Coolify). Les autres réglages
+(identifiant du board, connexion à Claude) sont techniques et seront gérés
+directement par elle.

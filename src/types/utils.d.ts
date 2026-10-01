@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-types
 type ObjectKeys<T> = T extends object
   ? (keyof T)[]
   : T extends number
