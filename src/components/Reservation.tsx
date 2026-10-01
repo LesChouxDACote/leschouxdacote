@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form"
 import { Reservation, ReservationSchema, Slot } from "src/pages/compte/producteur/annonce"
 import type { Unit } from "src/types/model"
 
-const UNIT_LABELS: Record<Unit, string> = {
+export const UNIT_LABELS: Record<Unit, string> = {
   g: "g",
   kg: "kg",
   l: "litre(s)",
