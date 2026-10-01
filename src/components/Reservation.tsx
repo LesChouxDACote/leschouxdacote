@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material"
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { UNIT_LABELS } from "src/constants"
 import { Reservation, ReservationSchema, Slot } from "src/pages/compte/producteur/annonce"
@@ -11,9 +11,10 @@ interface ReservationBlockProps {
   index: number
   slots: readonly Slot[]
   setSlots: React.Dispatch<React.SetStateAction<readonly Slot[]>>
+  onDirtyChange?: (index: number, dirty: boolean) => void
 }
 
-const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProps) => {
+const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: ReservationBlockProps) => {
   const { watch } = useFormContext()
   const unit = watch("unit") as Unit | null | undefined
 
@@ -29,6 +30,21 @@ const ReservationBlock = ({ slot, index, slots, setSlots }: ReservationBlockProp
   const updateSlot = (reservation: Reservation | null) => {
     setSlots(slots.map((s, i) => (i === index ? { ...s, reservation } : s)))
   }
+
+  // Le brouillon n'est écrit dans le créneau qu'au clic sur « Valider » : il compte comme une modification
+  // non enregistrée tant qu'il diffère de la réservation déjà validée (ou tant qu'il est invalide).
+  const draftTotalQuantity = totalQuantity === "" ? null : Number(totalQuantity)
+  const draftMaxQuantityPerPerson = maxQuantityPerPerson === "" ? null : Number(maxQuantityPerPerson)
+  const draftDirty =
+    draftTotalQuantity !== (slot.reservation?.totalQuantity ?? null) ||
+    draftMaxQuantityPerPerson !== (slot.reservation?.maxQuantityPerPerson ?? null) ||
+    (instructions || null) !== (slot.reservation?.instructions ?? null)
+
+  useEffect(() => {
+    onDirtyChange?.(index, draftDirty)
+    // À l'unmount ou au changement d'index (suppression d'un créneau), on retire le marquage de ce bloc
+    return () => onDirtyChange?.(index, false)
+  }, [draftDirty, index, onDirtyChange])
 
   const handleCreate = () => {
     setIsOpen(true)

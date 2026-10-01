@@ -1,6 +1,6 @@
 import { RemoveCircle } from "@mui/icons-material"
 import { Box, Button, IconButton, Stack, TextField, Typography } from "@mui/material"
-import React, { useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
@@ -11,9 +11,10 @@ import ReservationBlock from "src/components/Reservation"
 interface SlotsFormProps {
   slots: readonly Slot[]
   setSlots: React.Dispatch<React.SetStateAction<readonly Slot[]>>
+  onDraftDirtyChange?: (dirty: boolean) => void
 }
 
-const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
+const SlotsForm = ({ setSlots, slots, onDraftDirtyChange }: SlotsFormProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [slotToDelete, setSlotToDelete] = useState<Slot | null>(null)
@@ -39,6 +40,23 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
   const { control } = useForm()
 
   const [error, setError] = React.useState<string | null>(null)
+
+  // Les brouillons de réservation non validés comptent comme des modifications non enregistrées
+  const draftDirtySlotsRef = useRef(new Set<number>())
+  const [hasDraftDirty, setHasDraftDirty] = useState(false)
+
+  const handleDraftDirty = useCallback((index: number, dirty: boolean) => {
+    if (dirty) {
+      draftDirtySlotsRef.current.add(index)
+    } else {
+      draftDirtySlotsRef.current.delete(index)
+    }
+    setHasDraftDirty(draftDirtySlotsRef.current.size > 0)
+  }, [])
+
+  useEffect(() => {
+    onDraftDirtyChange?.(hasDraftDirty)
+  }, [hasDraftDirty, onDraftDirtyChange])
 
   return (
     <Stack spacing={2} alignItems="start">
@@ -68,7 +86,13 @@ const SlotsForm = ({ setSlots, slots }: SlotsFormProps) => {
               </IconButton>
             </Box>
           </Stack>
-          <ReservationBlock slot={slot} index={index} slots={slots} setSlots={setSlots} />
+          <ReservationBlock
+            slot={slot}
+            index={index}
+            slots={slots}
+            setSlots={setSlots}
+            onDirtyChange={handleDraftDirty}
+          />
         </React.Fragment>
       ))}
       {error && (

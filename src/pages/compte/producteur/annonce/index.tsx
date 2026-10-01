@@ -10,13 +10,15 @@ import MyReservations from "src/components/MyReservations"
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
-import { LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
+import UnsavedChangesModal from "src/components/UnsavedChangesModal"
+import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { useObjectQuery } from "src/helpers/firebase"
 import { getCity, getDpt, loadGmaps } from "src/helpers/google"
 import { formatPricePerUnit } from "src/helpers/text"
 import { validatePhoneNumber } from "src/helpers/validators"
+import { useUnsavedChanges } from "src/helpers/useUnsavedChanges"
 import Layout from "src/layout"
 import type { AuthUser, Producer, Product, ProductPayload, Unit } from "src/types/model"
 // https://sharp.pixelplumbing.com/#formats
@@ -45,6 +47,12 @@ const LeftColumn = styled.div`
 const RightColumn = styled.div`
   min-width: 0;
 `
+
+const UnsavedBadge = styled.p`
+  color: ${COLORS.red};
+  font-weight: bold;
+  text-align: center;
+`
 const SlotDate = Sc.DateFromString.annotations({
   message: () => "Veuillez entrer une date.",
   override: true,
@@ -66,6 +74,8 @@ export const SlotSchema = Sc.Struct({
 })
 
 export type Slot = typeof SlotSchema.Type
+
+const serializeSlots = (slots: readonly Slot[]) => stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots))
 
 export const SlotDateFirestore = Sc.transform(
   Sc.Struct({
@@ -102,6 +112,9 @@ const PriceInfos = () => {
 const EditProductPage = () => {
   const { authUser, user } = useUser<Producer>()
   const [slots, setSlots] = useState<readonly Slot[]>([])
+  const [formDirty, setFormDirty] = useState(false)
+  const [reservationsDirty, setReservationsDirty] = useState(false)
+  const initialSlotsRef = useRef(serializeSlots([]))
   const { query, push } = useRouter()
 
   const productId = Array.isArray(query.id) ? undefined : query.id
@@ -114,11 +127,18 @@ const EditProductPage = () => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
 
-      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
-      //const slots = []
-      setSlots(slots)
+      const loadedSlots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
+      initialSlotsRef.current = serializeSlots(loadedSlots)
+      setSlots(loadedSlots)
     }
   }, [place, data])
+
+  // Indicateur unifié « modifié » : champs du formulaire, créneaux/réservations, adresse, brouillons de réservation
+  const slotsDirty = serializeSlots(slots) !== initialSlotsRef.current
+  const placeDirty = place !== undefined && (place === null || place.id !== data?.placeId)
+  const dirty = formDirty || slotsDirty || placeDirty || reservationsDirty
+
+  const guard = useUnsavedChanges({ isDirty: dirty })
 
   const title = productId ? "Modifier une annonce" : "Créer une annonce"
 
@@ -168,6 +188,7 @@ const EditProductPage = () => {
       alert("Votre annonce a bien été créée. Elle sera visible dans quelques minutes.")
     }
 
+    guard.allowNext()
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
@@ -218,6 +239,7 @@ const EditProductPage = () => {
         onSubmit={handleSubmit}
         defaultValues={defaultValues}
         resetOnChange={data?.objectID}
+        onDirtyChange={setFormDirty}
       >
         <TwoColumnLayout>
           <LeftColumn>
@@ -271,14 +293,16 @@ const EditProductPage = () => {
               suffix="jour(s)"
             />
             <ProductEndDate />
+            {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
             <SubmitButton />
           </LeftColumn>
           <RightColumn>
-            <SlotsForm setSlots={setSlots} slots={slots} />
+            <SlotsForm setSlots={setSlots} slots={slots} onDraftDirtyChange={setReservationsDirty} />
             {productId && <MyReservations productId={productId} />}
           </RightColumn>
         </TwoColumnLayout>
       </Form>
+      {guard.pending && <UnsavedChangesModal onStay={guard.stay} onLeave={guard.leave} />}
     </Layout>
   )
 }

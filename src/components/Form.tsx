@@ -8,6 +8,7 @@ import {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
   useEffect,
+  useRef,
 } from "react"
 import { DefaultValues, FieldValues, FormProvider, UnpackNestedValue, useForm, useFormContext } from "react-hook-form"
 import { Button } from "src/components/Button"
@@ -48,6 +49,7 @@ interface FormProps<A extends FieldValues, T extends UnpackNestedValue<A>>
   defaultValues?: DefaultValues<T>
   resetOnChange?: any
   wide?: boolean
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
@@ -57,14 +59,23 @@ export function Form<A extends FieldValues, T extends UnpackNestedValue<A>>({
   defaultValues,
   resetOnChange,
   wide,
+  onDirtyChange,
   children,
   ...delegated
 }: FormProps<A, T>) {
   const form = useForm<T>({ defaultValues })
+  const { isDirty } = form.formState
+
+  const onDirtyChangeRef = useRef(onDirtyChange)
+  onDirtyChangeRef.current = onDirtyChange
 
   useEffect(() => {
     form.reset({ ...defaultValues } as DefaultValues<T>)
   }, [resetOnChange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    onDirtyChangeRef.current?.(isDirty)
+  }, [isDirty])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
