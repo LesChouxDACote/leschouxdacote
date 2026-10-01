@@ -262,6 +262,86 @@ const handler = async (
     return respond(res)
   }
 
+  // Annulation d'une réservation par l'acheteur : le doc est identifié de façon déterministe
+  // (productId + uid de l'appelant), la suppression libère le quota pour les autres acheteurs.
+  if (req.method === "DELETE") {
+    const token = await getToken(req)
+    if (!token) {
+      return badRequest(res, 403)
+    }
+    const productId = req.body?.productId
+    if (typeof productId !== "string" || !productId) {
+      return badRequest(res)
+    }
+
+    const bookingRef = firestore.collection("bookings").doc(`${productId}_${token.uid}`)
+    const bookingDoc = await bookingRef.get()
+    if (!bookingDoc.exists) {
+      return badRequest(res, 404)
+    }
+    const booking = getObject(bookingDoc) as Booking
+
+    // L'annulation reste possible sur une annonce indisponible (créneau retiré, annonce
+    // supprimée) : elle n'est refusée que si le créneau lui-même est passé.
+    if (getSlotEnd(new Date(booking.slotDate), booking.heureFin) < Date.now()) {
+      return badRequest(res, 400)
+    }
+
+    await bookingRef.delete()
+
+    // E-mail au producteur, après la suppression : un échec d'envoi ne doit pas faire échouer
+    // l'annulation. Annonce introuvable (supprimée) : pas de destinataire connu, pas d'e-mail.
+    const product = await getProduct(productId)
+    if (product) {
+      const producerDoc = await firestore.collection("users").doc(product.uid).get()
+      const producer = getObject(producerDoc) as User | null
+      const recipient = producer?.email ?? product.email
+      if (recipient) {
+        const label = "Annulation de réservation"
+        const slotLabel = `Le ${formatDate(booking.slotDate)} de ${booking.heureDebut} à ${booking.heureFin}`
+        const unitLabel = getUnitLabel(product.unit)
+        const slot = (product.slots ?? []).find(
+          (item) =>
+            item.date === booking.slotDate &&
+            item.heureDebut === booking.heureDebut &&
+            item.heureFin === booking.heureFin,
+        )
+        const totalQuantity = slot?.reservation?.totalQuantity
+        const quantityLabel = `${booking.quantity}${totalQuantity != null ? ` / ${totalQuantity}` : ""}${
+          unitLabel ? ` ${unitLabel}` : ""
+        }`
+        try {
+          await sendEmail(
+            recipient,
+            `${label} — ${product.title}`,
+            [
+              `<p>${label} pour votre annonce <strong>${escapeHtml(product.title)}</strong>.</p>`,
+              "<ul>",
+              `<li>Créneau : ${slotLabel}</li>`,
+              `<li>Quantité annulée : ${quantityLabel}</li>`,
+              `<li>Réservé par : ${escapeHtml(booking.firstname)} ${escapeHtml(booking.lastname)}</li>`,
+              `<li>Téléphone : ${escapeHtml(booking.phone)}</li>`,
+              `<li>E-mail : ${escapeHtml(booking.email)}</li>`,
+              "</ul>",
+            ].join(""),
+            [
+              `${label} pour votre annonce « ${product.title} ».`,
+              `Créneau : ${slotLabel}`,
+              `Quantité annulée : ${quantityLabel}`,
+              `Réservé par : ${booking.firstname} ${booking.lastname}`,
+              `Téléphone : ${booking.phone}`,
+              `E-mail : ${booking.email}`,
+            ].join("\n"),
+          )
+        } catch (error) {
+          console.error("reservation: échec de l'e-mail au producteur", error)
+        }
+      }
+    }
+
+    return respond(res)
+  }
+
   badRequest(res)
 }
 
