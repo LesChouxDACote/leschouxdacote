@@ -5,7 +5,7 @@ import { log, logErr } from "./log"
 import { ClaudeOutput, TrelloCardDetails } from "./schemas"
 
 export const CLAUDE_TIMEOUT = Duration.minutes(45)
-export const CHAT_TIMEOUT = Duration.minutes(10)
+export const CHAT_TIMEOUT = Duration.minutes(20)
 
 // panne vision de l'upstream : son encodeur d'images sature (GPU plein côté fournisseur) et rejette
 // toute requête contenant une image, alors que le texte seul passe. Sert à déclencher le repli sans
@@ -124,12 +124,17 @@ const run: ClaudeRunnerShape["run"] = (args, cwd, timeout = CLAUDE_TIMEOUT) => {
   )
 }
 
+// repli réservé à l'UUID déjà pris : un timeout ou une erreur d'API relancerait tout pour rien
+const SESSION_IN_USE = /already in use/i
+
 const runNewSession: ClaudeRunnerShape["runNewSession"] = (args, sessionId, cwd, timeout) =>
   run([...args, "--session-id", sessionId], cwd, timeout).pipe(
     Effect.catch((error) =>
-      Effect.sync(() => logErr("  --session-id indisponible, session anonyme :", error)).pipe(
-        Effect.andThen(run(args, cwd, timeout)),
-      ),
+      SESSION_IN_USE.test(error.message)
+        ? Effect.sync(() => logErr("  --session-id indisponible, session anonyme :", error)).pipe(
+            Effect.andThen(run(args, cwd, timeout)),
+          )
+        : Effect.fail(error),
     ),
   )
 
