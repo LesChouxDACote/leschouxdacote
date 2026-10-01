@@ -2,16 +2,19 @@ import styled from "@emotion/styled"
 import { Close } from "@mui/icons-material"
 import { Button, IconButton, TextField, Typography } from "@mui/material"
 import { useRouter } from "next/router"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { ValidationError, number, object, string } from "yup"
 import { Button as GreenButton } from "src/components/Button"
-import { UNIT_LABELS } from "src/components/Reservation"
+import { ValidationError as ApiValidationError } from "src/components/Form"
 import { Text } from "src/components/Text"
-import { COLORS, LAYOUT, SIZES } from "src/constants"
+import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
 import { useUser } from "src/helpers/auth"
+import { getSlotEnd, getSlotKey } from "src/helpers/date"
+import api from "src/helpers/api"
 import { validatePhoneNumber } from "src/helpers/validators"
+import type { ReservationsResponse } from "src/models/Booking"
 import type { Reservation } from "src/pages/compte/producteur/annonce"
-import type { Unit } from "src/types/model"
+import type { Booking, Unit } from "src/types/model"
 
 export interface ReservableSlot {
   date: Date
@@ -28,13 +31,6 @@ interface ReservationErrors {
 }
 
 const MAX_QUANTITY = Number.MAX_SAFE_INTEGER
-
-// La date d'un créneau est à minuit UTC (input date "YYYY-MM-DD") : un créneau reste affichable
-// jusqu'à sa fin réelle (date + heure de fin), et pas seulement jusqu'à minuit.
-const getSlotEnd = (slot: ReservableSlot) => {
-  const day = slot.date.toISOString().slice(0, 10)
-  return new Date(`${day}T${slot.heureFin}`).getTime()
-}
 
 const getValidationSchema = (maxQuantityPerPerson: number | null | undefined, unitLabel: string) =>
   object().shape({
@@ -148,11 +144,12 @@ const CloseButton = styled(IconButton)`
 `
 
 interface ReservationSectionProps {
+  productId: string
   slots: readonly ReservableSlot[]
   unit: Unit | null
 }
 
-const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
+const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps) => {
   const { authUser, loading } = useUser()
   const { asPath, replace } = useRouter()
 
@@ -163,17 +160,37 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
   const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
   const [errors, setErrors] = useState<ReservationErrors>({})
+  const [globalError, setGlobalError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [booked, setBooked] = useState<Record<string, number>>({})
+  const [booking, setBooking] = useState<Booking | null>(null)
   const [now, setNow] = useState<number | null>(null)
 
+  const fetchBooked = useCallback(async () => {
+    try {
+      const data = await api.get<ReservationsResponse>("reservation", { productId })
+      setBooked(data.booked ?? {})
+      setBooking(data.booking ?? null)
+    } catch {
+      // Totaux indisponibles : les créneaux restent affichés sans état « complet ».
+    }
+  }, [productId])
+
   useEffect(() => {
+    // L'authentification doit être résolue pour que l'appel porte le token : sans lui, l'API ne
+    // renverrait pas la réservation de l'acheteur connecté (préremplissage).
+    if (loading) {
+      return
+    }
     setNow(Date.now())
-  }, [])
+    fetchBooked()
+  }, [loading, fetchBooked])
 
   // La page est générée statiquement : l'heure courante n'est connue qu'une fois la page chargée
   // dans le navigateur. On ne rend donc rien avant, pour éviter que le bouton « Réserver »
   // n'apparaisse un instant puis ne disparaisse au chargement.
   const upcomingSlots = useMemo(
-    () => (now === null ? [] : slots.filter((slot) => getSlotEnd(slot) >= now)),
+    () => (now === null ? [] : slots.filter((slot) => getSlotEnd(slot.date, slot.heureFin) >= now)),
     [slots, now],
   )
 
@@ -183,6 +200,21 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
 
   const instructions = (selectedSlot ?? upcomingSlots[0])?.reservation.instructions ?? null
 
+  const getSlotBooked = (slot: ReservableSlot) => booked[getSlotKey(slot.date, slot.heureDebut, slot.heureFin)] ?? 0
+
+  // La réservation en cours de l'acheteur compte dans le total du créneau : elle est déduite pour
+  // évaluer ce qui lui reste disponible (le serveur exclut de même sa propre réservation), sinon
+  // son créneau apparaîtrait « complet » et la validation serait bloquée à tort.
+  const getOwnQuantity = (slot: ReservableSlot) =>
+    booking &&
+    booking.slotDate === slot.date.getTime() &&
+    booking.heureDebut === slot.heureDebut &&
+    booking.heureFin === slot.heureFin
+      ? booking.quantity
+      : 0
+
+  const isFull = (slot: ReservableSlot) => getSlotBooked(slot) - getOwnQuantity(slot) >= slot.reservation.totalQuantity
+
   const handleOpen = () => {
     if (loading) {
       return
@@ -191,7 +223,27 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
       replace("/connexion?next=" + asPath)
       return
     }
-    setEmail((current) => current || authUser.email)
+    if (booking) {
+      // Dernière réservation enregistrée : le formulaire est prérempli avec son état. Le créneau
+      // n'est présélectionné que s'il est encore à venir ; sinon (passé ou supprimé), l'acheteur
+      // en choisit un autre et la validation remplace l'ancienne réservation.
+      const slot =
+        slots.find(
+          (item) =>
+            item.date.getTime() === booking.slotDate &&
+            item.heureDebut === booking.heureDebut &&
+            item.heureFin === booking.heureFin,
+        ) ?? null
+      setSelectedSlot(slot && getSlotEnd(slot.date, slot.heureFin) >= Date.now() ? slot : null)
+      setQuantity(String(booking.quantity))
+      setPhone(booking.phone)
+      setEmail(booking.email)
+    } else {
+      setEmail((current) => current || authUser.email)
+    }
+    setErrors({})
+    setGlobalError(null)
+    setSubmitted(false)
     setOpen(true)
   }
 
@@ -201,11 +253,12 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
     setPhone("")
     setEmail("")
     setErrors({})
+    setGlobalError(null)
     setSubmitted(false)
     setOpen(false)
   }
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
     const nextErrors: ReservationErrors = {}
     if (!selectedSlot) {
       nextErrors.slot = "Veuillez choisir un créneau"
@@ -229,21 +282,44 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
     }
 
     setErrors(nextErrors)
-    if (Object.keys(nextErrors).length > 0) {
+    if (Object.keys(nextErrors).length > 0 || !selectedSlot) {
       return
     }
 
-    // La persistance de la réservation (quantités réservées/restantes, e-mail au producteur)
-    // sera traitée dans un prochain ticket.
-    setSubmitted(true)
-    setOpen(false)
+    setSubmitting(true)
+    setGlobalError(null)
+    try {
+      await api.post("reservation", {
+        productId,
+        slot: {
+          date: selectedSlot.date.getTime(),
+          heureDebut: selectedSlot.heureDebut,
+          heureFin: selectedSlot.heureFin,
+        },
+        quantity: Number(quantity),
+        phone,
+        email,
+      })
+      setSubmitted(true)
+      setOpen(false)
+      fetchBooked()
+    } catch (error) {
+      if (error instanceof ApiValidationError) {
+        const field = error.field as keyof ReservationErrors
+        setErrors((current) => ({ ...current, [field]: error.message }))
+      } else {
+        setGlobalError("Une erreur est survenue, veuillez réessayer")
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <>
       <TriggerWrapper>
         <TriggerButton $variant="green" onClick={handleOpen}>
-          Réserver
+          {booking ? "Modifier ma réservation" : "Réserver"}
         </TriggerButton>
         {submitted && !open && <Text $color={COLORS.green}>Votre réservation a bien été validée.</Text>}
       </TriggerWrapper>
@@ -260,19 +336,24 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
             Choisissez votre créneau <span style={{ color: COLORS.red }}>*</span>
           </SlotsLabel>
           <SlotsRow>
-            {upcomingSlots.map((slot, index) => (
-              <SlotButton
-                key={index}
-                variant="contained"
-                $selected={slot === selectedSlot}
-                onClick={() => {
-                  setSelectedSlot(slot)
-                  setErrors((current) => ({ ...current, slot: undefined }))
-                }}
-              >
-                {`Le ${slot.date.toLocaleDateString()} de ${slot.heureDebut} à ${slot.heureFin}`}
-              </SlotButton>
-            ))}
+            {upcomingSlots.map((slot, index) => {
+              const full = isFull(slot)
+
+              return (
+                <SlotButton
+                  key={index}
+                  variant="contained"
+                  $selected={slot === selectedSlot}
+                  disabled={full}
+                  onClick={() => {
+                    setSelectedSlot(slot)
+                    setErrors((current) => ({ ...current, slot: undefined }))
+                  }}
+                >
+                  {`Le ${slot.date.toLocaleDateString()} de ${slot.heureDebut} à ${slot.heureFin}${full ? " (complet)" : ""}`}
+                </SlotButton>
+              )
+            })}
           </SlotsRow>
           {errors.slot && <SlotError>{errors.slot}</SlotError>}
           {instructions && <Instructions $color={COLORS.input}>{instructions}</Instructions>}
@@ -325,13 +406,14 @@ const ReservationSection = ({ slots, unit }: ReservationSectionProps) => {
           </FieldsRow>
 
           <ActionsRow>
-            <GreenButton $variant="green" onClick={handleValidate}>
+            <GreenButton $variant="green" onClick={handleValidate} disabled={submitting}>
               Valider la réservation
             </GreenButton>
             <Button variant="contained" onClick={handleCancel}>
               Annuler la réservation
             </Button>
           </ActionsRow>
+          {globalError && <SlotError>{globalError}</SlotError>}
         </Section>
       )}
     </>

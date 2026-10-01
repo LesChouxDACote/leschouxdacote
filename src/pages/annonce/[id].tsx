@@ -309,7 +309,9 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                 ))}
               </ProductSlots>
             </ProductSection>
-            {reservationSlots.length > 0 && <ReservationSection slots={reservationSlots} unit={product.unit ?? null} />}
+            {reservationSlots.length > 0 && (
+              <ReservationSection productId={product.objectID} slots={reservationSlots} unit={product.unit ?? null} />
+            )}
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
               <Text $size={SIZES.card} $color={COLORS.input} $linebreaks>

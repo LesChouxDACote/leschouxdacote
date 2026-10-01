@@ -2,15 +2,9 @@ import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/materia
 import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
 import React, { useState } from "react"
 import { useFormContext } from "react-hook-form"
+import { UNIT_LABELS } from "src/constants"
 import { Reservation, ReservationSchema, Slot } from "src/pages/compte/producteur/annonce"
 import type { Unit } from "src/types/model"
-
-export const UNIT_LABELS: Record<Unit, string> = {
-  g: "g",
-  kg: "kg",
-  l: "litre(s)",
-  u: "pièce(s)",
-}
 
 interface ReservationBlockProps {
   slot: Slot

@@ -1,7 +1,15 @@
 import { lighten } from "polished"
+import type { Unit } from "src/types/model"
 
 export const CONTACT_EMAIL = "contact@leschouxdacote.fr"
 export const MAX_PUBLICATION_DAYS = 90
+
+export const UNIT_LABELS: Record<Unit, string> = {
+  g: "g",
+  kg: "kg",
+  l: "litre(s)",
+  u: "pièce(s)",
+}
 
 const BASE_COLORS = {
   white: "#ffffff",
