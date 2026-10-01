@@ -40,17 +40,15 @@ interface BaseUser extends Identified {
   email: string
   followedProducers: Record<string, FollowedProducer>
   role: USER_ROLE
+  isAdmin?: boolean
 }
 interface Buyer extends BaseUser {
   role: USER_ROLE.BUYER
 }
 
-interface Admin extends BaseUser {
-  role: USER_ROLE.ADMIN
-}
 interface Producer extends BaseUser {
   role: USER_ROLE.PRODUCER
-  siret: string
+  siret?: string
   name: string // company name
   address: string
   description: string
@@ -58,7 +56,7 @@ interface Producer extends BaseUser {
   followers?: Record<string, Follower>
   alertsExpired?: boolean
 }
-type User = Buyer | Producer | Admin
+type User = Buyer | Producer
 
 // Buyer reservation on a product slot. Firestore collection "bookings" (top-level: denied by
 // default in firestore.rules, read/written only through /api/reservation). Never stored in the
@@ -78,7 +76,8 @@ interface Booking extends Identified {
   lastname: string
 }
 
-interface RegisteringUser extends Registering<Producer> {
+interface RegisteringUser extends Omit<Registering<Producer>, "siret"> {
+  siret: string
   created: Date
   password: string
   nocheck?: boolean
