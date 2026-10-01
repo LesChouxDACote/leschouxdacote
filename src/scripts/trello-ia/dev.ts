@@ -6,14 +6,14 @@ import path from "path"
 import { claudeArgsFor, ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
 import { CoolifyClient } from "./coolify"
-import { commitAndPush, DEV_ARGS, implementArgs, pendingChanges, verifyAndFix } from "./delivery"
+import { commitAndPush, DEV_ARGS, implementArgs, mergeBase, pendingChanges, verifyAndFix } from "./delivery"
 import { ensurePreviewDeployed, previewState, previewStatusBlock, retriggerDeployment } from "./deploy"
 import { WatcherError } from "./errors"
 import { Git } from "./git"
 import type { ResolvedLists } from "./lists"
 import { log, logErr } from "./log"
 import { Preview } from "./preview"
-import { IMPLEMENT_PROMPT, iterationPrompt, planPrompt, retryPrompt } from "./prompts"
+import { conflictBlock, IMPLEMENT_PROMPT, iterationPrompt, planPrompt, retryPrompt } from "./prompts"
 import type { ClaudeOutput, TrelloCard } from "./schemas"
 import { Shell } from "./shell"
 import { StateStore } from "./state"
@@ -90,12 +90,21 @@ export const processCard = (card: TrelloCard, lists: ResolvedLists) =>
       yield* exec("git", ["push", "-u", "origin", branch], worktree)
       log(`  Branche ${branch} créée depuis ${baseBranch} et poussée`)
     }
+    // avant yarn install : la base peut avoir ajouté des dépendances
+    const conflicts = branchOnOrigin ? yield* mergeBase(worktree, baseBranch) : []
+    if (branchOnOrigin) {
+      log(
+        conflicts.length > 0
+          ? `  Fusion de ${baseBranch} en conflit (${conflicts.length} fichier(s)) : résolution par Claude`
+          : `  ${baseBranch} fusionnée dans ${branch}`,
+      )
+    }
     log("  yarn install…")
     yield* exec("yarn", ["install"], worktree)
 
     // 2. Contexte complet du ticket (carte, checklists, pièces jointes, discussion de cadrage)
     const context = yield* loadTicketContext(card, worktree)
-    const ticketBlock = ticketContextBlock(context)
+    const ticketBlock = ticketContextBlock(context) + conflictBlock(baseBranch, conflicts)
     // itération : si le dernier déploiement du preview a échoué, ses logs entrent dans le prompt
     const previewBefore =
       isIteration && coolify.enabled && state?.prUrl ? Option.some(yield* previewState(state.prUrl)) : Option.none()

@@ -5,6 +5,18 @@ import type { TrelloCard } from "./schemas"
 // automatiquement dans le worktree, fait foi et suit la branche.
 const REPO_INTRO = "Tu travailles sur le dépôt « Les Choux d'à Côté » (stack et conventions décrites dans CLAUDE.md)."
 
+// fusion de la base en conflit (cf. mergeBase) : prime sur « aucun changement nécessaire » de l'itération
+export const conflictBlock = (baseBranch: string, conflicts: ReadonlyArray<string>) =>
+  conflicts.length === 0
+    ? ""
+    : `
+
+IMPORTANT — la branche « ${baseBranch} » vient d'être fusionnée dans la branche du ticket et la fusion est EN CONFLIT.
+Fichiers en conflit :
+${conflicts.map((file) => `- ${file}`).join("\n")}
+Tu DOIS résoudre ces conflits : édite chaque fichier pour retirer tous les marqueurs (<<<<<<<, =======, >>>>>>>) en conservant à la fois le travail du ticket et les évolutions de « ${baseBranch} ».
+Ne lance aucune commande git (ni merge, ni add, ni commit) : l'orchestrateur conclut la fusion.`
+
 export const planPrompt = (ticketBlock: string) => `${REPO_INTRO}
 
 ${ticketBlock}

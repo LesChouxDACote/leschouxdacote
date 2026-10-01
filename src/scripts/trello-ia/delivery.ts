@@ -1,7 +1,7 @@
 // Garde-fous et livraison d'un worktree après un passage de Claude : contrôles (avec correction par Claude),
 // commit, push
 import { Effect, Option } from "effect"
-import { existsSync, rmSync, unlinkSync } from "fs"
+import { existsSync, readFileSync, rmSync, unlinkSync } from "fs"
 import path from "path"
 import { ClaudeRunner } from "./claude"
 import { AppConfig } from "./config"
@@ -78,6 +78,8 @@ const cleanWorktree = (worktree: string) => {
   rmSync(path.join(worktree, TICKET_DIR), { recursive: true, force: true })
 }
 
+const CONFLICT_MARKER = /^(<{7}|>{7}) /m // `=======` seul exclu : c'est aussi un soulignement de titre Markdown
+
 // mêmes contrôles que la phase lint/typage de « next build » : Prettier puis ESLint --fix sur les fichiers
 // touchés (le build échoue sur la règle prettier/prettier), tsc, puis ESLint sur tout src ;
 // renvoie le premier contrôle en échec (None = prêt à commiter)
@@ -91,6 +93,24 @@ export const checkWorktree = (worktree: string) =>
     const committedFiles = yield* exec("git", ["diff", "--name-only", `origin/${baseBranch}...HEAD`], worktree)
     const statusLines = yield* exec("git", ["status", "--porcelain"], worktree)
     const touchedFiles = touchedFilesIn(worktree, committedFiles, statusLines)
+    // fusion de la base en conflit (cf. mergeBase) : les fichiers restent « non fusionnés » tant que
+    // l'orchestrateur ne les a pas ajoutés (Claude n'a pas git add), on y cherche les marqueurs restants,
+    // avant Prettier qui planterait dessus ; tsc et ESLint ne lisent ni le JSON, ni le Markdown, ni le CSS,
+    // et `git add -A` les commiterait tels quels
+    const unmerged = (yield* exec("git", ["diff", "--name-only", "--diff-filter=U"], worktree))
+      .split("\n")
+      .filter(Boolean)
+    const withMarkers = unmerged.filter(
+      (file) =>
+        existsSync(path.join(worktree, file)) && CONFLICT_MARKER.test(readFileSync(path.join(worktree, file), "utf8")),
+    )
+    if (withMarkers.length > 0) {
+      return Option.some<Diagnostic>({
+        step: "marqueurs de conflit",
+        output: `Marqueurs de conflit (<<<<<<< / >>>>>>>) encore présents dans :\n${withMarkers.join("\n")}`,
+      })
+    }
+
     const prettierFiles = touchedFiles.filter((file) => /\.(ts|tsx|js|jsx|json|css|scss|md)$/.test(file))
     if (prettierFiles.length > 0) {
       log("  Formatage Prettier…")
@@ -192,4 +212,24 @@ export const commitAndPush = (worktree: string, branch: string, message: string)
     const sha = yield* exec("git", ["rev-parse", "HEAD"], worktree)
     yield* exec("git", ["push", "-u", "origin", branch], worktree)
     return sha
+  })
+
+// fusionne la branche de base dans la branche du ticket (retry, itération) pour que la PR reste mergeable :
+// Claude n'a pas les droits git, c'est donc l'orchestrateur qui fusionne. Renvoie les fichiers en conflit
+// (vide = fusion propre, déjà commitée) ; en conflit la fusion reste en cours, Claude retire les marqueurs
+// et le commit de commitAndPush la conclut.
+export const mergeBase = (worktree: string, baseBranch: string) =>
+  Effect.gen(function* () {
+    const { exec } = yield* Shell
+    return yield* exec("git", ["merge", "--no-edit", `origin/${baseBranch}`], worktree).pipe(
+      Effect.as<ReadonlyArray<string>>([]),
+      Effect.catch((error) =>
+        Effect.gen(function* () {
+          const conflicts = (yield* exec("git", ["diff", "--name-only", "--diff-filter=U"], worktree))
+            .split("\n")
+            .filter(Boolean)
+          return conflicts.length > 0 ? conflicts : yield* Effect.fail(error)
+        }),
+      ),
+    )
   })
