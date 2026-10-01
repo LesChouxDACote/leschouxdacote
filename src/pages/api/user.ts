@@ -58,6 +58,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
   if (req.method === "POST") {
     // user registration
     const user = req.body as RegisteringUser // TODO: validate fields
+    delete (user as any).isAdmin
     if (user.role === USER_ROLE.PRODUCER) {
       user.siret = user.siret.replace(/\s+/g, "") // remove spaces
       const checkError = await checkCompany(user.siret, user.nocheck)
@@ -123,19 +124,25 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     }
 
     const user = req.body as UpdatingUser // TODO: validate fields
+    // isAdmin and role must never be set via this public route (privilege escalation)
+    delete (user as any).isAdmin
+    delete (user as any).role
     user.updated = new Date()
-    if (user.role === USER_ROLE.PRODUCER) {
-      user.phone = normalizeNumber(user.phone)
-    }
 
     const usersCollection = firestore.collection("users")
     const userRef = usersCollection.doc(token.uid)
 
+    const userDoc = await userRef.get()
+    const userData = getObject(userDoc) as Producer
+    const isProducer = userData.role === USER_ROLE.PRODUCER
+
+    if (isProducer) {
+      user.phone = normalizeNumber(user.phone)
+    }
+
     const updates: Readonly<Promise<any>>[] = [userRef.update(user)]
 
-    if (user.role === USER_ROLE.PRODUCER) {
-      const userDoc = await userRef.get()
-      const userData = getObject(userDoc) as Producer
+    if (isProducer) {
       for (const uid in userData.followers) {
         updates.push(usersCollection.doc(uid).update({ [`followedProducers.${token.uid}.name`]: user.name }))
       }
