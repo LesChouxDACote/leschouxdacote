@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { ChangeEvent, FocusEvent, KeyboardEvent, useRef, useState } from "react"
+import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import CustomSwitch from "src/components/CustomSwitch"
 import { Label } from "src/components/Form"
@@ -43,14 +43,24 @@ const Suggestions = styled.div`
 
 interface Props {
   label?: string
+  required?: boolean
 }
 
-const TagsInput = ({ label }: Props) => {
+const TagsInput = ({ label, required }: Props) => {
   const { register, getValues, setValue, watch } = useFormContext()
   const inputRef = useRef<HTMLInputElement>(null)
   const [suggestions, setSuggestions] = useState<AlgoliaTag[]>([])
   register("_tags")
   const values: string[] = watch("_tags") || []
+
+  // Validation HTML native (info-bulle du navigateur) homogène avec les autres champs obligatoires.
+  // La valeur réelle est portée par un input caché (exclu de la validation native) : on porte donc
+  // la contrainte sur le champ de saisie visible tant qu'aucun mot-clé n'a été ajouté (Enter/clic).
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(
+      required && values.length === 0 ? "Veuillez renseigner au moins un mot-clé." : "",
+    )
+  }, [required, values.length])
 
   const add = (value: string) => {
     setValue("_tags", [...values, value])
@@ -104,7 +114,9 @@ const TagsInput = ({ label }: Props) => {
 
   return (
     <Label htmlFor={"_tags"}>
-      <div>{label}</div>
+      <div>
+        {label} {required && "*"}
+      </div>
       <label>
         <CustomSwitch name="bio" defaultChecked={getValues("bio")} /> Bio ou agriculture raisonnée
       </label>
