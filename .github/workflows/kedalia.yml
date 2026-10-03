@@ -1,0 +1,23 @@
+name: Verify
+
+# scripts/verify.sh on every push. Kedalia reads this run after each delivery of its agent; the team gets a check on
+# its pull requests. A branch's creation re-tests a commit its base already ran: skipped, as Kedalia creates one branch
+# per ticket before writing anything on it.
+on:
+  push:
+
+jobs:
+  verify:
+    if: ${{ !github.event.created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify
+        run: sh scripts/verify.sh

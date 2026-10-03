@@ -78,6 +78,13 @@ Every commit on branch "production" is deployed on the production environment.
 For dev environment, it is deploy on coolify.ilieff.fr
 Ask Charles to access to the Coolify project.
 
+### Kedalia
+
+[Kedalia](https://kedalia.com) also deploys "develop", and one copy per ticket branch, from `docker-compose.yaml` and
+the `Dockerfile` at the root. Its agent runs `scripts/verify.sh` (frozen install, typecheck, ESLint) before
+delivering; `.github/workflows/kedalia.yml` runs the same script on every push. The keys go in Kedalia's Coolify
+application, the same names as `example.env`; `NEXT_PUBLIC_URL` is set by Kedalia.
+
 ## Alerts Emails for new products and expired product
 
 Two schedule actions in Github actions : "Alerts for expired product" and "Alerts for new products" are used for dev and prod environment.
@@ -159,7 +166,9 @@ Prérequis sur la machine qui exécute le watcher :
 
 ### Déploiement sur Coolify (Docker)
 
-Créer une ressource « Docker Compose » pointant sur ce dépôt : le `docker-compose.yml` à la racine construit
+Créer une ressource « Docker Compose » pointant sur ce dépôt, « Docker Compose Location » à `/docker-compose.yml` (le
+défaut `/docker-compose.yaml` est l'application que déploie Kedalia ; en local, `docker compose -f docker-compose.yml`) :
+le `docker-compose.yml` à la racine construit
 `docker/trello-ia/Dockerfile` (Node 22 + git + gh + claude) et lance `yarn watch-trello`.
 Le volume `/data` persiste l'authentification et les sessions Claude (nécessaires à la reprise par ticket),
 l'état des tickets (`ia-sessions.json`) et les worktrees.
