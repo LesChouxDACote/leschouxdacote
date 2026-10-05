@@ -58,6 +58,9 @@ Petites annonces alimentaires (producteurs locaux). Next.js 16 (pages router), T
 - Le yarn est celui du dépôt (`yarnPath`) : l'image de Kedalia (Node 26) n'a ni corepack ni binaire `yarn`, d'où le
   `node .yarn/releases/…` du script. L'agent de Kedalia n'ajoute pas de dépendance : son `atelier-add` ne parle que pnpm.
 - `docker-compose.yaml` + `Dockerfile` = l'application déployée par Kedalia ; `docker-compose.yml` = le watcher Trello.
+- `scripts/dev.sh` = l'« Aperçu » de Kedalia : `next dev` sur `FRONTEND_PORT`, avec les clés de dev que Kedalia lui
+  passe (les données de dev sont réelles). Sous Node 25+ (l'image de Kedalia est en 26), `scripts/node-slowbuffer.cjs`
+  rend à `firebase-admin` le `SlowBuffer` que Node a retiré ; le build, la CI et Vercel restent en Node 22.
   Le build pré-rend toutes les annonces depuis Firestore : il lui faut les clés serveur, pas seulement les `NEXT_PUBLIC_*`.
 
 <!-- BEGIN:nextjs-agent-rules -->
