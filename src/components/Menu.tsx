@@ -1,6 +1,7 @@
 import styled from "@emotion/styled"
 import AddCircleIcon from "@mui/icons-material/AddCircle"
 import CollectionsIcon from "@mui/icons-material/Collections"
+import EventNoteIcon from "@mui/icons-material/EventNote"
 import LoginIcon from "@mui/icons-material/Login"
 import LogoutIcon from "@mui/icons-material/Logout"
 import PersonIcon from "@mui/icons-material/Person"
@@ -103,6 +104,10 @@ const Menu = () => {
                 <ListItemText>Mes annonces</ListItemText>
               </ListItemLink>
             )}
+            <ListItemLink href="/compte/reservations">
+              <EventNoteIcon />
+              <ListItemText>Mes réservations</ListItemText>
+            </ListItemLink>
             <ListItemLink href="/compte/profil">
               <PersonIcon />
               <ListItemText>Mon profil</ListItemText>

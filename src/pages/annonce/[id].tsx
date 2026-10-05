@@ -7,6 +7,7 @@ import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
 import Link from "src/components/Link"
 import Products from "src/components/Products"
+import ReservationSection from "src/components/ReservationSection"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
 import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
@@ -16,7 +17,7 @@ import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLi
 import Layout from "src/layout"
 import { ProductEncoded, ProductSchema } from "src/models/Product"
 import ErrorPage from "src/pages/_error"
-import { SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
+import { Reservation, SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Producer, Product } from "src/types/model"
 
 const Wrapper = styled.div`
@@ -230,14 +231,18 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
     Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
     O.getOrElse(() => []),
   )
+  const allSlots = product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
   const sortedByDateSlots = pipe(
-    product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : [],
+    allSlots,
     A.sortBy(
       Order.mapInput(Order.Number, (slot) => slot.date.getTime()),
       Order.mapInput(Order.String, (slot) => slot.heureDebut),
     ),
     A.takeRight(10),
   )
+  const reservationSlots = allSlots
+    .filter((slot): slot is SlotSchemaFirestore & { reservation: Reservation } => slot.reservation != null)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
 
   return (
     <Layout
@@ -302,6 +307,9 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                 ))}
               </ProductSlots>
             </ProductSection>
+            {reservationSlots.length > 0 && (
+              <ReservationSection productId={product.objectID} slots={reservationSlots} unit={product.unit ?? null} />
+            )}
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
               <Text $size={SIZES.card} $color={COLORS.input} $linebreaks>

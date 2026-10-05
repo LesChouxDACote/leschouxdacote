@@ -8,6 +8,7 @@ import {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
   useEffect,
+  useRef,
 } from "react"
 import { DeepPartial, DefaultValues, FieldValues, FormProvider, useForm, useFormContext } from "react-hook-form"
 import { Button } from "src/components/Button"
@@ -25,9 +26,9 @@ export class ValidationError extends Error {
   }
 }
 
-const StyledForm = styled.form`
+const StyledForm = styled.form<{ $wide?: boolean }>`
   width: 100%;
-  max-width: ${LAYOUT.formWidth}px;
+  max-width: ${({ $wide }) => ($wide ? "none" : `${LAYOUT.formWidth}px`)};
   margin: 0 auto;
 `
 const Title = styled.h1`
@@ -49,6 +50,8 @@ interface FormProps<A extends FieldValues, T extends DeepPartial<A>> extends Omi
   onSubmit: Submit<A>
   defaultValues?: DefaultValues<T>
   resetOnChange?: any
+  wide?: boolean
+  onDirtyChange?: (dirty: boolean) => void
 }
 
 export function Form<A extends FieldValues, T extends DeepPartial<A>>({
@@ -57,14 +60,24 @@ export function Form<A extends FieldValues, T extends DeepPartial<A>>({
   onSubmit,
   defaultValues,
   resetOnChange,
+  wide,
+  onDirtyChange,
   children,
   ...delegated
 }: FormProps<A, T>) {
   const form = useForm<T>({ defaultValues })
+  const { isDirty } = form.formState
+
+  const onDirtyChangeRef = useRef(onDirtyChange)
+  onDirtyChangeRef.current = onDirtyChange
 
   useEffect(() => {
     form.reset({ ...defaultValues } as DefaultValues<T>)
   }, [resetOnChange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    onDirtyChangeRef.current?.(isDirty)
+  }, [isDirty])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     try {
@@ -85,7 +98,7 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
 
   return (
     <FormProvider {...form}>
-      <StyledForm method="POST" onSubmit={handleSubmit} {...delegated}>
+      <StyledForm method="POST" onSubmit={handleSubmit} $wide={wide} {...delegated}>
         {title && <Title>{title}</Title>}
         {hasRequired && <Required>* champs obligatoires</Required>}
         {children}

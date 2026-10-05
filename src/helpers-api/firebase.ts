@@ -21,6 +21,19 @@ export const firestore = getFirestore(app)
 export const storage = getStorage(app)
 export { FieldValue, GeoPoint }
 
+// getObject normalise les Timestamps imbriqués (ex. dates des créneaux dans le tableau slots) en
+// { seconds } : ce helper les ramène en millisecondes. Une valeur inattendue renvoie null.
+export const toMillis = (value: unknown): number | null => {
+  if (value instanceof Timestamp) {
+    return value.toMillis()
+  }
+  if (typeof value === "number") {
+    return value
+  }
+  const seconds = (value as { seconds?: unknown } | null)?.seconds
+  return typeof seconds === "number" ? seconds * 1000 : null
+}
+
 // Schema v4 ne lit que les clés propres : les Timestamp imbriqués (ex. slots[].date), dont `seconds`
 // est un getter du prototype, sont normalisés en objets simples { seconds }
 const normalizeNested = (value: unknown): unknown => {
