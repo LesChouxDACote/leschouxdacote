@@ -2,9 +2,8 @@ import styled from "@emotion/styled"
 import { TextField, Typography } from "@mui/material"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
-import { ValidationError, number } from "yup"
-import { ValidationError as ApiValidationError } from "src/components/Form"
 import { Button } from "src/components/Button"
+import { ValidationError as ApiValidationError } from "src/components/Form"
 import Link from "src/components/Link"
 import Loader from "src/components/Loader"
 import Modal from "src/components/Modal"
@@ -16,6 +15,7 @@ import { formatDate } from "src/helpers/date"
 import { formatAmount, formatPhone, formatPricePerUnit, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
 import type { BuyerReservationItem, MyReservationsResponse } from "src/models/Booking"
+import { ValidationError, number } from "yup"
 
 const MAX_QUANTITY = Number.MAX_SAFE_INTEGER
 
@@ -238,7 +238,7 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
                 type="number"
                 size="small"
                 value={quantity}
-                inputProps={{ min: 1, step: 1, "aria-label": "Quantité" }}
+                slotProps={{ htmlInput: { min: 1, step: 1, "aria-label": "Quantité" } }}
                 onChange={(event) => onChange(booking.objectID, event.target.value)}
               />
               {unitLabel && <Typography variant="body1">{unitLabel}</Typography>}

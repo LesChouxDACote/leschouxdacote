@@ -1,6 +1,5 @@
 import { GetServerSideProps } from "next"
-import { getServerSideSitemap } from "next-sitemap"
-import { ISitemapField } from "next-sitemap/dist/@types/interface"
+import { getServerSideSitemapLegacy, ISitemapField } from "next-sitemap"
 import { SSR_CACHE_HEADER } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import type { Producer, Product } from "src/types/model"
@@ -56,7 +55,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   ctx.res.setHeader("cache-control", SSR_CACHE_HEADER)
 
-  return getServerSideSitemap(ctx, fields)
+  return getServerSideSitemapLegacy(ctx, fields)
 }
 
 const NoOp = () => {

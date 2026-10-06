@@ -3,18 +3,18 @@ import { Close } from "@mui/icons-material"
 import { Button, IconButton, TextField, Typography } from "@mui/material"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { ValidationError, number, object, string } from "yup"
 import { Button as GreenButton } from "src/components/Button"
 import { ValidationError as ApiValidationError } from "src/components/Form"
 import { Text } from "src/components/Text"
 import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
+import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { getSlotEnd, getSlotKey } from "src/helpers/date"
-import api from "src/helpers/api"
 import { validatePhoneNumber } from "src/helpers/validators"
 import type { ReservationsResponse } from "src/models/Booking"
 import type { Reservation } from "src/pages/compte/producteur/annonce"
 import type { Booking, Unit } from "src/types/model"
+import { ValidationError, number, object, string } from "yup"
 
 export interface ReservableSlot {
   date: Date
@@ -367,7 +367,7 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
                 size="small"
                 fullWidth
                 value={quantity}
-                inputProps={{ min: 1, step: 1 }}
+                slotProps={{ htmlInput: { min: 1, step: 1 } }}
                 error={Boolean(errors.quantity)}
                 helperText={errors.quantity}
                 onChange={(event) => {

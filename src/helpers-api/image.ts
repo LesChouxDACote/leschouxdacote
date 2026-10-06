@@ -47,10 +47,10 @@ export const resize = async (source: string) => {
 }
 
 export const upload = async (path: string, name: string) => {
-  const [, metadata] = await storage.bucket().upload(path, {
+  const [file] = await storage.bucket().upload(path, {
     public: true,
     destination: name + ".jpg",
   })
 
-  return metadata.mediaLink as string
+  return file.metadata.mediaLink as string
 }

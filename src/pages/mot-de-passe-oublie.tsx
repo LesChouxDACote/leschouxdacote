@@ -1,3 +1,4 @@
+import { sendPasswordResetEmail } from "firebase/auth"
 import { useState } from "react"
 import { Form, SubmitButton, TextInput, ValidationError } from "src/components/Form"
 import Link from "src/components/Link"
@@ -11,7 +12,7 @@ export const LostPasswordPage = () => {
 
   const handleSubmit: Submit<LostPassword> = async (data) => {
     try {
-      await auth.sendPasswordResetEmail(data.email, {
+      await sendPasswordResetEmail(auth, data.email, {
         url: getAbsoluteUrl("connexion"),
       })
       setSent(true)

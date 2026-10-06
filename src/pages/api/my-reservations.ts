@@ -1,18 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest } from "src/helpers-api"
-import { getSlotEnd, getSlotKey } from "src/helpers/date"
 import { firestore, getObject, getToken, toMillis } from "src/helpers-api/firebase"
-import { RESERVATIONS_PAGE_SIZE } from "src/models/Booking"
+import { getSlotEnd, getSlotKey } from "src/helpers/date"
 import type {
   BookingSlot,
   BuyerReservationItem,
   BuyerReservationProduct,
   MyReservationsResponse,
 } from "src/models/Booking"
+import { RESERVATIONS_PAGE_SIZE } from "src/models/Booking"
 import type { Booking, Product } from "src/types/model"
 
 // Annonce telle que lue depuis Firestore : les dates des créneaux (imbriquées) doivent être
-// normalisées en ms via toMillis (getObject ne convertit que les Timestamps de premier niveau).
+// normalisées en ms via toMillis (getObject les laisse en { seconds }).
 interface ApiProduct extends Omit<Product, "slots"> {
   slots?: BookingSlot[]
 }
@@ -82,7 +82,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<MyReservationsR
     productIds.map(async (productId) => {
       const product = getObject(await firestore.collection("products").doc(productId).get()) as ApiProduct | null
       if (product) {
-        // toMillis obligatoire : les dates de créneaux sont des Timestamps imbriqués (0 = passé).
+        // toMillis obligatoire : les dates de créneaux imbriquées arrivent en { seconds } (0 = passé).
         product.slots = (product.slots ?? []).map((slot) => ({ ...slot, date: toMillis(slot.date) ?? 0 }))
       }
       products[productId] = product
