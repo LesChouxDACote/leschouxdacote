@@ -10,6 +10,7 @@
 
 # e2e (tests Playwright, paquet isolé)
 /e2e/node_modules/
+/e2e/.yarn/
 /e2e/test-results/
 /e2e/playwright-report/
 
