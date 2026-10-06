@@ -61,7 +61,9 @@ test.describe("Authentification", () => {
     await page.locator('input[name="email"]').fill("test-e2e@leschouxdacote.fr")
     await page.locator('input[name="password"]').fill("Ab1")
     await page.getByRole("button", { name: "Valider" }).click()
-    await expect(page.getByText("Doit contenir au moins 8 caractères")).toBeVisible()
+    // minLength est celui du navigateur : il bloque l'envoi avec sa propre bulle, sans texte dans la page
+    const password = page.locator('input[name="password"]')
+    expect(await password.evaluate((el: HTMLInputElement) => el.validity.tooShort)).toBe(true)
     await expect(page).toHaveURL(/\/inscription/)
   })
 

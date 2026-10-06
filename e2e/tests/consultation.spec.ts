@@ -49,7 +49,8 @@ test.describe("Consultation", () => {
 
   test("la fiche annonce affiche titre, description et producteur", async ({ page }) => {
     await page.goto(SEARCH_URL)
-    const firstCard = page.locator("a[href^='/annonce/']").first()
+    // le premier lien d'une carte peut être son badge « Bio / raisonnée » : on prend celui qui porte le titre
+    const firstCard = page.locator("a[href^='/annonce/']").filter({ has: page.getByRole("heading") }).first()
     await firstCard.waitFor({ timeout: 10000 })
     const title = await firstCard.getByRole("heading").innerText()
     await firstCard.click()
@@ -71,9 +72,10 @@ test.describe("Consultation", () => {
     await expect(page.getByText(/annonces en ligne/).first()).toBeVisible()
   })
 
-  test("une annonce inexistante affiche « Produit introuvable »", async ({ page }) => {
-    await page.goto("/annonce/test-e2e-inexistant")
-    await expect(page.getByText("Produit introuvable")).toBeVisible()
+  test("une annonce inexistante répond 404 « Page introuvable »", async ({ page }) => {
+    const response = await page.goto("/annonce/test-e2e-inexistant")
+    expect(response?.status()).toBe(404)
+    await expect(page.getByText("Page introuvable")).toBeVisible()
   })
 
   test("en mobile, la recherche bascule entre liste et carte", async ({ page }) => {

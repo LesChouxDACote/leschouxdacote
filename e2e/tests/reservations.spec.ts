@@ -70,7 +70,8 @@ test.describe.serial("Réservations", () => {
     await expect(page.getByRole("heading", { name: "Mes réservations" })).toBeVisible()
     const card = page.getByRole("link", { name: TEST_PRODUCT_TITLE }).locator("xpath=ancestor::section[1]")
     await card.waitFor({ timeout: 20000 })
-    await card.locator('input[aria-label="Quantité"]').fill("3")
+    // 2 réservés, 2 au plus par personne (addSlotReservation) : on descend à 1
+    await card.locator('input[aria-label="Quantité"]').fill("1")
     await card.getByRole("button", { name: "Modifier" }).click()
     await expect(card.getByText("Votre réservation a bien été modifiée.")).toBeVisible()
   })
@@ -80,7 +81,7 @@ test.describe.serial("Réservations", () => {
     await login(page, "producer")
     await page.goto(`/compte/producteur/annonce/${productId}`)
     await expect(page.getByRole("heading", { name: "Mes réservations" })).toBeVisible({ timeout: 20000 })
-    await expect(page.getByText("Total réservé : 3 / 10")).toBeVisible()
+    await expect(page.getByText("Total réservé : 1 / 10")).toBeVisible()
     await expect(page.getByText("Prénom Nom")).toBeVisible()
   })
 

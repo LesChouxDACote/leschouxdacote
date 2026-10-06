@@ -49,8 +49,8 @@ export async function addTag(page: Page, search: string) {
   const suggestion = page.locator("#_tags").locator("xpath=following-sibling::div[1]").getByRole("button").first()
   await suggestion.waitFor({ timeout: 10000 })
   await suggestion.click()
-  // Le mot-clé sélectionné apparaît en « chip » au-dessus du champ.
-  await expect(page.getByText(search, { exact: true }).first()).toBeVisible()
+  // Le mot-clé sélectionné rejoint le champ caché que le formulaire envoie (sa « chip » lit « légume× » : bouton compris).
+  await expect(page.locator('input[type="hidden"][name="_tags"]')).toHaveValue(new RegExp(`(^|,)${search}(,|$)`))
 }
 
 export async function fillProductForm(page: Page) {
@@ -82,7 +82,8 @@ export async function addSlot(page: Page, slot: TestSlot) {
 export async function addSlotReservation(page: Page, reservation: TestReservation) {
   await page.getByRole("button", { name: "Créer une réservation" }).first().click()
   const block = page.getByText("Statut de la réservation", { exact: false }).first().locator("xpath=ancestor::div[1]")
-  await block.locator("textarea").fill(reservation.instructions)
+  // MUI double un textarea multiligne d'une copie cachée (aria-hidden) qui calcule sa hauteur
+  await block.locator("textarea:not([aria-hidden])").fill(reservation.instructions)
   await block.getByLabel("Quantité totale *").fill(reservation.totalQuantity)
   await block.getByLabel("Quantité réservable maximale par personne").fill(reservation.maxQuantityPerPerson)
   await block.getByRole("button", { name: "Valider" }).click()
@@ -121,7 +122,7 @@ export async function deleteTestProduct(page: Page) {
   await card.waitFor({ timeout: 20000 })
   // Le premier bouton de la carte est l'icône de suppression.
   await card.getByRole("button").first().click()
-  await page.getByText("Supprimer l'annonce ?", { exact: true }).waitFor()
+  await page.getByText("Supprimer l’annonce ?", { exact: true }).waitFor()
   await page.getByRole("button", { name: "Valider" }).first().click()
   await expect(getTestProductCard(page)).toHaveCount(0)
 }
