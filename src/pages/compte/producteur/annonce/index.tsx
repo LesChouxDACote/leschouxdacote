@@ -189,11 +189,16 @@ const EditProductPage = () => {
 
   const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
   const handleRef = (el: HTMLInputElement | null) => {
-    if (!el || autocomplete.current) {
+    if (!el) {
       return
     }
 
     void loadGmaps().then(() => {
+      // vérifié après le chargement, comme SearchBar : chaque rendu rappelle handleRef pendant que Google Maps charge,
+      // et sans cela chacun créait son Autocomplete — des listes de suggestions superposées sur le même champ
+      if (autocomplete.current) {
+        return
+      }
       autocomplete.current = new google.maps.places.Autocomplete(el, {
         componentRestrictions: { country: "fr" },
         fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?

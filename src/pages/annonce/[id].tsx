@@ -369,14 +369,12 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
   const { id } = params as Params
-  const product = pipe(
-    getObject(await firestore.collection("products").doc(id).get()),
-    Sc.decodeUnknownSync(ProductSchema),
-  )
-
-  if (!product) {
+  const snapshot = await firestore.collection("products").doc(id).get()
+  // vérifié avant le décodage : getObject change un document absent en `{ objectID }`, que le schéma rejette (une 500)
+  if (!snapshot.exists) {
     return { notFound: true }
   }
+  const product = pipe(getObject(snapshot), Sc.decodeUnknownSync(ProductSchema))
 
   // const serializableSlots = pipe(
   //   product.slots,

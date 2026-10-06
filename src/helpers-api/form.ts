@@ -12,7 +12,9 @@ const unwrapFields = (fields: Record<string, string[] | undefined>) =>
 
 export const getFormData = <T = any>(req: NextApiRequest): Promise<[T, SingleFiles]> =>
   new Promise((resolve, reject) => {
-    const form = new IncomingForm()
+    // un champ fichier laissé vide (« Changer la photo » à la modification) arrive sans nom de fichier ; formidable v3
+    // refuserait ce fichier vide (allowEmptyFiles) et toute la requête avec : on l'écarte
+    const form = new IncomingForm({ filter: ({ originalFilename }) => Boolean(originalFilename) })
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
