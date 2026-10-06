@@ -1,4 +1,4 @@
-import { connect, Email } from "node-mailjet"
+import Mailjet, { type SendEmailV3_1 } from "node-mailjet"
 import { CONTACT_EMAIL } from "src/constants"
 
 export enum MailjetTemplate {
@@ -6,43 +6,39 @@ export enum MailjetTemplate {
   expired = 5997949,
 }
 
-export const sendTemplateEmail = async (
+const send = async (message: Omit<SendEmailV3_1.Message, "From">) => {
+  const mailjet = new Mailjet({
+    apiKey: process.env.MAILJET_PUBLIC_KEY as string,
+    apiSecret: process.env.MAILJET_PRIVATE_KEY as string,
+  })
+
+  const { body } = await mailjet.post("send", { version: "v3.1" }).request<SendEmailV3_1.Response>({
+    Messages: [{ From: { Email: CONTACT_EMAIL, Name: "Les Choux d'à Côté" }, ...message }],
+  })
+
+  const infos = body.Messages[0]
+  return { to: infos.To[0].Email, status: infos.Status }
+}
+
+export const sendTemplateEmail = (
   recipient: string,
   templateId: MailjetTemplate,
   variables: Record<string, any>,
   subject?: string,
-) => {
-  const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
-
-  const message: Email.SendParamsMessage = {
-    From: { Email: CONTACT_EMAIL, Name: "Les Choux d'à Côté" },
+) =>
+  send({
     To: [{ Email: recipient }],
     TemplateLanguage: true,
     TemplateID: templateId,
     Variables: variables,
     Subject: subject,
-  }
-
-  const { body } = await mailjet.post("send", { version: "v3.1" }).request({ Messages: [message] })
-
-  const infos = body.Messages[0]
-  return { to: infos.To[0].Email, status: infos.Status }
-}
+  })
 
 // E-mail simple (HTML + texte), sans template Mailjet.
-export const sendEmail = async (recipient: string, subject: string, html: string, text: string) => {
-  const mailjet = connect(process.env.MAILJET_PUBLIC_KEY as string, process.env.MAILJET_PRIVATE_KEY as string)
-
-  const message: Email.SendParamsMessage = {
-    From: { Email: CONTACT_EMAIL, Name: "Les Choux d'à Côté" },
+export const sendEmail = (recipient: string, subject: string, html: string, text: string) =>
+  send({
     To: [{ Email: recipient }],
     Subject: subject,
     HTMLPart: html,
     TextPart: text,
-  }
-
-  const { body } = await mailjet.post("send", { version: "v3.1" }).request({ Messages: [message] })
-
-  const infos = body.Messages[0]
-  return { to: infos.To[0].Email, status: infos.Status }
-}
+  })

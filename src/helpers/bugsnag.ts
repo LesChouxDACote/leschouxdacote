@@ -11,9 +11,11 @@ if (apiKey) {
     enabledReleaseStages: ["production", "preview"],
     appVersion: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || "local",
     metadata: {
-      deployUrl: process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "local",
-      deployDate: new Date().toString(),
-      deployAuthor: `${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_NAME} (${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_LOGIN})`,
+      deploy: {
+        url: process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "local",
+        date: new Date().toString(),
+        author: `${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_NAME} (${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_LOGIN})`,
+      },
     },
     plugins: [new BugsnagReact(React)],
   })

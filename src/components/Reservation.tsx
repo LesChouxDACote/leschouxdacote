@@ -1,5 +1,5 @@
 import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material"
-import { Either as E, ParseResult, pipe, Schema as Sc } from "effect"
+import { pipe, Result, Schema as Sc, SchemaIssue } from "effect"
 import React, { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { UNIT_LABELS } from "src/constants"
@@ -62,21 +62,23 @@ const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: Reser
 
   const handleValidate = () => {
     pipe(
-      Sc.decodeUnknownEither(
+      Sc.decodeUnknownResult(
         pipe(
           ReservationSchema,
-          Sc.filter((reservation) => {
-            if (!Number.isFinite(reservation.totalQuantity) || reservation.totalQuantity <= 0) {
-              return "La quantité totale doit être supérieur à 0."
-            }
-            if (
-              reservation.maxQuantityPerPerson != null &&
-              reservation.maxQuantityPerPerson > reservation.totalQuantity
-            ) {
-              return "La quantité max/personne dépasse la quantité totale."
-            }
-            return true
-          }),
+          Sc.check(
+            Sc.makeFilter((reservation) => {
+              if (!Number.isFinite(reservation.totalQuantity) || reservation.totalQuantity <= 0) {
+                return "La quantité totale doit être supérieur à 0."
+              }
+              if (
+                reservation.maxQuantityPerPerson != null &&
+                reservation.maxQuantityPerPerson > reservation.totalQuantity
+              ) {
+                return "La quantité max/personne dépasse la quantité totale."
+              }
+              return true
+            }),
+          ),
         ),
       )({
         totalQuantity: Number(totalQuantity),
@@ -84,21 +86,21 @@ const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: Reser
         instructions: instructions || null,
       }),
 
-      E.map((reservation) => {
+      Result.map((reservation) => {
         setError(null)
         setIsValidated(true)
         updateSlot(reservation)
       }),
 
-      E.mapLeft((error) => ParseResult.ArrayFormatter.formatErrorSync(error)),
-      E.mapLeft((error) => setError(error[0].message)),
+      Result.mapError((error) => SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues),
+      Result.mapError((issues) => setError(issues[0].message)),
     )
   }
 
   const statusText = isValidated ? "validé" : "brouillon"
 
   return (
-    <Stack spacing={1} alignItems="start" width="100%" mb={2}>
+    <Stack spacing={1} sx={{ alignItems: "start", width: "100%", mb: 2 }}>
       {!isOpen && (
         <Button variant="contained" color="primary" onClick={handleCreate}>
           Créer une réservation
@@ -119,12 +121,12 @@ const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: Reser
 
           <Typography variant="h6">Stock</Typography>
 
-          <Stack direction="row" spacing={2} alignItems="center" width="100%">
-            <Box flex={1} minWidth={0}>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <TextField
                 label="Quantité totale *"
                 type="number"
-                inputProps={{ min: 1, step: 1 }}
+                slotProps={{ htmlInput: { min: 1, step: 1 } }}
                 value={totalQuantity}
                 onChange={(event) => setTotalQuantity(event.target.value)}
                 fullWidth
@@ -140,12 +142,12 @@ const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: Reser
             {`Au bout de ${totalQuantity || 0} quantités réservées, la réservation ne sera plus possible.`}
           </Typography>
 
-          <Stack direction="row" spacing={2} alignItems="center" width="100%">
-            <Box flex={1} minWidth={0}>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <TextField
                 label="Quantité réservable maximale par personne"
                 type="number"
-                inputProps={{ min: 1, step: 1 }}
+                slotProps={{ htmlInput: { min: 1, step: 1 } }}
                 value={maxQuantityPerPerson}
                 onChange={(event) => setMaxQuantityPerPerson(event.target.value)}
                 fullWidth

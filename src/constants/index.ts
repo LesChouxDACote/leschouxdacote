@@ -46,7 +46,6 @@ export const COLORS = {
   },
 }
 
-// eslint-disable-next-line no-shadow
 export enum USER_ROLE {
   PRODUCER = "PRODUCER",
   BUYER = "BUYER",

@@ -1,11 +1,14 @@
-import * as admin from "firebase-admin"
+import { cert, getApps, initializeApp } from "firebase-admin"
+import { getAuth } from "firebase-admin/auth"
+import { FieldValue, GeoPoint, Timestamp, getFirestore, type DocumentSnapshot } from "firebase-admin/firestore"
+import { getStorage } from "firebase-admin/storage"
 import type { NextApiRequest } from "next"
 import type { Geoloc } from "src/types/model"
 
-const app = admin.apps.length
-  ? admin.app()
-  : admin.initializeApp({
-      credential: admin.credential.cert({
+const app = getApps().length
+  ? getApps()[0]
+  : initializeApp({
+      credential: cert({
         projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT,
         clientEmail: process.env.FIREBASE_EMAIL,
         privateKey: `-----BEGIN PRIVATE KEY-----\n${process.env.FIREBASE_PRIVATE_KEY}\n-----END PRIVATE KEY-----\n`,
@@ -13,24 +16,40 @@ const app = admin.apps.length
       storageBucket: `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT}.appspot.com`,
     })
 
-export const auth = app.auth()
-export const firestore = app.firestore()
-export const storage = app.storage()
-export const GeoPoint = admin.firestore.GeoPoint
-export const FieldValue = admin.firestore.FieldValue
-export const Timestamp = admin.firestore.Timestamp
+export const auth = getAuth(app)
+export const firestore = getFirestore(app)
+export const storage = getStorage(app)
+export { FieldValue, GeoPoint }
 
-// getObject ne convertit en millisecondes que les Timestamps de premier niveau du document :
-// pour les valeurs imbriquées (ex. dates des créneaux dans le tableau slots), passer par ce
-// helper. Une valeur inattendue (ni Timestamp ni nombre) renvoie null.
+// getObject normalise les Timestamps imbriqués (ex. dates des créneaux dans le tableau slots) en
+// { seconds } : ce helper les ramène en millisecondes. Une valeur inattendue renvoie null.
 export const toMillis = (value: unknown): number | null => {
   if (value instanceof Timestamp) {
     return value.toMillis()
   }
-  return typeof value === "number" ? value : null
+  if (typeof value === "number") {
+    return value
+  }
+  const seconds = (value as { seconds?: unknown } | null)?.seconds
+  return typeof seconds === "number" ? seconds * 1000 : null
 }
 
-export const getObject = <T extends DataObject = DataObject>(doc: admin.firestore.DocumentSnapshot) => {
+// Schema v4 ne lit que les clés propres : les Timestamp imbriqués (ex. slots[].date), dont `seconds`
+// est un getter du prototype, sont normalisés en objets simples { seconds }
+const normalizeNested = (value: unknown): unknown => {
+  if (value instanceof Timestamp) {
+    return { seconds: value.seconds }
+  }
+  if (Array.isArray(value)) {
+    return value.map(normalizeNested)
+  }
+  if (value && typeof value === "object" && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).map(([key, nested]) => [key, normalizeNested(nested)]))
+  }
+  return value
+}
+
+export const getObject = <T extends DataObject = DataObject>(doc: DocumentSnapshot) => {
   if (!doc.exists) {
     return null
   }
@@ -40,12 +59,12 @@ export const getObject = <T extends DataObject = DataObject>(doc: admin.firestor
   }
   for (const key in data) {
     const value = data[key]
-    if (value instanceof admin.firestore.GeoPoint) {
+    if (value instanceof GeoPoint) {
       obj[key] = { lat: value.latitude, lng: value.longitude } as Geoloc
-    } else if (value instanceof admin.firestore.Timestamp) {
+    } else if (value instanceof Timestamp) {
       obj[key] = value.toMillis()
     } else {
-      obj[key] = value
+      obj[key] = normalizeNested(value)
     }
   }
   return obj as T
