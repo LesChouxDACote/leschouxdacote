@@ -176,7 +176,7 @@ l'état des tickets (`ia-sessions.json`) et les worktrees.
 Variables d'environnement à renseigner dans Coolify :
 
 - `TRELLO_API_KEY`, `TRELLO_TOKEN`, `TRELLO_BOARD_ID` (+ `TRELLO_LIST_*`, `TRELLO_POLL_MINUTES` si besoin)
-- `GH_TOKEN` : token GitHub (fine-grained : Contents + Pull requests en read/write) — sert au push et aux PR
+- `GH_TOKEN` : token GitHub (fine-grained : Contents + Pull requests + Workflows en read/write ; sans Workflows, GitHub refuse les push qui touchent `.github/workflows`) — sert au push et aux PR
 - `COOLIFY_API_URL` (ex. `https://coolify.example.com`), `COOLIFY_API_TOKEN` (Coolify → Keys & Tokens →
   API tokens, permissions `read` **et `read:sensitive`** : sans `read:sensitive` l'API masque les logs des
   déploiements et le watcher doit rejouer le build en local ; la permission `deploy` est inutile, les

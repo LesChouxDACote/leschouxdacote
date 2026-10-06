@@ -88,8 +88,9 @@ ou Jérôme.
    - Repository access : « Only select repositories »
      → coche uniquement leschouxdacote
    - Permissions (section « Repository permissions ») :
-     mets « Contents » sur Read and write
-     et « Pull requests » sur Read and write. Rien d'autre.
+     mets « Contents », « Pull requests » et « Workflows » sur Read and
+     write. Rien d'autre. (« Workflows » : sans elle, GitHub refuse toute
+     modification sous .github/workflows, par exemple un ticket de tests e2e.)
 4. Clique sur « Generate token » et copie immédiatement le jeton affiché
    (il commence par github_pat_) : il ne sera plus jamais montré.
 
