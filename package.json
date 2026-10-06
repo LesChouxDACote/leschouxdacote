@@ -29,6 +29,10 @@
     "lint": "lint-staged",
     "build": "next build",
     "serve": "next start",
+    "test:e2e": "yarn build && yarn --cwd e2e install && yarn --cwd e2e run install-browsers && yarn --cwd e2e run test",
+    "test:e2e:headed": "yarn --cwd e2e run test:headed",
+    "test:e2e:debug": "yarn --cwd e2e run test:debug",
+    "test:e2e:report": "yarn --cwd e2e run test:report",
     "email-alerts": "ts-node --files -r dotenv/config src/scripts/alerts.ts",
     "email-expired": "ts-node --files -r dotenv/config src/scripts/expired.ts",
     "update-tags": "ts-node --files -r dotenv/config src/scripts/tags.ts"

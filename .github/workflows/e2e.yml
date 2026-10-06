@@ -1,0 +1,101 @@
+name: E2E tests
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - develop
+
+jobs:
+  dev:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x] # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    env:
+      # Environnement develop (cf. e2e/README.md pour les secrets à créer)
+      NEXT_PUBLIC_URL: https://develop.leschouxdacote.fr/
+      NEXT_PUBLIC_FIREBASE_PROJECT: ${{ secrets.FIREBASE_PROJECT_DEV }}
+      NEXT_PUBLIC_FIREBASE_KEY: ${{ secrets.FIREBASE_KEY_DEV }}
+      NEXT_PUBLIC_FIREBASE_ID: ${{ secrets.FIREBASE_ID_DEV }}
+      NEXT_PUBLIC_FIREBASE_MEASURE: ${{ secrets.FIREBASE_MEASURE_DEV }}
+      NEXT_PUBLIC_FIREBASE_MESSAGING: ${{ secrets.FIREBASE_MESSAGING_DEV }}
+      NEXT_PUBLIC_ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+      NEXT_PUBLIC_ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+      NEXT_PUBLIC_ALGOLIA_INDEX: ${{ secrets.ALGOLIA_INDEX_DEV }}
+      NEXT_PUBLIC_ALGOLIA_TAGS: ${{ secrets.ALGOLIA_TAGS }}
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN_DEV }}
+      NEXT_PUBLIC_BUGSNAG: ${{ secrets.BUGSNAG_KEY_DEV }}
+      FIREBASE_EMAIL: ${{ secrets.FIREBASE_EMAIL_DEV }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY_DEV }}
+      ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+      MAILJET_PUBLIC_KEY: ${{ secrets.MAILJET_PUBLIC_KEY }}
+      MAILJET_PRIVATE_KEY: ${{ secrets.MAILJET_PRIVATE_KEY }}
+      INSEE_TOKEN: ${{ secrets.INSEE_TOKEN }}
+      TEST_BUYER_EMAIL: ${{ secrets.TEST_BUYER_EMAIL }}
+      TEST_BUYER_PASSWORD: ${{ secrets.TEST_BUYER_PASSWORD }}
+      TEST_PRODUCER_EMAIL: ${{ secrets.TEST_PRODUCER_EMAIL }}
+      TEST_PRODUCER_PASSWORD: ${{ secrets.TEST_PRODUCER_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('e2e/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install E2E dependencies
+        run: yarn --cwd e2e install
+
+      - name: Install Playwright browsers
+        run: yarn --cwd e2e exec playwright install --with-deps chromium
+
+      - name: Build application
+        run: yarn build
+
+      - name: Run E2E tests
+        run: yarn --cwd e2e run test
+
+      - name: Upload test report
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: e2e/test-results/
+          retention-days: 7
