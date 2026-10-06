@@ -10,6 +10,7 @@ import ResultsMap from "src/components/ResultsMap"
 import { COLORS, SEARCH_RADIUS } from "src/constants"
 import { productsIndex } from "src/helpers/algolia"
 import { handleError } from "src/helpers/errors"
+import { distance, parseLatLng } from "src/helpers/geo"
 import { HoverProvider } from "src/helpers/hover"
 import Layout from "src/layout"
 import { ProductEncoded } from "src/models/Product"
@@ -52,6 +53,15 @@ const getOptions = (radius: number, latlng?: string, bio?: "1") => {
   return options
 }
 
+// La proximité avec la ville recherchée est prioritaire sur le ranking Algolia (typo, custom ranking, etc.)
+const sortByProximity = (hits: ProductEncoded[], latlng?: string) => {
+  if (!latlng) {
+    return hits
+  }
+  const origin = parseLatLng(latlng)
+  return [...hits].sort((a, b) => distance(origin, a._geoloc) - distance(origin, b._geoloc))
+}
+
 const SearchPage = () => {
   const { query, isReady } = useRouter()
   const [view, setView] = useState<"list" | "map" | "both">("list")
@@ -72,7 +82,7 @@ const SearchPage = () => {
     }
     productsIndex
       .search<ProductEncoded>(what || "", getOptions(radius, ll, bio))
-      .then(({ hits }) => setResults(hits))
+      .then(({ hits }) => setResults(sortByProximity(hits, ll)))
       .catch(handleError)
   }, [isReady, what, radius, ll, bio])
 
