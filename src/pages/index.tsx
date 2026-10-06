@@ -93,7 +93,9 @@ const HomePage = () => {
   return (
     <Layout bgImage>
       <Logo />
-      <Title>Vente directe : Le circuit plus court des produits alimentaires</Title>
+      <Title>
+        Pourquoi les carottes sont-elles bio ? Parce qu&apos;elles n&apos;ont jamais fait de mauvaises rencontres.
+      </Title>
       <a href="https://info.leschouxdacote.fr/" target="_blank" rel="noreferrer">
         <Introduction>
           <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
