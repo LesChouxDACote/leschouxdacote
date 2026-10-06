@@ -8,6 +8,12 @@
 # testing
 /coverage
 
+# e2e (tests Playwright, paquet isolé)
+/e2e/node_modules/
+/e2e/.yarn/
+/e2e/test-results/
+/e2e/playwright-report/
+
 # next.js
 /.next/
 /out/
@@ -28,6 +34,7 @@ yarn-error.log*
 # local env files - uncomment the following line to ignore the configuration files
 .env
 .env.*
+!e2e/.env.example
 
 # vercel
 .vercel

@@ -18,7 +18,7 @@
     "incremental": true
   },
   "include": ["next-env.d.ts", "src/types/*.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "e2e"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS",
