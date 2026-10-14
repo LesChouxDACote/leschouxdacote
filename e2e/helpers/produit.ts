@@ -23,6 +23,8 @@ function addDays(days: number): string {
 
 export const SLOT_1: TestSlot = { date: addDays(2), start: "10:00", end: "12:00" }
 export const SLOT_2: TestSlot = { date: addDays(3), start: "14:00", end: "16:00" }
+// Plus proche que SLOT_1 : ajouté après lui, il doit pourtant s'afficher en premier.
+export const SLOT_EARLY: TestSlot = { date: addDays(1), start: "08:00", end: "09:00" }
 
 export const TEST_ADDRESS = "1 Place du Capitole, 31000 Toulouse"
 
@@ -67,27 +69,39 @@ export async function fillProductForm(page: Page) {
   await page.locator('input[name="days"]').fill("10")
 }
 
-// Ligne d'ajout de créneau : c'est le dernier bloc « Valider » du DOM (le bouton d'envoi du
-// formulaire principal vient avant).
+// Libellé des heures d'une carte de créneau (« samedi 12 octobre, 10h–12h »).
+export function slotHours(slot: TestSlot) {
+  return `${slot.start.replace(":", "h")}–${slot.end.replace(":", "h")}`
+}
+
+// Carte d'un créneau : le Paper MUI qui contient son libellé d'heures.
+export function getSlotCard(page: Page, slot: TestSlot) {
+  return page
+    .locator("main .MuiPaper-root")
+    .filter({ has: page.getByText(slotHours(slot)) })
+    .filter({ has: page.getByRole("button", { name: "Supprimer le créneau" }) })
+}
+
+// Encadré « Nouveau créneau », ouvert par « Ajouter un créneau » : il se referme et se vide après l'ajout.
 export async function addSlot(page: Page, slot: TestSlot) {
+  await page.getByRole("button", { name: "Ajouter un créneau" }).click()
   await page.getByLabel("Date *").fill(slot.date)
   await page.getByLabel("Heure début *").fill(slot.start)
   await page.getByLabel("Heure fin *").fill(slot.end)
-  await page.getByRole("button", { name: "Valider" }).last().click()
-  // Le créneau ajouté apparaît dans la liste (« de 10:00 » dans un Typography séparé).
-  await expect(page.getByText(`de ${slot.start}`, { exact: true }).first()).toBeVisible()
+  await page.getByRole("button", { name: "Ajouter", exact: true }).click()
+  await expect(getSlotCard(page, slot)).toBeVisible()
+  await expect(page.getByLabel("Date *")).toHaveCount(0)
 }
 
-// Bloc « réservation » sous un créneau : quantités + instructions, validation locale.
-export async function addSlotReservation(page: Page, reservation: TestReservation) {
-  await page.getByRole("button", { name: "Créer une réservation" }).first().click()
-  const block = page.getByText("Statut de la réservation", { exact: false }).first().locator("xpath=ancestor::div[1]")
-  // MUI double un textarea multiligne d'une copie cachée (aria-hidden) qui calcule sa hauteur
-  await block.locator("textarea:not([aria-hidden])").fill(reservation.instructions)
-  await block.getByLabel("Quantité totale *").fill(reservation.totalQuantity)
-  await block.getByLabel("Quantité réservable maximale par personne").fill(reservation.maxQuantityPerPerson)
-  await block.getByRole("button", { name: "Valider" }).click()
-  await expect(page.getByText("Statut de la réservation : validé").first()).toBeVisible()
+// Réglages de réservation du créneau tout juste ajouté (sa carte s'ouvre d'elle-même) : pris en
+// compte dès la saisie, sans validation séparée.
+export async function addSlotReservation(page: Page, slot: TestSlot, reservation: TestReservation) {
+  const card = getSlotCard(page, slot)
+  await card.getByRole("button", { name: "Ouvrir la réservation" }).click()
+  await card.getByLabel("Stock disponible *").fill(reservation.totalQuantity)
+  await card.getByLabel("Quantité maximale par personne").fill(reservation.maxQuantityPerPerson)
+  await card.getByLabel("Informations et consignes pour les clients").fill(reservation.instructions)
+  await expect(card.getByText(`Réservation ouverte · 0 / ${reservation.totalQuantity} réservés`)).toBeVisible()
 }
 
 // Envoi du formulaire d'annonce : le SubmitButton principal est le premier « Valider » du DOM.

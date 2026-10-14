@@ -9,11 +9,14 @@ import {
   deleteTestProduct,
   fillProductForm,
   findTestProductId,
+  getSlotCard,
   getTestProductCard,
   gotoMyProducts,
   openProductForm,
   SLOT_1,
   SLOT_2,
+  SLOT_EARLY,
+  slotHours,
   submitProductForm,
 } from "../helpers/produit"
 
@@ -46,7 +49,7 @@ test.describe.serial("Publication d'annonce", () => {
     await openProductForm(page)
     await fillProductForm(page)
     await addSlot(page, SLOT_1)
-    await addSlotReservation(page, {
+    await addSlotReservation(page, SLOT_1, {
       totalQuantity: "10",
       maxQuantityPerPerson: "2",
       instructions: "Merci de venir avec un sac de récupération.",
@@ -89,12 +92,57 @@ test.describe.serial("Publication d'annonce", () => {
     await login(page, "producer")
     await page.goto(`/compte/producteur/annonce/${productId}`)
     await addSlot(page, SLOT_2)
-    // Suppression du créneau ajouté : dernière icône de suppression de la liste.
-    await page.locator("main button.MuiIconButton-root").last().click()
-    await page.getByText(/Supprimer le créneau/).waitFor()
-    await page.getByRole("button", { name: "Oui" }).click()
-    await expect(page.getByText(`de ${SLOT_2.start}`, { exact: true })).toHaveCount(0)
+    await getSlotCard(page, SLOT_2).getByRole("button", { name: "Supprimer le créneau" }).click()
+    await page.getByText(/Supprimer le créneau du/).waitFor()
+    // Créneau sans client : pas d'avertissement
+    await expect(page.getByText(/déjà réservé ce créneau/)).toHaveCount(0)
+    await page.getByRole("button", { name: "Supprimer", exact: true }).click()
+    await expect(getSlotCard(page, SLOT_2)).toHaveCount(0)
     // On enregistre pour ne pas déclencher la garde de sortie au test suivant.
+    await submitProductForm(page)
+    expectAlertOnce(messages, "Votre annonce a bien été modifiée")
+  })
+
+  test("les créneaux se rangent par date et un créneau incohérent est refusé", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non créée")
+    await login(page, "producer")
+    await page.goto(`/compte/producteur/annonce/${productId}`)
+    await addSlot(page, SLOT_EARLY)
+    // Ajouté après SLOT_1, SLOT_EARLY (plus proche) s'affiche avant lui
+    const cards = page
+      .locator("main .MuiPaper-root")
+      .filter({ has: page.getByRole("button", { name: "Supprimer le créneau" }) })
+    await expect(cards.first()).toContainText(slotHours(SLOT_EARLY))
+    await expect(cards.nth(1)).toContainText(slotHours(SLOT_1))
+    // Doublon et heure de fin avant l'heure de début : l'erreur s'affiche dans l'encadré, qui reste ouvert
+    await page.getByRole("button", { name: "Ajouter un créneau" }).click()
+    await page.getByLabel("Date *").fill(SLOT_1.date)
+    await page.getByLabel("Heure début *").fill(SLOT_1.start)
+    await page.getByLabel("Heure fin *").fill(SLOT_1.end)
+    await page.getByRole("button", { name: "Ajouter", exact: true }).click()
+    await expect(page.getByText("Ce créneau existe déjà.")).toBeVisible()
+    await page.getByLabel("Heure fin *").fill("09:00")
+    await page.getByRole("button", { name: "Ajouter", exact: true }).click()
+    await expect(page.getByText("L'heure de début doit être avant l'heure de fin.")).toBeVisible()
+    await expect(page.getByLabel("Date *")).toBeVisible()
+  })
+
+  test("un stock à 0 est signalé dans la carte et bloque l'enregistrement", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non créée")
+    const messages = acceptDialogs(page)
+    await login(page, "producer")
+    await page.goto(`/compte/producteur/annonce/${productId}`)
+    const card = getSlotCard(page, SLOT_1)
+    await card.getByRole("button", { name: "Modifier le créneau" }).click()
+    await card.getByLabel("Stock disponible *").fill("0")
+    await expect(card.getByText("Indiquez un stock supérieur à 0.")).toBeVisible()
+    await expect(card.getByText("Réglages à corriger")).toBeVisible()
+    await submitProductForm(page)
+    await expect(page.getByText(/Un créneau contient une réservation incomplète/)).toBeVisible()
+    expect(messages).toHaveLength(0)
+    // Stock corrigé : l'annonce s'enregistre et garde le stock d'origine
+    await card.getByLabel("Stock disponible *").fill("10")
+    await expect(card.getByText("Réservation ouverte · 0 / 10 réservés")).toBeVisible()
     await submitProductForm(page)
     expectAlertOnce(messages, "Votre annonce a bien été modifiée")
   })

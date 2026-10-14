@@ -18,7 +18,7 @@ Le build de l'application reste inchangé : Playwright lance `yarn serve` (build
 1. `consultation` — parcours anonymes
 2. `authentification` — connexion/inscription/déconnexion/mot de passe oublié
 3. `publication` — le producteur crée « [Test E2E] Panier de légumes de saison » (avec créneau + réservation), la modifie, la désactive/réactive
-4. `reservations` — l'acheteur réserve, modifie, annule ; le producteur consulte ; l'annonce de test est supprimée en fin de parcours
+4. `reservations` — l'acheteur réserve, modifie, annule ; le producteur consulte (dans la carte du créneau) ; l'annonce de test est supprimée en fin de parcours
 5. `compte` — profil et alertes
 
 Les suites `publication` et `reservations` sont `describe.serial` et partagent l'état via l'application elle-même : `publication` crée l'annonce, `reservations` la retrouve via « Mes annonces », la consomme et la supprime. Un test de nettoyage en tête de `publication` supprime une éventuelle annonce résiduelle d'une exécution précédente interrompue.

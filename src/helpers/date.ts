@@ -37,3 +37,13 @@ export const getSlotEnd = (date: Date, heureFin: string) => {
 // Identifiant stable d'un créneau au sein d'une annonce (clé des totaux de réservation).
 export const getSlotKey = (date: Date, heureDebut: string, heureFin: string) =>
   `${date.getTime()}_${heureDebut}_${heureFin}`
+
+export const formatHours = (heure: string) => heure.replace(":", "h")
+
+// « samedi 12 octobre, 10h–12h »
+export const formatSlotDate = (date: Date, heureDebut: string, heureFin: string) =>
+  `${formatDate(date, "EEEE d MMMM")}, ${formatHours(heureDebut)}–${formatHours(heureFin)}`
+
+// Créneaux du plus proche au plus lointain (date, puis heure de début).
+export const sortSlots = <T extends { date: Date; heureDebut: string }>(slots: readonly T[]): T[] =>
+  [...slots].sort((a, b) => a.date.getTime() - b.date.getTime() || a.heureDebut.localeCompare(b.heureDebut))

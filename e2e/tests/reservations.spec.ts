@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { ACCOUNTS, hasAccounts, TEST_PRODUCT_TITLE } from "../helpers/config"
 import { login, openUserMenu } from "../helpers/auth"
-import { deleteTestProduct, findTestProductId, gotoMyProducts } from "../helpers/produit"
+import { deleteTestProduct, findTestProductId, getSlotCard, gotoMyProducts, SLOT_1 } from "../helpers/produit"
 
 // Parcours de réservation : garde d'accès, réservation acheteur, erreurs de validation,
 // modification/annulation côté acheteur, vue producteur. Sérialisé : dépend de l'annonce
@@ -80,9 +80,26 @@ test.describe.serial("Réservations", () => {
     test.skip(!productId, "Annonce de test non trouvée")
     await login(page, "producer")
     await page.goto(`/compte/producteur/annonce/${productId}`)
-    await expect(page.getByRole("heading", { name: "Mes réservations" })).toBeVisible({ timeout: 20000 })
-    await expect(page.getByText("Total réservé : 1 / 10")).toBeVisible()
-    await expect(page.getByText("Prénom Nom")).toBeVisible()
+    // Les réservations s'affichent dans la carte du créneau, repliées
+    const card = getSlotCard(page, SLOT_1)
+    await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
+    await card.getByRole("button", { name: "Voir la réservation" }).click()
+    await expect(card.getByText("Total réservé : 1 / 10")).toBeVisible()
+    await expect(card.getByText("Prénom Nom")).toBeVisible()
+    await card.getByRole("button", { name: "Masquer" }).click()
+    await expect(card.getByText("Prénom Nom")).toHaveCount(0)
+  })
+
+  test("supprimer un créneau réservé prévient le producteur", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non trouvée")
+    await login(page, "producer")
+    await page.goto(`/compte/producteur/annonce/${productId}`)
+    const card = getSlotCard(page, SLOT_1)
+    await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
+    await card.getByRole("button", { name: "Supprimer le créneau" }).click()
+    await expect(page.getByText("1 client a déjà réservé ce créneau.")).toBeVisible()
+    await page.getByRole("button", { name: "Annuler" }).click()
+    await expect(card).toBeVisible()
   })
 
   test("l'acheteur annule sa réservation", async ({ page }) => {
