@@ -98,7 +98,7 @@ test.describe.serial("Réservations", () => {
     await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
     await card.getByRole("button", { name: "Supprimer le créneau" }).click()
     await expect(page.getByText("1 client a déjà réservé ce créneau.")).toBeVisible()
-    await page.getByRole("button", { name: "Annuler" }).click()
+    await page.getByRole("button", { name: "Annuler", exact: true }).click()
     await expect(card).toBeVisible()
   })
 

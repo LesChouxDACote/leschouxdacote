@@ -153,6 +153,9 @@ test.describe.serial("Publication d'annonce", () => {
     await page.goto(`/compte/producteur/annonce/${productId}`)
     await page.locator('input[name="price"]').fill("27")
     await expect(page.getByText("Modifications non enregistrées")).toBeVisible()
+    // Le bouton d'envoi reste à l'écran sans faire défiler la page, même en haut de celle-ci
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await expect(page.getByRole("button", { name: "Valider" }).first()).toBeInViewport()
     // Navigation par le logo du header : la modale de garde doit s'afficher.
     await page.locator("header a[href='/']").first().click()
     await expect(page.getByRole("heading", { name: "Modifications non enregistrées" })).toBeVisible()

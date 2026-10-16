@@ -51,6 +51,22 @@ const UnsavedBadge = styled.p`
   color: ${COLORS.red};
   font-weight: bold;
   text-align: center;
+  margin: 4px 0;
+`
+
+// Bouton d'envoi toujours visible en bas de l'écran, quelle que soit la partie de l'annonce modifiée
+const SubmitBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  max-width: ${LAYOUT.maxWidth}px;
+  padding: 8px 0;
+  background-color: ${COLORS.white};
+  border-top: 1px solid ${COLORS.border};
+  box-shadow: 0 -3px 6px ${COLORS.shadow.light};
+  button {
+    margin: 4px auto;
+  }
 `
 const SlotDate = Sc.DateFromString.pipe(Sc.annotate({ message: "Veuillez entrer une date." }))
 
@@ -304,18 +320,20 @@ const EditProductPage = () => {
               suffix="jour(s)"
             />
             <ProductEndDate />
-            {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
-            {slotsError && slotsInvalid && (
-              <UnsavedBadge>
-                Un créneau contient une réservation incomplète : corrigez-la avant d&apos;enregistrer.
-              </UnsavedBadge>
-            )}
-            <SubmitButton />
           </LeftColumn>
           <RightColumn>
             <SlotsForm productId={productId} setSlots={setSlots} slots={slots} onInvalidChange={setSlotsInvalid} />
           </RightColumn>
         </TwoColumnLayout>
+        <SubmitBar>
+          {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
+          {slotsError && slotsInvalid && (
+            <UnsavedBadge>
+              Un créneau contient une réservation incomplète : corrigez-la avant d&apos;enregistrer.
+            </UnsavedBadge>
+          )}
+          <SubmitButton />
+        </SubmitBar>
       </Form>
       {guard.pending && <UnsavedChangesModal onStay={guard.stay} onLeave={guard.leave} />}
     </Layout>

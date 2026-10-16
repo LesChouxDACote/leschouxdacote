@@ -152,7 +152,7 @@ const ReservationBlock = ({ slot, slotKey, updateReservation, onInvalidChange }:
       )}
 
       <Button variant="outlined" color="error" onClick={handleClose}>
-        Fermer la réservation
+        Annuler la réservation
       </Button>
     </Stack>
   )
