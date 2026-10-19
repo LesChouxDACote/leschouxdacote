@@ -83,7 +83,7 @@ test.describe.serial("Réservations", () => {
     // Les réservations s'affichent dans la carte du créneau, repliées
     const card = getSlotCard(page, SLOT_1)
     await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
-    await card.getByRole("button", { name: "Voir la réservation" }).click()
+    await card.getByRole("button", { name: "Voir les réservations" }).click()
     await expect(card.getByText("Total réservé : 1 / 10")).toBeVisible()
     await expect(card.getByText("Prénom Nom")).toBeVisible()
     await card.getByRole("button", { name: "Masquer" }).click()

@@ -97,7 +97,7 @@ export async function addSlot(page: Page, slot: TestSlot) {
 // compte dès la saisie, sans validation séparée.
 export async function addSlotReservation(page: Page, slot: TestSlot, reservation: TestReservation) {
   const card = getSlotCard(page, slot)
-  await card.getByRole("button", { name: "Ouvrir la réservation" }).click()
+  await card.getByRole("button", { name: "Configurer la réservation" }).click()
   await card.getByLabel("Stock disponible *").fill(reservation.totalQuantity)
   await card.getByLabel("Quantité maximale par personne").fill(reservation.maxQuantityPerPerson)
   await card.getByLabel("Informations et consignes pour les clients").fill(reservation.instructions)

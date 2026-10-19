@@ -52,7 +52,7 @@ const SlotBookings = ({ bookings, totalQuantity }: SlotBookingsProps) => {
   }
 
   const total = bookings.reduce((sum, booking) => sum + booking.quantity, 0)
-  const label = bookings.length > 1 ? `Voir les ${bookings.length} réservations` : "Voir la réservation"
+  const label = bookings.length > 1 ? `Voir les ${bookings.length} réservations` : "Voir les réservations"
 
   return (
     <div>

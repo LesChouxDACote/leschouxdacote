@@ -88,7 +88,7 @@ const ReservationBlock = ({ slot, slotKey, updateReservation, onInvalidChange }:
   if (!isOpen) {
     return (
       <Button variant="outlined" color="primary" onClick={handleOpen}>
-        Ouvrir la réservation
+        Configurer la réservation
       </Button>
     )
   }

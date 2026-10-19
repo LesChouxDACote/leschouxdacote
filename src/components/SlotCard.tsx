@@ -4,7 +4,7 @@ import { Chip, Collapse, IconButton, Paper, Stack, Typography } from "@mui/mater
 import { useState } from "react"
 import ReservationBlock from "src/components/Reservation"
 import SlotBookings from "src/components/SlotBookings"
-import { formatSlotDate } from "src/helpers/date"
+import { formatSlotDate, getSlotEnd } from "src/helpers/date"
 import { Reservation, Slot } from "src/pages/compte/producteur/annonce"
 import type { Booking } from "src/types/model"
 
@@ -33,8 +33,12 @@ const SlotCard = ({
 }: SlotCardProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const booked = bookings.reduce((sum, booking) => sum + booking.quantity, 0)
+  // Créneau passé : bilan neutre, la réservation n'est plus ouverte
+  const isPast = getSlotEnd(slot.date, slot.heureFin) < Date.now()
   const status = slot.reservation
-    ? `Réservation ouverte · ${booked} / ${slot.reservation.totalQuantity} réservés`
+    ? isPast
+      ? `Réservation ${booked} / ${slot.reservation.totalQuantity} réservés`
+      : `Réservation ouverte · ${booked} / ${slot.reservation.totalQuantity} réservés`
     : "Sans réservation"
 
   return (
@@ -51,8 +55,8 @@ const SlotCard = ({
           <Chip
             size="small"
             label={invalid ? "Réglages à corriger" : status}
-            color={invalid ? "error" : slot.reservation ? "success" : "default"}
-            variant={slot.reservation || invalid ? "filled" : "outlined"}
+            color={invalid ? "error" : slot.reservation && !isPast ? "success" : "default"}
+            variant={(slot.reservation && !isPast) || invalid ? "filled" : "outlined"}
           />
           <IconButton
             aria-label={isOpen ? "Replier les réglages" : "Modifier le créneau"}
