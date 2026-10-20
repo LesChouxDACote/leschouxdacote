@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
-import { Button, Stack, TextField, Typography } from "@mui/material"
+import { Button, Divider, Stack, TextField, Typography } from "@mui/material"
 import { useState } from "react"
 import { ValidationError } from "src/components/Form"
 import { Text } from "src/components/Text"
-import { COLORS, SIZES } from "src/constants"
+import { SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { formatDate } from "src/helpers/date"
 import type { Booking } from "src/types/model"
@@ -16,7 +16,7 @@ interface SlotBookingsProps {
   onBookingUpdated?: (booking: Booking) => void
 }
 
-interface BookingRowProps {
+interface BookingItemProps {
   booking: Booking
   rowIndex: number
   productId?: string
@@ -24,41 +24,14 @@ interface BookingRowProps {
   onBookingUpdated?: (booking: Booking) => void
 }
 
-const TableWrapper = styled.div`
-  overflow-x: auto;
-  margin-top: 10px;
-`
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-
-  th,
-  td {
-    border: 1px solid ${COLORS.border};
-    padding: 8px 12px;
-    text-align: left;
-    font-weight: normal;
-  }
-
-  th {
-    font-weight: bold;
-  }
-
-  td:first-of-type {
-    width: 30px;
-    text-align: center;
-  }
-`
-
 const Total = styled(Text)`
   display: block;
   margin-top: 10px;
 `
 
-// Ligne d'un client : sur un créneau à venir, le producteur peut modifier la quantité réservée,
-// enregistrée aussitôt (indépendamment de l'annonce).
-const BookingRow = ({ booking, rowIndex, productId, editable, onBookingUpdated }: BookingRowProps) => {
+// Fiche d'un client (tient dans la largeur de la carte, sans tableau) : sur un créneau à venir, le
+// producteur peut modifier la quantité réservée, enregistrée aussitôt (indépendamment de l'annonce).
+const BookingItem = ({ booking, rowIndex, productId, editable, onBookingUpdated }: BookingItemProps) => {
   const [value, setValue] = useState(String(booking.quantity))
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -88,60 +61,62 @@ const BookingRow = ({ booking, rowIndex, productId, editable, onBookingUpdated }
   }
 
   return (
-    <>
-      <tr>
-        <td>{rowIndex + 1}</td>
-        <td>{`${booking.firstname} ${booking.lastname}`}</td>
-        <td>{formatDate(booking.created, "dd/MM/yyyy")}</td>
-        <td>{booking.phone}</td>
-        <td>{booking.email}</td>
-        <td>
-          {editable ? (
-            <Stack spacing={1} sx={{ alignItems: "start" }}>
-              <TextField
-                size="small"
-                type="number"
-                value={value}
-                onChange={(event) => {
-                  setValue(event.target.value)
-                  setError(null)
-                  setUpdated(false)
-                }}
-                error={error != null}
-                slotProps={{ htmlInput: { min: 1, step: 1, "aria-label": "Quantité réservée" } }}
-                sx={{ width: "6rem" }}
-              />
-              {error && (
-                <Typography color="error" variant="body2">
-                  {error}
-                </Typography>
-              )}
-              {changed && (
-                <Stack direction="row" spacing={1}>
-                  <Button size="small" variant="contained" disabled={saving} onClick={handleSave}>
-                    {saving ? "Chargement…" : "Enregistrer"}
-                  </Button>
-                  <Button size="small" variant="outlined" disabled={saving} onClick={handleCancel}>
-                    Annuler
-                  </Button>
-                </Stack>
-              )}
-            </Stack>
-          ) : (
-            booking.quantity
+    <Stack spacing={0.5}>
+      <Stack
+        direction="row"
+        spacing={1}
+        useFlexGap
+        sx={{ justifyContent: "space-between", alignItems: "start", flexWrap: "wrap" }}
+      >
+        <Typography variant="body1" sx={{ fontWeight: "bold", overflowWrap: "anywhere" }}>
+          {`${rowIndex + 1}. ${booking.firstname} ${booking.lastname}`}
+        </Typography>
+        {editable ? (
+          <TextField
+            size="small"
+            type="number"
+            value={value}
+            onChange={(event) => {
+              setValue(event.target.value)
+              setError(null)
+              setUpdated(false)
+            }}
+            error={error != null}
+            slotProps={{ htmlInput: { min: 1, step: 1, "aria-label": "Quantité réservée" } }}
+            sx={{ width: "6rem" }}
+          />
+        ) : (
+          <Typography variant="body1">{`Quantité : ${booking.quantity}`}</Typography>
+        )}
+      </Stack>
+      <Typography variant="body2" color="textSecondary" sx={{ overflowWrap: "anywhere" }}>
+        {[booking.phone, booking.email, `réservé le ${formatDate(booking.created, "dd/MM/yyyy")}`].join(" · ")}
+      </Typography>
+      {(error || changed || (updated && !changed)) && (
+        <Stack spacing={1} sx={{ alignSelf: { xs: "stretch", sm: "end" }, alignItems: { xs: "start", sm: "end" } }}>
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
           )}
-        </td>
-      </tr>
-      {updated && !changed && (
-        <tr>
-          <td colSpan={6}>
+          {changed && (
+            <Stack direction="row" spacing={1}>
+              <Button size="small" variant="contained" disabled={saving} onClick={handleSave}>
+                {saving ? "Chargement…" : "Enregistrer"}
+              </Button>
+              <Button size="small" variant="outlined" disabled={saving} onClick={handleCancel}>
+                Annuler
+              </Button>
+            </Stack>
+          )}
+          {updated && !changed && (
             <Typography variant="body2" color="warning.main">
               Pensez à prévenir cet acheteur que vous avez modifié sa réservation.
             </Typography>
-          </td>
-        </tr>
+          )}
+        </Stack>
       )}
-    </>
+    </Stack>
   )
 }
 
@@ -169,32 +144,18 @@ const SlotBookings = ({
       </Button>
       {isOpen && (
         <>
-          <TableWrapper>
-            <Table>
-              <thead>
-                <tr>
-                  <th aria-label="Numéro" />
-                  <th>Prénom Nom</th>
-                  <th>Date de réservation</th>
-                  <th>Téléphone</th>
-                  <th>Email</th>
-                  <th>Quantité</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking, rowIndex) => (
-                  <BookingRow
-                    key={booking.objectID}
-                    booking={booking}
-                    rowIndex={rowIndex}
-                    productId={productId}
-                    editable={editable}
-                    onBookingUpdated={onBookingUpdated}
-                  />
-                ))}
-              </tbody>
-            </Table>
-          </TableWrapper>
+          <Stack spacing={1.5} divider={<Divider flexItem />} sx={{ mt: 1 }}>
+            {bookings.map((booking, rowIndex) => (
+              <BookingItem
+                key={booking.objectID}
+                booking={booking}
+                rowIndex={rowIndex}
+                productId={productId}
+                editable={editable}
+                onBookingUpdated={onBookingUpdated}
+              />
+            ))}
+          </Stack>
           <Total $size={SIZES.card}>
             {totalQuantity != null ? `Total réservé : ${total} / ${totalQuantity}` : `Total réservé : ${total}`}
           </Total>

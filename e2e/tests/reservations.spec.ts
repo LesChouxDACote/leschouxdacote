@@ -85,9 +85,10 @@ test.describe.serial("Réservations", () => {
     await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
     await card.getByRole("button", { name: "Voir les réservations" }).click()
     await expect(card.getByText("Total réservé : 1 / 10")).toBeVisible()
-    await expect(card.getByText("Prénom Nom")).toBeVisible()
+    // Fiche du client : son téléphone (saisi à la réservation) sous son nom
+    await expect(card.getByText(/0612345678/)).toBeVisible()
     await card.getByRole("button", { name: "Masquer" }).click()
-    await expect(card.getByText("Prénom Nom")).toHaveCount(0)
+    await expect(card.getByText(/0612345678/)).toHaveCount(0)
   })
 
   test("le producteur modifie la quantité réservée par un client", async ({ page }) => {
@@ -102,6 +103,8 @@ test.describe.serial("Réservations", () => {
     // Saisie annulée : l'ancienne valeur revient, rien n'est enregistré
     await quantity.fill("2")
     await expect(card.getByRole("button", { name: "Enregistrer", exact: true })).toBeVisible()
+    // Boutons juste sous la quantité, à l'écran sans faire défiler
+    await expect(card.getByRole("button", { name: "Enregistrer", exact: true })).toBeInViewport()
     await card.getByRole("button", { name: "Annuler", exact: true }).click()
     await expect(quantity).toHaveValue("1")
     await expect(card.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0)
