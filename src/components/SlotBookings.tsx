@@ -3,7 +3,7 @@ import { Button, Divider, Stack, TextField, Typography } from "@mui/material"
 import { useState } from "react"
 import { ValidationError } from "src/components/Form"
 import { Text } from "src/components/Text"
-import { SIZES } from "src/constants"
+import { COLORS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { formatDate } from "src/helpers/date"
 import type { Booking } from "src/types/model"
@@ -24,9 +24,15 @@ interface BookingItemProps {
   onBookingUpdated?: (booking: Booking) => void
 }
 
+// Bilan du créneau, distinct des fiches clients : trait plein plus marqué, fond gris, en gras à droite
 const Total = styled(Text)`
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-top: 2px solid ${COLORS.divider};
+  background-color: ${COLORS.odd};
+  font-weight: bold;
+  text-align: right;
 `
 
 // Fiche d'un client (tient dans la largeur de la carte, sans tableau) : sur un créneau à venir, le
