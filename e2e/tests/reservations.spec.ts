@@ -90,12 +90,43 @@ test.describe.serial("Réservations", () => {
     await expect(card.getByText("Prénom Nom")).toHaveCount(0)
   })
 
-  test("supprimer un créneau réservé prévient le producteur", async ({ page }) => {
+  test("le producteur modifie la quantité réservée par un client", async ({ page }) => {
     test.skip(!productId, "Annonce de test non trouvée")
     await login(page, "producer")
     await page.goto(`/compte/producteur/annonce/${productId}`)
     const card = getSlotCard(page, SLOT_1)
     await expect(card.getByText("Réservation ouverte · 1 / 10 réservés")).toBeVisible({ timeout: 20000 })
+    await card.getByRole("button", { name: "Voir les réservations" }).click()
+    const quantity = card.getByLabel("Quantité réservée")
+    await expect(quantity).toHaveValue("1")
+    // Saisie annulée : l'ancienne valeur revient, rien n'est enregistré
+    await quantity.fill("2")
+    await expect(card.getByRole("button", { name: "Enregistrer", exact: true })).toBeVisible()
+    await card.getByRole("button", { name: "Annuler", exact: true }).click()
+    await expect(quantity).toHaveValue("1")
+    await expect(card.getByRole("button", { name: "Enregistrer", exact: true })).toHaveCount(0)
+    // Au-delà de la limite par personne (2) : refusée
+    await quantity.fill("3")
+    await card.getByRole("button", { name: "Enregistrer", exact: true }).click()
+    await expect(card.getByText(/La quantité ne peut pas dépasser 2/)).toBeVisible()
+    // Enregistrée aussitôt, sans enregistrer l'annonce
+    await quantity.fill("2")
+    await card.getByRole("button", { name: "Enregistrer", exact: true }).click()
+    await expect(card.getByText("Pensez à prévenir cet acheteur que vous avez modifié sa réservation.")).toBeVisible()
+    await expect(card.getByText("Réservation ouverte · 2 / 10 réservés")).toBeVisible()
+    await expect(page.getByText("Modifications non enregistrées")).toHaveCount(0)
+    await page.reload()
+    await expect(getSlotCard(page, SLOT_1).getByText("Réservation ouverte · 2 / 10 réservés")).toBeVisible({
+      timeout: 20000,
+    })
+  })
+
+  test("supprimer un créneau réservé prévient le producteur", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non trouvée")
+    await login(page, "producer")
+    await page.goto(`/compte/producteur/annonce/${productId}`)
+    const card = getSlotCard(page, SLOT_1)
+    await expect(card.getByText("Réservation ouverte · 2 / 10 réservés")).toBeVisible({ timeout: 20000 })
     await card.getByRole("button", { name: "Supprimer le créneau" }).click()
     await expect(page.getByText("1 client a déjà réservé ce créneau.")).toBeVisible()
     await page.getByRole("button", { name: "Annuler", exact: true }).click()

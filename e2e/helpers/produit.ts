@@ -104,9 +104,9 @@ export async function addSlotReservation(page: Page, slot: TestSlot, reservation
   await expect(card.getByText(`Réservation ouverte · 0 / ${reservation.totalQuantity} réservés`)).toBeVisible()
 }
 
-// Envoi du formulaire d'annonce : le SubmitButton principal est le premier « Valider » du DOM.
+// Envoi du formulaire d'annonce : bouton « Enregistrer l'annonce » de la barre fixée en bas de l'écran.
 export function submitProductForm(page: Page) {
-  return page.getByRole("button", { name: "Valider" }).first().click()
+  return page.getByRole("button", { name: "Enregistrer l'annonce" }).click()
 }
 
 // Carte de l'annonce de test sur « Mes annonces » : le h4 (titre) remonte de 3 div jusqu'au

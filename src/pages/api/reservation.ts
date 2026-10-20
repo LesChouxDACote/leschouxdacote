@@ -16,6 +16,13 @@ interface ReservationPayload {
   email: string
 }
 
+// Modification par le producteur de la quantité d'une réservation d'acheteur (PATCH).
+interface OwnerUpdatePayload {
+  productId: string
+  bookingId: string
+  quantity: number
+}
+
 interface ReservationErrors {
   slot?: string
   quantity?: string
@@ -257,6 +264,107 @@ const handler = async (
       } catch (error) {
         console.error("reservation: échec de l'e-mail au producteur", error)
       }
+    }
+
+    return respond(res)
+  }
+
+  // Quantité d'une réservation modifiée par le producteur propriétaire de l'annonce, dans les mêmes
+  // limites que l'acheteur (quota par personne, restant du créneau). Pas d'e-mail : le producteur
+  // prévient lui-même l'acheteur.
+  if (req.method === "PATCH") {
+    const token = await getToken(req)
+    if (!token) {
+      return badRequest(res, 403)
+    }
+
+    const payload = req.body as OwnerUpdatePayload
+    const product = payload.productId ? await getProduct(payload.productId) : null
+    if (!product) {
+      return badRequest(res, 404)
+    }
+    if (token.uid !== product.uid) {
+      return badRequest(res, 403)
+    }
+
+    if (typeof payload.bookingId !== "string" || !payload.bookingId) {
+      return badRequest(res)
+    }
+    const bookingRef = firestore.collection("bookings").doc(payload.bookingId)
+    const bookingDoc = await bookingRef.get()
+    const booking = bookingDoc.exists ? (getObject(bookingDoc) as Booking) : null
+    if (!booking || booking.productId !== payload.productId) {
+      return badRequest(res, 404)
+    }
+
+    const slot = (product.slots ?? []).find(
+      (item) =>
+        item.date === booking.slotDate && item.heureDebut === booking.heureDebut && item.heureFin === booking.heureFin,
+    )
+    const now = Date.now()
+    const quantity = Number(payload.quantity)
+    const unitLabel = getUnitLabel(product.unit)
+
+    const errors: ReservationErrors = {}
+    if (!slot) {
+      errors.slot = "Ce créneau n'est plus disponible"
+    } else if (slot.reservation == null) {
+      errors.slot = "La réservation n'est plus active sur ce créneau"
+    } else if (getSlotEnd(new Date(slot.date), slot.heureFin) < now) {
+      errors.slot = "Ce créneau est passé"
+    }
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      errors.quantity = "La quantité doit être un nombre entier supérieur à 0"
+    } else if (slot?.reservation?.maxQuantityPerPerson != null && quantity > slot.reservation.maxQuantityPerPerson) {
+      errors.quantity = `La quantité ne peut pas dépasser ${slot.reservation.maxQuantityPerPerson} ${unitLabel}`.trim()
+    }
+    if (Object.keys(errors).length > 0) {
+      return respond<ReservationErrors>(res, errors)
+    }
+    if (!slot || slot.reservation == null) {
+      // Déjà couvert par les erreurs ci-dessus : garde-fou (nécessaire au narrowing).
+      return badRequest(res)
+    }
+
+    const totalQuantity = slot.reservation.totalQuantity
+    let remaining = 0
+    let found = true
+
+    await firestore.runTransaction(async (transaction) => {
+      const currentDoc = await transaction.get(bookingRef)
+      if (!currentDoc.exists) {
+        // Annulée par l'acheteur entre-temps
+        found = false
+        return
+      }
+
+      const { docs } = await transaction.get(
+        firestore.collection("bookings").where("productId", "==", payload.productId),
+      )
+      const booked = docs
+        .filter((doc) => doc.id !== bookingRef.id)
+        .map((doc) => getObject(doc) as Booking)
+        .filter(
+          (item) =>
+            item.slotDate === booking.slotDate &&
+            item.heureDebut === booking.heureDebut &&
+            item.heureFin === booking.heureFin,
+        )
+        .reduce((sum, item) => sum + item.quantity, 0)
+
+      remaining = totalQuantity - booked
+      if (quantity > remaining) {
+        return
+      }
+      transaction.update(bookingRef, { quantity, updated: now })
+    })
+
+    if (!found) {
+      return badRequest(res, 404)
+    }
+    if (quantity > remaining) {
+      errors.quantity = [`Il ne reste que ${remaining}`, unitLabel, "pour ce créneau"].filter(Boolean).join(" ")
+      return respond<ReservationErrors>(res, errors)
     }
 
     return respond(res)

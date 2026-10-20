@@ -332,7 +332,7 @@ const EditProductPage = () => {
               Un créneau contient une réservation incomplète : corrigez-la avant d&apos;enregistrer.
             </UnsavedBadge>
           )}
-          <SubmitButton />
+          <SubmitButton>Enregistrer l&apos;annonce</SubmitButton>
         </SubmitBar>
       </Form>
       {guard.pending && <UnsavedChangesModal onStay={guard.stay} onLeave={guard.leave} />}

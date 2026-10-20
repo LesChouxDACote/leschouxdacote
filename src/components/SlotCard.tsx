@@ -17,6 +17,8 @@ interface SlotCardProps {
   onDelete: (slot: Slot) => void
   updateReservation: (slotKey: string, reservation: Reservation | null) => void
   onInvalidChange: (slotKey: string, invalid: boolean) => void
+  productId?: string
+  onBookingUpdated: (booking: Booking) => void
 }
 
 // Carte d'un créneau : date et état de la réservation en en-tête, réglages repliables (restés montés
@@ -30,6 +32,8 @@ const SlotCard = ({
   onDelete,
   updateReservation,
   onInvalidChange,
+  productId,
+  onBookingUpdated,
 }: SlotCardProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const booked = bookings.reduce((sum, booking) => sum + booking.quantity, 0)
@@ -80,7 +84,13 @@ const SlotCard = ({
           />
         </Stack>
       </Collapse>
-      <SlotBookings bookings={bookings} totalQuantity={slot.reservation?.totalQuantity ?? null} />
+      <SlotBookings
+        bookings={bookings}
+        totalQuantity={slot.reservation?.totalQuantity ?? null}
+        productId={productId}
+        editable={!isPast && productId != null}
+        onBookingUpdated={onBookingUpdated}
+      />
     </Paper>
   )
 }

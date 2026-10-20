@@ -103,6 +103,11 @@ const SlotsForm = ({ productId, setSlots, slots, onInvalidChange }: SlotsFormPro
     return map
   }, [bookings])
 
+  // Quantité modifiée par le producteur (déjà enregistrée) : le total de la carte suit
+  const handleBookingUpdated = useCallback((updated: Booking) => {
+    setBookings((current) => current.map((booking) => (booking.objectID === updated.objectID ? updated : booking)))
+  }, [])
+
   const sortedSlots = sortSlots(slots)
   const now = Date.now()
   const upcomingSlots = sortedSlots.filter((slot) => getSlotEnd(slot.date, slot.heureFin) >= now)
@@ -194,6 +199,8 @@ const SlotsForm = ({ productId, setSlots, slots, onInvalidChange }: SlotsFormPro
         onDelete={setSlotToDelete}
         updateReservation={updateReservation}
         onInvalidChange={handleInvalid}
+        productId={productId}
+        onBookingUpdated={handleBookingUpdated}
       />
     )
   }
