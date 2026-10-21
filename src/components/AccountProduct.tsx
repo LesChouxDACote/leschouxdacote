@@ -103,8 +103,8 @@ const Infos = styled.div`
 const Days = styled.div`
   grid-area: days;
   margin: 8px 0 0;
-  color: ${COLORS.grey};
-  font-size: ${SIZES.small}px;
+  color: ${COLORS.dark};
+  font-size: ${SIZES.regular}px;
   @media (max-width: ${LAYOUT.mobile}px) {
     margin: 12px 0 0;
   }
@@ -396,7 +396,11 @@ const AccountProduct = ({ product, odd }: Props) => {
           ) : (
             <>
               <Status $active={false}>Annonce désactivée</Status>
-              <End>La publication est désactivée</End>
+              <End>
+                {product.disabled
+                  ? `La publication a été désactivée le ${formatDateTime(product.disabled)}`
+                  : "La publication est désactivée"}
+              </End>
             </>
           )}
           <BottomActions>

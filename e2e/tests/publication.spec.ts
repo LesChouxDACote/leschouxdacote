@@ -175,6 +175,7 @@ test.describe.serial("Publication d'annonce", () => {
     await page.getByText("Désactiver l’annonce ?", { exact: true }).waitFor()
     await page.getByRole("button", { name: "Valider" }).first().click()
     await expect(card.getByText("Annonce désactivée")).toBeVisible({ timeout: 20000 })
+    await expect(card.getByText(/^La publication a été désactivée le \d+ \S+ \d{4} à \d{2}:\d{2}$/)).toBeVisible()
     await card.getByRole("button", { name: "Publier l’annonce" }).click()
     await page.getByText(/jour\(s\) supplémentaires/).waitFor()
     await page.locator('input[name="days"]').fill("1")
