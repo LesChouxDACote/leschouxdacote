@@ -1,0 +1,153 @@
+[    1833ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:26009/compte/producteur/annonce:0
+[    2029ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26009/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[    2113ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    2142ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    2150ms] ReferenceError: Cannot access 'SlotSchema' before initialization
+    at Module.SlotSchema (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0phk_jy._.js:4130:9)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0phk_jy._.js:2017:314)
+    at Context.asyncModule [as a] (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:668:5)
+    at module evaluation (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0phk_jy._.js:1957:30)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0phk_jy._.js:4146:146)
+    at Context.asyncModule [as a] (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:668:5)
+    at module evaluation (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0phk_jy._.js:4123:30)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at getOrInstantiateModuleFromParent (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1631:23)
+    at Context.esmImport [as i] (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:352:20)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/node_modules_next_dist_13at_is._.js:650:176)
+    at Context.asyncModule [as a] (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:668:5)
+    at module evaluation (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/node_modules_next_dist_13at_is._.js:614:30)
+    at <unknown> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1330:27)
+    at runWithHooks (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1592:9)
+    at instantiateModuleShared (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1328:9)
+    at instantiateModule (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1595:23)
+    at instantiateRuntimeModule (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1602:12)
+    at getOrInstantiateRuntimeModule (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1615:12)
+    at Object.m (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/chunks/ssr/[turbopack]_runtime.js:1637:18)
+    at Object.<anonymous> (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/.next/dev/server/pages/compte/producteur/annonce.js:15:3)
+    at Module._compile (node:internal/modules/cjs/loader:1956:14)
+    at Object..js (node:internal/modules/cjs/loader:2096:10)
+    at Module.load (node:internal/modules/cjs/loader:1678:32)
+    at Module._load (node:internal/modules/cjs/loader:1470:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1701:12)
+    at mod.require (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/require-hook.js:79:28)
+    at require (node:internal/modules/helpers:318:16)
+    at requirePage (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/require.js:105:80)
+    at loadComponentsImpl (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/load-components.js:163:61)
+    at async DevServer.findPageComponentsImpl (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/next-server.js:847:36)
+    at async DevServer.findPageComponents (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/dev/next-dev-server.js:739:16)
+    at async DevServer.renderPageComponent (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/base-server.js:1575:24)
+    at async DevServer.renderToResponseImpl (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/base-server.js:1639:32)
+    at async DevServer.pipeImpl (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/base-server.js:1088:25)
+    at async NextNodeServer.handleCatchallRenderRequest (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/next-server.js:338:17)
+    at async DevServer.handleRequestImpl (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/base-server.js:979:17)
+    at async (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/dev/next-dev-server.js:426:20)
+    at async Span.traceAsyncFn (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/trace/trace.js:164:20)
+    at async DevServer.handleRequest (file:///workspaces/leschouxdacote/branches/creation-des-cren/repo/node_modules/next/dist/server/dev/next-dev-server.js:422:24)
+[    2145ms] [LOG] [HMR] connected @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    2175ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebase.googleapis.com/v1alpha/projects/-/apps/1:493947474406:web:b52c12a8eb58b94b710627/webConfig:0
+[    2175ms] [WARNING] [2026-10-14T15:00:07.309Z]  @firebase/analytics: Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID G-ETQ9TZL9RW provided in the "measurementId" field in the local Firebase config. [Failed to fetch] @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    2259ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebaseinstallations.googleapis.com/v1/projects/les-choux-da-cote/installations:0
+[    2267ms] [ERROR] TypeError: Failed to fetch
+    at wrappedFetch (http://127.0.0.1:26009/_next/static/chunks/node_modules_%40bugsnag_browser_dist_bugsnag_1jzrct8.js:3111:43)
+    at http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5711:51
+    at retryIfServerError (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5658:26)
+    at createInstallationRequest (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5711:28)
+    at async registerInstallation (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:6075:45) @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[    2268ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://www.googletagmanager.com/gtag/js?l=dataLayer&id=G-ETQ9TZL9RW:0
+[   16874ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   16973ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   16988ms] [LOG] [Fast Refresh] done in 116ms @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17016ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[   17129ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26009/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[   17160ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17166ms] [LOG] [HMR] connected @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17170ms] [WARNING] [HMR] Invalid message: {"type":"isrManifest","data":{"/compte/producteur/annonce":true,"/_error":true,"/":true}}
+TypeError: Cannot read properties of undefined (reading 'components')
+    at handleStaticIndicator (http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:665:46)
+    at processMessage (http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:679:17)
+    at http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:553:13
+    at WebSocket.handleMessage (http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:991:17) @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17230ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebase.googleapis.com/v1alpha/projects/-/apps/1:493947474406:web:b52c12a8eb58b94b710627/webConfig:0
+[   17230ms] [WARNING] [2026-10-14T15:00:22.364Z]  @firebase/analytics: Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID G-ETQ9TZL9RW provided in the "measurementId" field in the local Firebase config. [Failed to fetch] @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17230ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebaseinstallations.googleapis.com/v1/projects/les-choux-da-cote/installations:0
+[   17233ms] [ERROR] TypeError: Failed to fetch
+    at wrappedFetch (http://127.0.0.1:26009/_next/static/chunks/node_modules_%40bugsnag_browser_dist_bugsnag_1jzrct8.js:3111:43)
+    at http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5711:51
+    at retryIfServerError (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5658:26)
+    at createInstallationRequest (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:5711:28)
+    at async registerInstallation (http://127.0.0.1:26009/_next/static/chunks/node_modules_033td-_._.js:6075:45) @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   17235ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://www.googletagmanager.com/gtag/js?l=dataLayer&id=G-ETQ9TZL9RW:0
+[   17289ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   17295ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17324ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[   17362ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17362ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17363ms] Event
+[   17963ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   17990ms] [LOG] [Fast Refresh] done in 28ms @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   29947ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   29976ms] [LOG] [Fast Refresh] done in 6ms @ http://127.0.0.1:26009/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756

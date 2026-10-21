@@ -1,6 +1,6 @@
-import { Box, Button, Divider, Stack, TextField, Typography } from "@mui/material"
+import { Box, Button, Stack, TextField, Typography } from "@mui/material"
 import { pipe, Result, Schema as Sc, SchemaIssue } from "effect"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { UNIT_LABELS } from "src/constants"
 import { Reservation, ReservationSchema, Slot } from "src/pages/compte/producteur/annonce"
@@ -8,13 +8,42 @@ import type { Unit } from "src/types/model"
 
 interface ReservationBlockProps {
   slot: Slot
-  index: number
-  slots: readonly Slot[]
-  setSlots: React.Dispatch<React.SetStateAction<readonly Slot[]>>
-  onDirtyChange?: (index: number, dirty: boolean) => void
+  slotKey: string
+  updateReservation: (slotKey: string, reservation: Reservation | null) => void
+  onInvalidChange?: (slotKey: string, invalid: boolean) => void
 }
 
-const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: ReservationBlockProps) => {
+const decodeReservation = (totalQuantity: string, maxQuantityPerPerson: string, instructions: string) =>
+  pipe(
+    Sc.decodeUnknownResult(
+      pipe(
+        ReservationSchema,
+        Sc.check(
+          Sc.makeFilter((reservation) => {
+            if (!Number.isFinite(reservation.totalQuantity) || reservation.totalQuantity <= 0) {
+              return "Indiquez un stock supérieur à 0."
+            }
+            if (
+              reservation.maxQuantityPerPerson != null &&
+              reservation.maxQuantityPerPerson > reservation.totalQuantity
+            ) {
+              return "La quantité maximale par personne dépasse le stock."
+            }
+            return true
+          }),
+        ),
+      ),
+    )({
+      totalQuantity: Number(totalQuantity),
+      maxQuantityPerPerson: maxQuantityPerPerson === "" ? null : Number(maxQuantityPerPerson),
+      instructions: instructions || null,
+    }),
+    Result.mapError((error) => SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues[0].message),
+  )
+
+// Réglages de réservation d'un créneau : chaque saisie valide est écrite tout de suite dans le
+// créneau (enregistré avec l'annonce) ; une saisie invalide reste dans le bloc et est signalée.
+const ReservationBlock = ({ slot, slotKey, updateReservation, onInvalidChange }: ReservationBlockProps) => {
   const { watch } = useFormContext()
   const unit = watch("unit") as Unit | null | undefined
 
@@ -24,168 +53,107 @@ const ReservationBlock = ({ slot, index, slots, setSlots, onDirtyChange }: Reser
     slot.reservation?.maxQuantityPerPerson != null ? String(slot.reservation.maxQuantityPerPerson) : "",
   )
   const [instructions, setInstructions] = useState(slot.reservation?.instructions ?? "")
-  const [error, setError] = useState<string | null>(null)
-  const [isValidated, setIsValidated] = useState(Boolean(slot.reservation))
 
-  const updateSlot = (reservation: Reservation | null) => {
-    setSlots(slots.map((s, i) => (i === index ? { ...s, reservation } : s)))
-  }
-
-  // Le brouillon n'est écrit dans le créneau qu'au clic sur « Valider » : il compte comme une modification
-  // non enregistrée tant qu'il diffère de la réservation déjà validée (ou tant qu'il est invalide).
-  const draftTotalQuantity = totalQuantity === "" ? null : Number(totalQuantity)
-  const draftMaxQuantityPerPerson = maxQuantityPerPerson === "" ? null : Number(maxQuantityPerPerson)
-  const draftDirty =
-    draftTotalQuantity !== (slot.reservation?.totalQuantity ?? null) ||
-    draftMaxQuantityPerPerson !== (slot.reservation?.maxQuantityPerPerson ?? null) ||
-    (instructions || null) !== (slot.reservation?.instructions ?? null)
+  const result = decodeReservation(totalQuantity, maxQuantityPerPerson, instructions)
+  const error = isOpen && Result.isFailure(result) ? result.failure : null
 
   useEffect(() => {
-    onDirtyChange?.(index, draftDirty)
-    // À l'unmount ou au changement d'index (suppression d'un créneau), on retire le marquage de ce bloc
-    return () => onDirtyChange?.(index, false)
-  }, [draftDirty, index, onDirtyChange])
+    onInvalidChange?.(slotKey, error != null)
+    // À l'unmount (suppression du créneau), on retire le marquage de ce bloc
+    return () => onInvalidChange?.(slotKey, false)
+  }, [error, slotKey, onInvalidChange])
 
-  const handleCreate = () => {
+  const handleChange = (total: string, max: string, text: string) => {
+    setTotalQuantity(total)
+    setMaxQuantityPerPerson(max)
+    setInstructions(text)
+    const next = decodeReservation(total, max, text)
+    if (Result.isSuccess(next)) {
+      updateReservation(slotKey, next.success)
+    }
+  }
+
+  const handleOpen = () => {
     setIsOpen(true)
   }
 
-  const handleDelete = () => {
+  const handleClose = () => {
     setIsOpen(false)
     setTotalQuantity("")
     setMaxQuantityPerPerson("")
     setInstructions("")
-    setError(null)
-    setIsValidated(false)
-    updateSlot(null)
+    updateReservation(slotKey, null)
   }
 
-  const handleValidate = () => {
-    pipe(
-      Sc.decodeUnknownResult(
-        pipe(
-          ReservationSchema,
-          Sc.check(
-            Sc.makeFilter((reservation) => {
-              if (!Number.isFinite(reservation.totalQuantity) || reservation.totalQuantity <= 0) {
-                return "La quantité totale doit être supérieur à 0."
-              }
-              if (
-                reservation.maxQuantityPerPerson != null &&
-                reservation.maxQuantityPerPerson > reservation.totalQuantity
-              ) {
-                return "La quantité max/personne dépasse la quantité totale."
-              }
-              return true
-            }),
-          ),
-        ),
-      )({
-        totalQuantity: Number(totalQuantity),
-        maxQuantityPerPerson: maxQuantityPerPerson === "" ? null : Number(maxQuantityPerPerson),
-        instructions: instructions || null,
-      }),
-
-      Result.map((reservation) => {
-        setError(null)
-        setIsValidated(true)
-        updateSlot(reservation)
-      }),
-
-      Result.mapError((error) => SchemaIssue.makeFormatterStandardSchemaV1()(error.issue).issues),
-      Result.mapError((issues) => setError(issues[0].message)),
+  if (!isOpen) {
+    return (
+      <Button variant="outlined" color="primary" onClick={handleOpen}>
+        Configurer la réservation
+      </Button>
     )
   }
 
-  const statusText = isValidated ? "validé" : "brouillon"
-
   return (
-    <Stack spacing={1} sx={{ alignItems: "start", width: "100%", mb: 2 }}>
-      {!isOpen && (
-        <Button variant="contained" color="primary" onClick={handleCreate}>
-          Créer une réservation
-        </Button>
-      )}
-
-      {isOpen && (
-        <>
-          <Typography variant="body2">Statut de la réservation : {statusText}</Typography>
-
-          <Typography variant="h6">Informations et instructions</Typography>
+    <Stack spacing={1.5} sx={{ alignItems: "start", width: "100%" }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <TextField
-            multiline
+            label="Stock disponible *"
+            type="number"
+            slotProps={{ htmlInput: { min: 1, step: 1 } }}
+            value={totalQuantity}
+            onChange={(event) => handleChange(event.target.value, maxQuantityPerPerson, instructions)}
+            error={error != null}
             fullWidth
-            value={instructions}
-            onChange={(event) => setInstructions(event.target.value)}
           />
+        </Box>
+        {unit && <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>}
+      </Stack>
+      <Typography variant="body2" color="textSecondary">
+        Quand ce stock est atteint, plus personne ne peut réserver ce créneau.
+      </Typography>
 
-          <Typography variant="h6">Stock</Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <TextField
+            label="Quantité maximale par personne"
+            type="number"
+            slotProps={{ htmlInput: { min: 1, step: 1 } }}
+            value={maxQuantityPerPerson}
+            onChange={(event) => handleChange(totalQuantity, event.target.value, instructions)}
+            fullWidth
+          />
+        </Box>
+        {unit && <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>}
+      </Stack>
+      <Typography variant="body2" color="textSecondary">
+        Laissez vide pour ne pas fixer de limite.
+      </Typography>
 
-          <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <TextField
-                label="Quantité totale *"
-                type="number"
-                slotProps={{ htmlInput: { min: 1, step: 1 } }}
-                value={totalQuantity}
-                onChange={(event) => setTotalQuantity(event.target.value)}
-                fullWidth
-              />
-            </Box>
-            {unit && (
-              <Box>
-                <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>
-              </Box>
-            )}
-          </Stack>
-          <Typography variant="body2" color="textSecondary">
-            {`Au bout de ${totalQuantity || 0} quantités réservées, la réservation ne sera plus possible.`}
-          </Typography>
+      <TextField
+        label="Informations et consignes pour les clients"
+        multiline
+        minRows={2}
+        fullWidth
+        value={instructions}
+        onChange={(event) => handleChange(totalQuantity, maxQuantityPerPerson, event.target.value)}
+      />
 
-          <Stack direction="row" spacing={2} sx={{ alignItems: "center", width: "100%" }}>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <TextField
-                label="Quantité réservable maximale par personne"
-                type="number"
-                slotProps={{ htmlInput: { min: 1, step: 1 } }}
-                value={maxQuantityPerPerson}
-                onChange={(event) => setMaxQuantityPerPerson(event.target.value)}
-                fullWidth
-              />
-            </Box>
-            {unit && (
-              <Box>
-                <Typography variant="body1">{UNIT_LABELS[unit]}</Typography>
-              </Box>
-            )}
-          </Stack>
-          <Typography variant="body2" color="textSecondary">
-            Si ce champ n&apos;est pas rempli, il n&apos;y a pas de limite maximale.
-          </Typography>
-
-          {!unit && (
-            <Typography variant="body2" color="error">
-              Veuillez renseigner l&apos;unité du produit ci-dessus pour activer cette réservation.
-            </Typography>
-          )}
-
-          {error && (
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          )}
-
-          <Stack direction="row" spacing={2}>
-            <Button variant="contained" color="primary" onClick={handleValidate}>
-              Valider
-            </Button>
-            <Button variant="outlined" color="error" onClick={handleDelete}>
-              Supprimer cette réservation
-            </Button>
-          </Stack>
-          <Divider sx={{ my: 2, borderColor: "#666666" }} />
-        </>
+      {!unit && (
+        <Typography variant="body2" color="error">
+          Veuillez renseigner l&apos;unité du produit pour activer cette réservation.
+        </Typography>
       )}
+
+      {error && (
+        <Typography color="error" variant="body2">
+          {error}
+        </Typography>
+      )}
+
+      <Button variant="outlined" color="error" onClick={handleClose}>
+        Annuler la réservation
+      </Button>
     </Stack>
   )
 }

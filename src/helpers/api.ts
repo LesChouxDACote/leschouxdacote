@@ -64,5 +64,6 @@ export default {
   get: <T = unknown>(path: string, params?: Query) => request<T>("GET", path, params),
   post: <T = unknown>(path: string, params: Payload) => request<ApiResponse<T>>("POST", path, params),
   put: <T = unknown>(path: string, params: Payload) => request<ApiResponse<T>>("PUT", path, params),
+  patch: <T = unknown>(path: string, params: Payload) => request<ApiResponse<T>>("PATCH", path, params),
   delete: <T = unknown>(path: string, params?: Payload) => request<ApiResponse<T>>("DELETE", path, params),
 }

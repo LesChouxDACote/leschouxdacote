@@ -5,7 +5,6 @@ import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
-import MyReservations from "src/components/MyReservations"
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
@@ -13,6 +12,7 @@ import UnsavedChangesModal from "src/components/UnsavedChangesModal"
 import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
+import { sortSlots } from "src/helpers/date"
 import { useObjectQuery } from "src/helpers/firebase"
 import { getCity, getDpt, loadGmaps } from "src/helpers/google"
 import { formatPricePerUnit } from "src/helpers/text"
@@ -51,6 +51,22 @@ const UnsavedBadge = styled.p`
   color: ${COLORS.red};
   font-weight: bold;
   text-align: center;
+  margin: 4px 0;
+`
+
+// Bouton d'envoi toujours visible en bas de l'écran, quelle que soit la partie de l'annonce modifiée
+const SubmitBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  max-width: ${LAYOUT.maxWidth}px;
+  padding: 8px 0;
+  background-color: ${COLORS.white};
+  border-top: 1px solid ${COLORS.border};
+  box-shadow: 0 -3px 6px ${COLORS.shadow.light};
+  button {
+    margin: 4px auto;
+  }
 `
 const SlotDate = Sc.DateFromString.pipe(Sc.annotate({ message: "Veuillez entrer une date." }))
 
@@ -108,7 +124,8 @@ const EditProductPage = () => {
   const { authUser, user } = useUser<Producer>()
   const [slots, setSlots] = useState<readonly Slot[]>([])
   const [formDirty, setFormDirty] = useState(false)
-  const [reservationsDirty, setReservationsDirty] = useState(false)
+  const [slotsInvalid, setSlotsInvalid] = useState(false)
+  const [slotsError, setSlotsError] = useState(false)
   const initialSlotsRef = useRef(serializeSlots([]))
   const { query, push } = useRouter()
 
@@ -122,16 +139,16 @@ const EditProductPage = () => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
 
-      const loadedSlots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
+      const loadedSlots = sortSlots(data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : [])
       initialSlotsRef.current = serializeSlots(loadedSlots)
       setSlots(loadedSlots)
     }
   }, [place, data])
 
-  // Indicateur unifié « modifié » : champs du formulaire, créneaux/réservations, adresse, brouillons de réservation
+  // Indicateur unifié « modifié » : champs du formulaire, créneaux/réservations, adresse, réglages de réservation invalides
   const slotsDirty = serializeSlots(slots) !== initialSlotsRef.current
   const placeDirty = place !== undefined && (place === null || place.id !== data?.placeId)
-  const dirty = formDirty || slotsDirty || placeDirty || reservationsDirty
+  const dirty = formDirty || slotsDirty || placeDirty || slotsInvalid
 
   const guard = useUnsavedChanges({ isDirty: dirty })
 
@@ -145,6 +162,12 @@ const EditProductPage = () => {
   }
 
   const handleSubmit: Submit<ProductPayload> = async (values, target) => {
+    // Réglages de réservation invalides : ils ne sont pas écrits dans le créneau, on n'envoie rien
+    setSlotsError(slotsInvalid)
+    if (slotsInvalid) {
+      return
+    }
+
     const payload = new FormData(target)
     if (!payload.get("email") && !payload.get("phone")) {
       throw new ValidationError("email", "Vous devez au moins spécifier une adresse e-mail ou un numéro de téléphone")
@@ -297,14 +320,20 @@ const EditProductPage = () => {
               suffix="jour(s)"
             />
             <ProductEndDate />
-            {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
-            <SubmitButton />
           </LeftColumn>
           <RightColumn>
-            <SlotsForm setSlots={setSlots} slots={slots} onDraftDirtyChange={setReservationsDirty} />
-            {productId && <MyReservations productId={productId} />}
+            <SlotsForm productId={productId} setSlots={setSlots} slots={slots} onInvalidChange={setSlotsInvalid} />
           </RightColumn>
         </TwoColumnLayout>
+        <SubmitBar>
+          {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
+          {slotsError && slotsInvalid && (
+            <UnsavedBadge>
+              Un créneau contient une réservation incomplète : corrigez-la avant d&apos;enregistrer.
+            </UnsavedBadge>
+          )}
+          <SubmitButton>Enregistrer l&apos;annonce</SubmitButton>
+        </SubmitBar>
       </Form>
       {guard.pending && <UnsavedChangesModal onStay={guard.stay} onLeave={guard.leave} />}
     </Layout>
