@@ -74,6 +74,20 @@ test.describe("Authentification", () => {
     await expect(page.getByText("Veuillez cliquer sur le lien de réinitialisation")).toBeVisible()
   })
 
+  test("le mot de passe oublié signale une adresse inconnue", async ({ page }) => {
+    await page.goto("/mot-de-passe-oublie")
+    await page.locator('input[name="email"]').fill("inconnu@test-e2e.leschouxdacote.fr")
+    await page.getByRole("button", { name: "Valider" }).click()
+    await expect(page.getByText("Adresse e-mail inconnue")).toBeVisible()
+  })
+
+  test("un lien de réinitialisation invalide propose d'en demander un nouveau", async ({ page }) => {
+    await page.goto("/nouveau-mot-de-passe?oobCode=invalide")
+    await expect(page.getByText("Ce lien de réinitialisation n’est plus valable")).toBeVisible()
+    await page.getByRole("link", { name: "Demander un nouveau lien" }).click()
+    await expect(page).toHaveURL(/\/mot-de-passe-oublie/)
+  })
+
   test("l'utilisateur se déconnecte", async ({ page }) => {
     await login(page, "buyer")
     await openUserMenu(page)
