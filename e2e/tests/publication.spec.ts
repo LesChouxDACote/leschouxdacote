@@ -16,6 +16,7 @@ import {
   SLOT_1,
   SLOT_2,
   SLOT_EARLY,
+  SLOT_LATE,
   slotHours,
   submitProductForm,
 } from "../helpers/produit"
@@ -60,7 +61,7 @@ test.describe.serial("Publication d'annonce", () => {
     const card = getTestProductCard(page)
     await card.waitFor()
     await expect(card.getByText("Annonce en ligne")).toBeVisible()
-    await expect(card.getByText(`de ${SLOT_1.start} à ${SLOT_1.end}`).first()).toBeVisible()
+    await expect(card.getByText(slotHours(SLOT_1), { exact: false })).toBeVisible()
     productId = await findTestProductId(page)
   })
 
@@ -176,9 +177,11 @@ test.describe.serial("Publication d'annonce", () => {
     await expect(card.getByText("Annonce désactivée")).toBeVisible({ timeout: 20000 })
     await card.getByRole("button", { name: "Publier l’annonce" }).click()
     await page.getByText(/jour\(s\) supplémentaires/).waitFor()
-    await page.locator('input[name="days"]').fill("10")
+    await page.locator('input[name="days"]').fill("1")
     await page.getByRole("button", { name: "Valider" }).first().click()
     await expect(card.getByText("Annonce en ligne")).toBeVisible({ timeout: 20000 })
+    // Publiée pour 1 jour : « demain », et non « dans 1 jours »
+    await expect(card.getByText(/La publication se termine le .* \(demain\)/)).toBeVisible()
   })
 
   test("ajout de jours de publication", async ({ page }) => {
@@ -191,6 +194,44 @@ test.describe.serial("Publication d'annonce", () => {
     await page.getByText(/jour\(s\) supplémentaires/).waitFor()
     await page.locator('input[name="days"]').fill("5")
     await page.getByRole("button", { name: "Valider" }).first().click()
-    await expect(card.getByText(/La publication se termine le/)).toBeVisible({ timeout: 20000 })
+    await expect(card.getByText(/La publication se termine le .* \(dans 6 jours\)/)).toBeVisible({ timeout: 20000 })
+  })
+
+  test("« Mes annonces » : 3 prochains créneaux, carte cliquable et bouton Modifier", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non créée")
+    const messages = acceptDialogs(page)
+    await login(page, "producer")
+    await page.goto(`/compte/producteur/annonce/${productId}`)
+    // Ajoutés dans le désordre : la carte les range par date
+    await addSlot(page, SLOT_LATE)
+    await addSlot(page, SLOT_EARLY)
+    await addSlot(page, SLOT_2)
+    await submitProductForm(page)
+    expectAlertOnce(messages, "Votre annonce a bien été modifiée")
+    await gotoMyProducts(page)
+    const card = getTestProductCard(page)
+    await card.waitFor()
+    await expect(card.getByText(/^Annonce créée le \d+ \S+ \d{4}/)).toBeVisible()
+    const slots = card.getByRole("listitem")
+    await expect(slots).toHaveCount(3)
+    await expect(slots.nth(0)).toContainText(slotHours(SLOT_EARLY))
+    await expect(slots.nth(1)).toContainText(slotHours(SLOT_1))
+    await expect(slots.nth(2)).toContainText(slotHours(SLOT_2))
+    // Créneau réservable : son nombre de réservations
+    await expect(slots.nth(1)).toContainText("0 réservation")
+    // Le 4e créneau n'apparaît qu'avec « Voir tous les créneaux », sans quitter la page
+    await card.getByRole("button", { name: "Voir tous les créneaux (4)" }).click()
+    await expect(slots).toHaveCount(4)
+    await expect(slots.nth(3)).toContainText(slotHours(SLOT_LATE))
+    await expect(page).toHaveURL(/\/compte\/producteur\/annonces/)
+    await card.getByRole("button", { name: "Voir moins" }).click()
+    await expect(slots).toHaveCount(3)
+    // « Modifier » ouvre la gestion de l'annonce, un clic ailleurs sur la carte sa fiche publique
+    await card.getByRole("link", { name: "Modifier" }).click()
+    await expect(page).toHaveURL(new RegExp(`/compte/producteur/annonce/${productId}$`))
+    await gotoMyProducts(page)
+    // Coin de la carte, hors titre et hors boutons
+    await getTestProductCard(page).click({ position: { x: 8, y: 8 } })
+    await expect(page).toHaveURL(new RegExp(`/annonce/${productId}$`))
   })
 })

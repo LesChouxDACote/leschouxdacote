@@ -1,42 +1,76 @@
+import { css } from "@emotion/react"
 import styled from "@emotion/styled"
 import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
 import { IconButton } from "@mui/material"
 import { Schema as Sc } from "effect"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import PointerIcon from "src/assets/pointer.svg"
 import { Button } from "src/components/Button"
 import { BasicInput, Form, SubmitButton } from "src/components/Form"
-import Link from "src/components/Link"
+import Link, { ButtonLink } from "src/components/Link"
 import Modal from "src/components/Modal"
 import ProductEndDate from "src/components/ProductEndDate"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
 import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
 import api from "src/helpers/api"
-import { daysFromNow, formatDate, formatDateTime } from "src/helpers/date"
-import { formatAmount, formatQuantity } from "src/helpers/text"
+import { useUser } from "src/helpers/auth"
+import {
+  daysFromNow,
+  formatDate,
+  formatDateTime,
+  formatSlotDate,
+  getSlotEnd,
+  getSlotKey,
+  sortSlots,
+} from "src/helpers/date"
+import { formatAmount, formatQuantity, s } from "src/helpers/text"
+import type { ReservationsResponse } from "src/models/Booking"
 import { ProductEncoded } from "src/models/Product"
 import { SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
+import type { Booking } from "src/types/model"
+
+// Nombre de créneaux à venir affichés avant « Voir tous les créneaux »
+const VISIBLE_SLOTS = 3
 
 const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
   margin: 20px 0;
   background-color: ${({ $odd }) => ($odd ? COLORS.odd : COLORS.white)};
   padding: 20px;
+  border-radius: 8px;
+  transition: box-shadow 150ms;
+  &:hover {
+    box-shadow: 0 3px 8px ${COLORS.shadow.light};
+  }
   @media (max-width: ${LAYOUT.mobile}px) {
     margin: 0 -24px;
+    border-radius: 0;
   }
 `
+// Au-dessus du lien qui couvre toute la carte (cf. Infos h4 a::after) : ces éléments gardent leur propre action
+const aboveLink = css`
+  position: relative;
+  z-index: 1;
+`
 const Ad = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-areas: "image infos" "days infos";
+  grid-template-rows: auto 1fr;
+  column-gap: 20px;
   @media (min-width: ${LAYOUT.mobile}px) {
     margin-bottom: 15px;
     padding-bottom: 20px;
     border-bottom: 1px solid ${COLORS.border};
   }
+  @media (max-width: ${LAYOUT.mobile}px) {
+    grid-template-columns: 80px 1fr;
+    grid-template-areas: "image infos" "days days";
+    column-gap: 12px;
+  }
 `
 const Image = styled.div`
-  flex-shrink: 0;
+  grid-area: image;
   img {
     display: block;
     width: 200px;
@@ -50,23 +84,60 @@ const Image = styled.div`
   }
 `
 const Infos = styled.div`
-  margin: 0 20px;
+  grid-area: infos;
+  min-width: 0;
   h4 {
     font-size: 18px;
     font-weight: normal;
     margin: 0 0 5px;
-  }
-  @media (max-width: ${LAYOUT.mobile}px) {
-    margin: 0 0 0 12px;
+    @media (min-width: ${LAYOUT.mobile}px) {
+      padding-right: 160px;
+    }
+    a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
   }
 `
 const Days = styled.div`
-  margin: 15px 0;
+  grid-area: days;
+  margin: 8px 0 0;
   color: ${COLORS.grey};
+  font-size: ${SIZES.small}px;
   @media (max-width: ${LAYOUT.mobile}px) {
-    margin: 8px 0;
-    font-size: 0.9em;
+    margin: 12px 0 0;
   }
+`
+const SlotsBlock = styled.div`
+  margin: 15px 0 0;
+  ul {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+`
+const SlotsTitle = styled.div`
+  font-size: ${SIZES.regular}px;
+  font-weight: 400;
+`
+const SlotItem = styled.li<{ $past: boolean }>`
+  margin: 2px 0;
+  color: ${({ $past }) => ($past ? COLORS.grey : "inherit")};
+  span {
+    color: ${COLORS.grey};
+  }
+`
+const NoSlot = styled.p`
+  margin: 4px 0 0;
+  color: ${COLORS.grey};
+`
+const SlotsToggle = styled.button`
+  ${aboveLink}
+  padding: 0;
+  margin-top: 4px;
+  color: ${COLORS.green};
+  text-decoration: underline;
 `
 const Stats = styled.div`
   width: 120px;
@@ -86,18 +157,16 @@ const Stats = styled.div`
   }
 `
 const Actions = styled.div`
-  width: 80px;
+  ${aboveLink}
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  margin-top: 12px;
   @media (min-width: ${LAYOUT.mobile}px) {
-    width: auto;
+    margin-top: 0;
     position: absolute;
     top: 12px;
     right: 12px;
-  }
-  a {
-    padding: 12px;
   }
   svg {
     fill: ${COLORS.dark};
@@ -114,6 +183,7 @@ const Bottom = styled.div`
   }
 `
 const BottomActions = styled.div`
+  ${aboveLink}
   button {
     margin: 10px 10px 0 0;
   }
@@ -159,6 +229,7 @@ const Input = styled(BasicInput)`
 
 const StyledSocialBar = styled(SocialShareBar)`
   position: absolute;
+  z-index: 1;
   right: -10px;
   top: -12px;
   @media (min-width: ${LAYOUT.mobile}px) {
@@ -172,9 +243,49 @@ interface Props {
 }
 
 const AccountProduct = ({ product, odd }: Props) => {
+  const { loading } = useUser()
   const [modal, setModal] = useState<null | "publish" | "disable" | "delete">(null)
+  const [showAllSlots, setShowAllSlots] = useState(false)
+  const [bookings, setBookings] = useState<Booking[]>([])
   const infos = [formatAmount(product.price), formatQuantity(product), product.city]
-  const active = product.expires ? product.expires > Date.now() : false
+  const now = Date.now()
+  const active = product.expires ? product.expires > now : false
+
+  const slots = useMemo(
+    () => sortSlots(product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []),
+    [product.slots],
+  )
+  const upcomingSlots = slots.filter((slot) => getSlotEnd(slot.date, slot.heureFin) >= now)
+  const visibleSlots = showAllSlots ? slots : upcomingSlots.slice(0, VISIBLE_SLOTS)
+  const reservable = slots.some((slot) => slot.reservation != null)
+
+  // Réservations des clients (réservées au producteur propriétaire) : nombre par créneau et avertissement à la suppression
+  useEffect(() => {
+    if (loading || !reservable) {
+      return
+    }
+    let cancelled = false
+    api
+      .get<ReservationsResponse>("reservation", { productId: product.objectID })
+      .then((data) => {
+        if (!cancelled && data.owner) {
+          setBookings(data.bookings ?? [])
+        }
+      })
+      .catch(() => {
+        // Réservations indisponibles : la carte s'affiche sans les compteurs.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [loading, reservable, product.objectID])
+
+  const bookingsBySlot: Record<string, number> = {}
+  for (const booking of bookings) {
+    const key = getSlotKey(new Date(booking.slotDate), booking.heureDebut, booking.heureFin)
+    bookingsBySlot[key] = (bookingsBySlot[key] ?? 0) + 1
+  }
+  const upcomingBookings = bookings.filter((booking) => getSlotEnd(new Date(booking.slotDate), booking.heureFin) >= now)
 
   const handlePublish: Submit<{ days: string }> = async (data) => {
     const days = Number(data.days)
@@ -203,32 +314,49 @@ const AccountProduct = ({ product, odd }: Props) => {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
 
-  const slots = product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
-  //const slots = []
   return (
     <Container $odd={odd}>
       <Ad>
         <Image>
-          <img src={product.photo} />
+          <img src={product.photo} alt="" />
         </Image>
+        <Days>
+          Annonce créée le {formatDate(product.created)}
+          {product.updated && <> et modifiée le {formatDate(product.updated)}</>}
+        </Days>
         <Infos>
-          <h4>{product.title}</h4>
+          <h4>
+            <Link href={`/annonce/${product.objectID}`}>{product.title}</Link>
+          </h4>
           <div>{infos.filter((info) => info).join(" | ")}</div>
           {slots.length > 0 && (
-            <div>
-              <h3>Créneaux</h3>
-              {slots.map(({ date, heureDebut, heureFin }) => (
-                <p key={date.toString()}>
-                  Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
-                </p>
-              ))}
-            </div>
+            <SlotsBlock>
+              <SlotsTitle>Créneaux</SlotsTitle>
+              {upcomingSlots.length === 0 && !showAllSlots && <NoSlot>Aucun créneau à venir</NoSlot>}
+              <ul>
+                {visibleSlots.map(({ date, heureDebut, heureFin, reservation }) => {
+                  const key = getSlotKey(date, heureDebut, heureFin)
+                  const count = bookingsBySlot[key] ?? 0
+                  return (
+                    <SlotItem key={key} $past={getSlotEnd(date, heureFin) < now}>
+                      {formatSlotDate(date, heureDebut, heureFin)}
+                      {reservation != null && (
+                        <span>
+                          {" "}
+                          · {count} réservation{s(count)}
+                        </span>
+                      )}
+                    </SlotItem>
+                  )
+                })}
+              </ul>
+              {slots.length > Math.min(upcomingSlots.length, VISIBLE_SLOTS) && (
+                <SlotsToggle type="button" onClick={() => setShowAllSlots(!showAllSlots)}>
+                  {showAllSlots ? "Voir moins" : `Voir tous les créneaux (${slots.length})`}
+                </SlotsToggle>
+              )}
+            </SlotsBlock>
           )}
-
-          <Days>
-            Annonce créée le {formatDate(product.created)}
-            {product.updated && <> et modifiée le {formatDate(product.updated)}</>}
-          </Days>
           <Stats>
             <figure>
               <PointerIcon /> {product.views || 0}
@@ -238,10 +366,8 @@ const AccountProduct = ({ product, odd }: Props) => {
         </Infos>
       </Ad>
       <Actions>
-        <Link href={`/compte/producteur/annonce/${product.objectID}`}>
-          <EditIcon />
-        </Link>
-        <IconButton onClick={() => setModal("delete")}>
+        <ButtonLink href={`/compte/producteur/annonce/${product.objectID}`}>Modifier</ButtonLink>
+        <IconButton aria-label="Supprimer l’annonce" onClick={() => setModal("delete")}>
           <DeleteIcon />
         </IconButton>
       </Actions>
@@ -262,8 +388,17 @@ const AccountProduct = ({ product, odd }: Props) => {
         </Bottom>
       ) : (
         <Bottom>
-          <Status $active={false}>Annonce désactivée</Status>
-          <End>La publication est désactivée</End>
+          {product.expires ? (
+            <>
+              <Status $active={false}>Annonce terminée</Status>
+              <End>La publication s’est terminée le {formatDateTime(product.expires)}</End>
+            </>
+          ) : (
+            <>
+              <Status $active={false}>Annonce désactivée</Status>
+              <End>La publication est désactivée</End>
+            </>
+          )}
           <BottomActions>
             <Button $variant="green" onClick={() => setModal("publish")}>
               Publier l’annonce
@@ -292,7 +427,17 @@ const AccountProduct = ({ product, odd }: Props) => {
           )}
           {modal === "delete" && (
             <Form title={product.title} onSubmit={handleDelete}>
-              <p>Supprimer l’annonce ?</p>
+              <p>Supprimer définitivement l’annonce ?</p>
+              <p>Cette action est irréversible.</p>
+              {upcomingBookings.length > 0 && (
+                <p>
+                  <strong>
+                    {upcomingBookings.length > 1
+                      ? `${upcomingBookings.length} clients ont réservé un créneau à venir sur cette annonce.`
+                      : "1 client a réservé un créneau à venir sur cette annonce."}
+                  </strong>
+                </p>
+              )}
               <SubmitButton />
             </Form>
           )}
