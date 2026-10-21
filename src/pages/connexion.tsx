@@ -87,6 +87,11 @@ const LoginPage = () => {
           Vous pouvez vous connecter dès à présent et utiliser les fonctionnalités de la plateforme.
         </Message>
       )}
+      {query.reset && (
+        <Message title="Mot de passe modifié" type="success">
+          Vous pouvez vous connecter avec votre nouveau mot de passe.
+        </Message>
+      )}
       <Wrapper>
         <Card>
           <Form title="Connexion" onSubmit={handleSubmit}>
