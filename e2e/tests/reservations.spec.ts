@@ -2,7 +2,15 @@ import { expect, test } from "@playwright/test"
 
 import { ACCOUNTS, hasAccounts, TEST_PRODUCT_TITLE } from "../helpers/config"
 import { login, openUserMenu } from "../helpers/auth"
-import { deleteTestProduct, findTestProductId, getSlotCard, gotoMyProducts, SLOT_1 } from "../helpers/produit"
+import {
+  deleteTestProduct,
+  findTestProductId,
+  getSlotCard,
+  getTestProductCard,
+  gotoMyProducts,
+  SLOT_1,
+  slotHours,
+} from "../helpers/produit"
 
 // Parcours de réservation : garde d'accès, réservation acheteur, erreurs de validation,
 // modification/annulation côté acheteur, vue producteur. Sérialisé : dépend de l'annonce
@@ -133,6 +141,23 @@ test.describe.serial("Réservations", () => {
     await card.getByRole("button", { name: "Supprimer le créneau" }).click()
     await expect(page.getByText("1 client a déjà réservé ce créneau.")).toBeVisible()
     await page.getByRole("button", { name: "Annuler", exact: true }).click()
+    await expect(card).toBeVisible()
+  })
+
+  test("« Mes annonces » compte les réservations et les signale avant la suppression", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non trouvée")
+    await login(page, "producer")
+    await gotoMyProducts(page)
+    const card = getTestProductCard(page)
+    await card.waitFor({ timeout: 20000 })
+    await expect(card.getByRole("listitem").filter({ hasText: slotHours(SLOT_1) })).toContainText("1 réservation", {
+      timeout: 20000,
+    })
+    await card.getByRole("button", { name: "Supprimer l’annonce" }).click()
+    await expect(page.getByText("Cette action est irréversible.")).toBeVisible()
+    await expect(page.getByText("1 client a réservé un créneau à venir sur cette annonce.")).toBeVisible()
+    // Fermée sans supprimer : la carte reste là
+    await page.keyboard.press("Escape")
     await expect(card).toBeVisible()
   })
 

@@ -104,6 +104,8 @@ export const useQuery = function <T extends Identified>(
       return
     }
 
+    // la requête précédente était peut-être vide (false) : sans ça, un état vide s'affiche avant les résultats
+    setLoading(true)
     let ref: Query<DocumentData> = collection(firestore, collectionName)
 
     if (whereClause) {
