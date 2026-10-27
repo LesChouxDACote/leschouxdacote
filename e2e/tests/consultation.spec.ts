@@ -72,6 +72,20 @@ test.describe("Consultation", () => {
     await expect(page.getByText(/annonces en ligne/).first()).toBeVisible()
   })
 
+  test("le lien « Notre charte » du pied de page ouvre la charte du site", async ({ page }) => {
+    await page.goto("/")
+    await page.getByRole("link", { name: "Notre charte" }).click()
+    await expect(page).toHaveURL(/\/charte$/)
+    await expect(
+      page.getByRole("heading", { name: "Charte de respect de la vie privée – leschouxdacote.fr" }),
+    ).toBeVisible()
+    await expect(page.getByRole("cell", { name: "Vercel", exact: true })).toBeVisible()
+    await expect(page.getByRole("link", { name: "contact@leschouxdacote.fr" }).first()).toHaveAttribute(
+      "href",
+      "mailto:contact@leschouxdacote.fr",
+    )
+  })
+
   test("une annonce inexistante répond 404 « Page introuvable »", async ({ page }) => {
     const response = await page.goto("/annonce/test-e2e-inexistant")
     expect(response?.status()).toBe(404)
