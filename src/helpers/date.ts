@@ -19,7 +19,14 @@ export const daysFromNow = (ts: number | Date | null | undefined) => {
   if (!ts) {
     return ""
   }
-  return `dans ${differenceInCalendarDays(ts, new Date())} jours`
+  const days = differenceInCalendarDays(ts, new Date())
+  if (days <= 0) {
+    return "aujourd’hui"
+  }
+  if (days === 1) {
+    return "demain"
+  }
+  return `dans ${days} jours`
 }
 
 export const formatEnd = (days: number, start?: number | Date | null) => {

@@ -46,7 +46,9 @@ test.describe("Compte", () => {
     await login(page, "producer")
     await expect(page).toHaveURL(/\/compte\/producteur\/annonces/)
     for (const name of ["Toutes mes annonces", "Annonces en ligne", "Annonces désactivées"]) {
-      await page.getByRole("button", { name: new RegExp(name) }).click()
+      const tab = page.getByRole("tab", { name: new RegExp(name) })
+      await tab.click()
+      await expect(tab).toHaveAttribute("aria-selected", "true")
     }
     await expect(page.getByRole("link", { name: "Créer une annonce" }).first()).toBeVisible()
     await page.goto("/compte/profil")
