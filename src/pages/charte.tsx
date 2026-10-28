@@ -1,8 +1,11 @@
 import styled from "@emotion/styled"
+import { Button } from "src/components/Button"
 import { COLORS, CONTACT_EMAIL, LAYOUT } from "src/constants"
+import { useConsent } from "src/helpers/consent"
 import Layout from "src/layout"
 
-// Texte de la charte repris mot pour mot du Google Doc de l'Éditeur : toute modification passe par ce document.
+// Texte de la charte repris mot pour mot du Google Doc de l'Éditeur : toute modification passe par ce document
+// (partie 4 : bouton « Modifier mon choix » à la place du lien « Gérer mes cookies », à reporter dans le document).
 
 const TextLink = styled.a`
   text-decoration: underline;
@@ -139,6 +142,8 @@ const CharterTable = ({ headers, rows }: TableProps) => (
 const ContactLink = () => <TextLink href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</TextLink>
 
 const CharterPage = () => {
+  const { reset } = useConsent()
+
   return (
     <Layout title="Notre charte">
       <h1>Charte de respect de la vie privée – leschouxdacote.fr</h1>
@@ -206,7 +211,12 @@ const CharterPage = () => {
         À votre première visite, un bandeau vous permet d&apos;accepter ou de refuser ces cookies, avec la même
         facilité. Votre refus n&apos;empêche pas l&apos;utilisation du Site.
       </p>
-      <p>Vous pouvez modifier votre choix à tout moment via le lien « Gérer mes cookies » en bas de chaque page.</p>
+      <p>Vous pouvez modifier votre choix à tout moment grâce au bouton « Modifier mon choix » ci-dessous.</p>
+      <p>
+        <Button $variant="white" onClick={reset}>
+          Modifier mon choix
+        </Button>
+      </p>
       <p>
         Votre choix est conservé 6 à 13 mois, puis nous vous le redemanderons. Les cookies durent 13 mois au maximum.
       </p>

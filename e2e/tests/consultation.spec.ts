@@ -74,6 +74,8 @@ test.describe("Consultation", () => {
 
   test("le lien « Notre charte » du pied de page ouvre la charte du site", async ({ page }) => {
     await page.goto("/")
+    // le bandeau cookies recouvre le pied de page tant qu'aucun choix n'est fait
+    await page.getByRole("button", { name: "Refuser" }).click()
     await page.getByRole("link", { name: "Notre charte" }).click()
     await expect(page).toHaveURL(/\/charte$/)
     await expect(
@@ -84,6 +86,24 @@ test.describe("Consultation", () => {
       "href",
       "mailto:contact@leschouxdacote.fr",
     )
+  })
+
+  test("le bandeau cookies retient le refus et revient via « Modifier mon choix »", async ({ page }) => {
+    await page.goto("/")
+    const banner = page.getByRole("region", { name: "Cookies" })
+    await expect(banner).toBeVisible()
+    await expect(banner.getByRole("button", { name: "Accepter" })).toBeVisible()
+    await banner.getByRole("button", { name: "Refuser" }).click()
+    await expect(banner).toBeHidden()
+    expect((await page.context().cookies()).filter((cookie) => cookie.name.startsWith("_ga"))).toHaveLength(0)
+
+    await page.reload()
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
+    await expect(banner).toBeHidden()
+
+    await page.goto("/charte")
+    await page.getByRole("button", { name: "Modifier mon choix" }).click()
+    await expect(banner).toBeVisible()
   })
 
   test("une annonce inexistante répond 404 « Page introuvable »", async ({ page }) => {
