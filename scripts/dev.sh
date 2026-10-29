@@ -2,7 +2,8 @@
 # Runs the application for a look in a browser, in the foreground, until killed: Kedalia's « Aperçu », and its agent
 # looking at its own work. Kedalia starts it through `atelier-dev`, which sets the port (FRONTEND_PORT) and hands over
 # the dev keys of the application's Coolify settings (Firebase, Algolia, Mapbox, Mailjet…): this is the dev project,
-# with its real data. A developer can run it too, `next dev` reading `.env.local` by itself.
+# with its real data. Its mails are not: `scripts/kedalia-mail-relay` has Kedalia catch them (MAIL_RELAY_URL), never
+# sent. A developer can run it too, `next dev` reading `.env.local` by itself.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 # the repository's own yarn (yarnPath): Kedalia's image has Node 26, which ships no corepack
