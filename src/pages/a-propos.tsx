@@ -86,6 +86,9 @@ const Avatar = styled.div<{ $shaped?: boolean }>`
     object-fit: cover;
   }
 `
+const TextLink = styled.a`
+  text-decoration: underline;
+`
 const Name = styled.a`
   font-weight: bold;
   text-decoration: underline;
@@ -223,6 +226,17 @@ const AboutContent = () => (
         </li>
       ))}
     </Team>
+
+    <h2>Les Choux d&apos;à Côté évolue avec Kedalia</h2>
+    <p>
+      Le site continue d&apos;évoluer avec{" "}
+      <TextLink href="https://kedalia.com" target="_blank" rel="noopener">
+        Kedalia
+      </TextLink>
+      , un service qui construit et fait évoluer des applications web pour celles et ceux qui ne sont pas développeurs :
+      les nouveautés sont décrites en mots simples, puis réalisées et mises en ligne. Charles ILIEFF est le porteur de
+      ce projet.
+    </p>
 
     <Center>Les Choux d&apos;à Côté, la plateforme pour l&apos;achat et la vente de produits locaux</Center>
     <Actions>
