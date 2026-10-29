@@ -99,5 +99,8 @@
     "prettier": "^3.9.6",
     "prettier-plugin-organize-imports": "^4.3.0"
   },
+  "resolutions": {
+    "jwks-rsa/jose": "^5.10.0"
+  },
   "packageManager": "yarn@4.5.1"
 }
