@@ -1,0 +1,2 @@
+# Kedalia (plan #84) : dans l'Aperçu, atelier-dev démarre son capteur de mails et passe MAIL_RELAY_URL /
+# MAIL_RELAY_TOKEN, que src/helpers-api/mail.ts suit à la place de Mailjet. Le retirer rend les envois à Mailjet.
