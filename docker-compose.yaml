@@ -1,0 +1,43 @@
+# The application as Kedalia deploys it on Coolify: `develop`, then one copy per ticket branch. Vercel ignores this file.
+# The watcher keeps docker-compose.yml; a bare `docker compose up` now picks THIS one (compose prefers .yaml).
+x-env: &env
+  # Kedalia sets the public URL of each copy (develop or a ticket's preview)
+  NEXT_PUBLIC_URL: ${MAIL_PUBLIC_BASE_URL:-http://localhost:3100}
+  NEXT_PUBLIC_ALGOLIA_APP_ID: ${NEXT_PUBLIC_ALGOLIA_APP_ID:-}
+  NEXT_PUBLIC_ALGOLIA_API_KEY: ${NEXT_PUBLIC_ALGOLIA_API_KEY:-}
+  NEXT_PUBLIC_ALGOLIA_INDEX: ${NEXT_PUBLIC_ALGOLIA_INDEX:-}
+  NEXT_PUBLIC_ALGOLIA_TAGS: ${NEXT_PUBLIC_ALGOLIA_TAGS:-}
+  NEXT_PUBLIC_BUGSNAG: ${NEXT_PUBLIC_BUGSNAG:-}
+  NEXT_PUBLIC_FIREBASE_ID: ${NEXT_PUBLIC_FIREBASE_ID:-}
+  NEXT_PUBLIC_FIREBASE_KEY: ${NEXT_PUBLIC_FIREBASE_KEY:-}
+  NEXT_PUBLIC_FIREBASE_MEASURE: ${NEXT_PUBLIC_FIREBASE_MEASURE:-}
+  NEXT_PUBLIC_FIREBASE_MESSAGING: ${NEXT_PUBLIC_FIREBASE_MESSAGING:-}
+  NEXT_PUBLIC_FIREBASE_PROJECT: ${NEXT_PUBLIC_FIREBASE_PROJECT:-}
+  NEXT_PUBLIC_MAPBOX_TOKEN: ${NEXT_PUBLIC_MAPBOX_TOKEN:-}
+  FIREBASE_EMAIL: ${FIREBASE_EMAIL:-}
+  FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY:-}
+  ALGOLIA_ADMIN_KEY: ${ALGOLIA_ADMIN_KEY:-}
+  INSEE_TOKEN: ${INSEE_TOKEN:-}
+  MAILJET_PUBLIC_KEY: ${MAILJET_PUBLIC_KEY:-}
+  MAILJET_PRIVATE_KEY: ${MAILJET_PRIVATE_KEY:-}
+  # limits the build's static-generation workers (RAM of the box); empty = Next's default
+  BUILD_CPUS: ${BUILD_CPUS:-}
+
+services:
+  frontend:
+    build:
+      context: .
+      # the build needs them too (see the Dockerfile)
+      args: *env
+    ports:
+      # Kedalia sets FRONTEND_PORT per application (two on one server would collide); the image serves on 3000
+      - "${FRONTEND_PORT:-3100}:3000"
+    environment: *env
+    healthcheck:
+      # a static file: proves the server answers without touching Firestore. 127.0.0.1, not localhost: busybox
+      # resolves localhost to ::1 first and does not fall back to IPv4 (the same probe as Kedalia's templates)
+      test: [ "CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/favicon.ico" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

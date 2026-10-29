@@ -1,4 +1,4 @@
-import { SearchOptions } from "@algolia/client-search"
+import type { SearchParamsObject } from "@algolia/client-search"
 import styled from "@emotion/styled"
 import MapIcon from "@mui/icons-material/Map"
 import ListIcon from "@mui/icons-material/ViewList"
@@ -39,7 +39,7 @@ const MobileSwitches = styled.div`
 `
 
 const getOptions = (radius: number, latlng?: string, bio?: "1") => {
-  const options: Mutable<SearchOptions> = {
+  const options: Mutable<SearchParamsObject> = {
     // numericFilters: `expires > ${Date.now()}`,
   }
   if (latlng) {

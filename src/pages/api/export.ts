@@ -4,13 +4,19 @@ import { USER_ROLE } from "src/constants"
 
 import getCsv from "src/helpers-api/csv"
 import { firestore, getObject, getToken } from "src/helpers-api/firebase"
-import type { Producer, Product } from "src/types/model"
+import type { Producer, Product, User } from "src/types/model"
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
   const query = req.query.q
   const token = await getToken(req)
 
-  if (!token || token.email !== "cilieff@gmail.com") {
+  if (!token) {
+    return res.status(403).json("Not Authorized")
+  }
+
+  const userDoc = await firestore.collection("users").doc(token.uid).get()
+  const currentUser = getObject(userDoc) as User
+  if (!currentUser?.isAdmin) {
     return res.status(403).json("Not Authorized")
   }
   if (req.method === "GET" && (query === "producers" || query === "buyers")) {
@@ -28,20 +34,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<string>) => {
     })
 
     const producersSnapshot = await firestore.collection("users").where("role", "==", role).get()
-    const producers = producersSnapshot.docs.map((doc) => {
-      const producer = getObject(doc) as Producer
-      return [
-        producer.siret,
-        producer.name,
-        producer.firstname,
-        producer.lastname,
-        producer.email,
-        producer.phone,
-        producer.address,
-        producer.created && formatISO9075(producer.created),
-        sums[producer.objectID] || 0,
-      ]
-    })
+    const producers = producersSnapshot.docs
+      .map((doc) => getObject(doc) as Producer)
+      .filter((producer) => !producer.isAdmin)
+      .map((producer) => {
+        return [
+          producer.siret,
+          producer.name,
+          producer.firstname,
+          producer.lastname,
+          producer.email,
+          producer.phone,
+          producer.address,
+          producer.created && formatISO9075(producer.created),
+          sums[producer.objectID] || 0,
+        ]
+      })
 
     try {
       const output = await getCsv(producers, [

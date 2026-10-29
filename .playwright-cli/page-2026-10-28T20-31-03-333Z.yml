@@ -1,0 +1,196 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner [ref=f1e3]:
+      - generic [ref=f1e221]:
+        - button "Menu" [ref=f1e222] [cursor=pointer]:
+          - img "Menu" [ref=f1e223]
+        - link "Les Choux d’à Côté" [ref=f1e225] [cursor=pointer]:
+          - /url: /
+        - link "Recherche" [ref=f1e226] [cursor=pointer]:
+          - /url: /
+          - img "Recherche" [ref=f1e227]
+    - main [ref=f1e59]:
+      - heading "Charte de respect de la vie privée – leschouxdacote.fr" [level=1] [ref=f1e60]
+      - paragraph [ref=f1e61]: "Dernière mise à jour : 27 octobre 2026."
+      - heading "1. Qui sommes-nous ?" [level=2] [ref=f1e62]
+      - paragraph [ref=f1e63]: Le site leschouxdacote.fr (le « Site ») permet à des producteurs de produits alimentaires et à des acheteurs de se trouver et de se mettre en relation directement, sans intermédiaire.
+      - paragraph [ref=f1e64]: Le Site est édité à titre personnel et non professionnel par Anthony NGUYEN (l'« Éditeur »), qui est le responsable du traitement de vos données personnelles.
+      - paragraph [ref=f1e65]:
+        - text: "Contact :"
+        - link "contact@leschouxdacote.fr" [ref=f1e66] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+      - paragraph [ref=f1e67]: Aucun délégué à la protection des données (DPO) n'a été désigné. Toute question sur vos données peut être adressée à l'adresse ci-dessus.
+      - paragraph [ref=f1e68]: Cette Charte s'applique avec les Conditions Générales d'Utilisation. Elle respecte le Règlement général sur la protection des données (RGPD) et la loi Informatique et Libertés.
+      - heading "2. Quelles données, pourquoi, et sur quelle base ?" [level=2] [ref=f1e69]
+      - table [ref=f1e71]:
+        - rowgroup [ref=f1e72]:
+          - row [ref=f1e73]:
+            - columnheader "Traitement" [ref=f1e74]
+            - columnheader "Données" [ref=f1e75]
+            - columnheader "Finalité" [ref=f1e76]
+            - columnheader "Base légale" [ref=f1e77]
+            - columnheader "Durée de conservation" [ref=f1e78]
+        - rowgroup [ref=f1e79]:
+          - row [ref=f1e80]:
+            - cell "Création et gestion du compte" [ref=f1e81]
+            - cell "nom, prénom, email, mot de passe chiffré, téléphone, ville…" [ref=f1e82]
+            - cell "Accès à l'espace personnel, utilisation du Site" [ref=f1e83]
+            - cell "Exécution du contrat (CGU)" [ref=f1e84]
+            - cell "Durée du compte, puis 3 ans maximum après la dernière activité" [ref=f1e85]
+          - row [ref=f1e86]:
+            - cell "Publication d'annonces" [ref=f1e87]
+            - cell "Contenu de l'annonce, photos, localisation" [ref=f1e88]
+            - cell "Permettre aux acheteurs de trouver les produits" [ref=f1e89]
+            - cell "Exécution du contrat" [ref=f1e90]
+            - cell "Durée de l'annonce, puis suppression" [ref=f1e91]
+          - row [ref=f1e92]:
+            - cell "Mise en relation" [ref=f1e93]
+            - cell "Prénom, nom, email et téléphone de l'acheteur, détail de la réservation (annonce, créneau, quantité) ; coordonnées de contact du vendeur affichées sur l'annonce" [ref=f1e94]
+            - cell "Mettre en contact acheteurs et vendeurs" [ref=f1e95]
+            - cell "Exécution du contrat" [ref=f1e96]
+            - cell "Durée du compte" [ref=f1e97]
+          - row [ref=f1e98]:
+            - cell "Recherche d'annonces" [ref=f1e99]
+            - cell "Termes recherchés, filtres" [ref=f1e100]
+            - cell "Fournir un moteur de recherche rapide" [ref=f1e101]
+            - cell "Intérêt légitime (fonctionnement du service)" [ref=f1e102]
+            - cell "90 jours" [ref=f1e103]
+          - row [ref=f1e104]:
+            - cell "Emails liés au service" [ref=f1e105]
+            - cell "Email, nom" [ref=f1e106]
+            - cell "Confirmation, notifications, réinitialisation de mot de passe" [ref=f1e107]
+            - cell "Exécution du contrat" [ref=f1e108]
+            - cell "Durée du compte" [ref=f1e109]
+          - row [ref=f1e110]:
+            - cell "Newsletter / informations" [ref=f1e111]
+            - cell "Email" [ref=f1e112]
+            - cell "Vous informer des évolutions du Site" [ref=f1e113]
+            - cell "Consentement" [ref=f1e114]
+            - cell "Jusqu'au retrait du consentement" [ref=f1e115]
+          - row [ref=f1e116]:
+            - cell "Mesure d'audience (Google Analytics)" [ref=f1e117]
+            - cell "Identifiants de navigation, pages vues, durée, appareil, localisation approximative" [ref=f1e118]
+            - cell "Comprendre l'usage du Site et l'améliorer" [ref=f1e119]
+            - cell "Consentement" [ref=f1e120]
+            - 'cell "Cookies : 13 mois maximum. Données : 14 mois maximum." [ref=f1e121]'
+          - row [ref=f1e122]:
+            - cell "Sécurité et fonctionnement" [ref=f1e123]
+            - cell "Adresse IP, journaux de connexion" [ref=f1e124]
+            - cell "Sécurité, prévention des abus" [ref=f1e125]
+            - cell "Intérêt légitime" [ref=f1e126]
+            - cell "6 à 12 mois" [ref=f1e127]
+      - paragraph [ref=f1e128]: Nous ne demandons pas de données dites « sensibles » (origine, opinions politiques ou religieuses, santé…). Nous vous invitons à ne pas en saisir dans les champs libres (annonces, messages).
+      - heading "3. Mise en relation entre utilisateurs" [level=2] [ref=f1e129]
+      - paragraph [ref=f1e130]: "Le but du Site est de vous mettre en contact avec d'autres utilisateurs. À ce titre, certaines de vos données sont visibles par d'autres personnes :"
+      - list [ref=f1e131]:
+        - listitem [ref=f1e132]: "Visibles publiquement avec votre annonce : prénom, ville, contenu de l'annonce, etc."
+        - listitem [ref=f1e133]: "Visibles uniquement par les utilisateurs connectés, ou transmises lors d’une réservation : ex. email, téléphone."
+      - paragraph [ref=f1e134]: Vous choisissez les informations que vous publiez. Nous vous recommandons de ne pas diffuser plus de coordonnées que nécessaire. Une fois vos coordonnées transmises à un autre utilisateur, celui-ci devient responsable de l'usage qu'il en fait. Nous ne maîtrisons pas cet usage.
+      - heading "4. Cookies et mesure d'audience" [level=2] [ref=f1e135]
+      - paragraph [ref=f1e136]: Un cookie est un petit fichier déposé sur votre appareil lors de la visite d'un site.
+      - list [ref=f1e137]:
+        - listitem [ref=f1e138]: "Cookies strictement nécessaires : ils permettent la connexion à votre compte et la sécurité du Site. Ils ne nécessitent pas votre accord."
+        - listitem [ref=f1e139]: "Cookies de mesure d'audience (Google Analytics) : nous utilisons Google Analytics, un service de Google, pour savoir comment le Site est utilisé. Ces cookies ne sont déposés qu'avec votre consentement."
+      - paragraph [ref=f1e140]: À votre première visite, un bandeau vous permet d'accepter ou de refuser ces cookies, avec la même facilité. Votre refus n'empêche pas l'utilisation du Site.
+      - paragraph [ref=f1e141]: Vous pouvez modifier votre choix à tout moment grâce au bouton « Modifier mon choix » ci-dessous.
+      - paragraph [ref=f1e142]:
+        - button "Modifier mon choix" [active] [ref=f1e143] [cursor=pointer]
+      - paragraph [ref=f1e144]: Votre choix est conservé 6 à 13 mois, puis nous vous le redemanderons. Les cookies durent 13 mois au maximum.
+      - paragraph [ref=f1e145]: Les données recueillies par Google Analytics sont transmises à Google (voir section 5).
+      - paragraph [ref=f1e146]:
+        - text: "Plus d'informations :"
+        - link "cnil.fr/fr/cookies-et-autres-traceurs" [ref=f1e147] [cursor=pointer]:
+          - /url: https://www.cnil.fr/fr/cookies-et-autres-traceurs
+        - text: .
+      - heading "5. Qui reçoit vos données ?" [level=2] [ref=f1e148]
+      - paragraph [ref=f1e149]: "Vos données ne sont pas vendues. Elles sont accessibles uniquement à l'Éditeur et aux prestataires techniques suivants, qui les traitent pour notre compte :"
+      - table [ref=f1e151]:
+        - rowgroup [ref=f1e152]:
+          - row [ref=f1e153]:
+            - columnheader "Prestataire" [ref=f1e154]
+            - columnheader "Rôle" [ref=f1e155]
+            - columnheader "Localisation / transferts" [ref=f1e156]
+        - rowgroup [ref=f1e157]:
+          - row [ref=f1e158]:
+            - cell "Google (Firebase)" [ref=f1e159]
+            - cell "authentification, base de données, stockage…" [ref=f1e160]
+            - cell "Google peut traiter des données hors UE (États-Unis). Transferts encadrés par le Data Privacy Framework et/ou des clauses contractuelles types" [ref=f1e161]
+          - row [ref=f1e162]:
+            - cell "Google (Analytics)" [ref=f1e163]
+            - cell "Mesure d'audience, uniquement après consentement" [ref=f1e164]
+            - cell "Idem" [ref=f1e165]
+          - row [ref=f1e166]:
+            - cell "Algolia" [ref=f1e167]
+            - cell "Moteur de recherche d'annonces" [ref=f1e168]
+            - cell "Europe" [ref=f1e169]
+          - row [ref=f1e170]:
+            - cell "Mailjet" [ref=f1e171]
+            - cell "Envoi des emails" [ref=f1e172]
+            - cell "Union européenne" [ref=f1e173]
+          - row [ref=f1e174]:
+            - cell "Vercel" [ref=f1e175]
+            - cell "Hébergement du Site et des données" [ref=f1e176]
+            - cell "États-Unis (transferts encadrés par le Data Privacy Framework et/ou les clauses contractuelles types)" [ref=f1e177]
+      - paragraph [ref=f1e178]: Nous pouvons être amenés à communiquer vos données aux autorités administratives ou judiciaires lorsque la loi l'exige.
+      - heading "6. Sécurité" [level=2] [ref=f1e179]
+      - paragraph [ref=f1e180]: Nous mettons en œuvre des mesures techniques et organisationnelles adaptées pour protéger vos données (accès restreints, chiffrement des mots de passe, connexions sécurisées, etc. ). Aucune mesure n'étant infaillible, nous ne pouvons garantir une sécurité absolue. Il vous appartient de garder votre mot de passe confidentiel.
+      - paragraph [ref=f1e181]: En cas de violation de données susceptible d'engendrer un risque pour vos droits, nous en informerons la CNIL dans les 72 heures et, si le risque est élevé, les personnes concernées.
+      - heading "7. Vos droits" [level=2] [ref=f1e182]
+      - paragraph [ref=f1e183]: "Vous disposez des droits suivants : accès, rectification, effacement, limitation, opposition, portabilité, retrait du consentement à tout moment, et définition de directives sur le sort de vos données après votre décès."
+      - paragraph [ref=f1e184]:
+        - text: Pour les exercer, écrivez à
+        - link "contact@leschouxdacote.fr" [ref=f1e185] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+        - text: en précisant votre demande. Nous pouvons vous demander un justificatif d'identité en cas de doute raisonnable.
+      - paragraph [ref=f1e186]:
+        - text: "Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de la CNIL :"
+        - link "cnil.fr/fr/plaintes" [ref=f1e187] [cursor=pointer]:
+          - /url: https://www.cnil.fr/fr/plaintes
+        - text: .
+      - heading "8. Mineurs" [level=2] [ref=f1e188]
+      - paragraph [ref=f1e189]: Le Site s'adresse aux personnes majeures. Il n'est pas destiné aux moins de 18 ans.
+      - heading "9. Modification de la Charte" [level=2] [ref=f1e190]
+      - paragraph [ref=f1e191]: Nous pouvons modifier cette Charte. La date de dernière mise à jour figure en haut de page.
+    - contentinfo [ref=f1e192]:
+      - generic [ref=f1e193]:
+        - paragraph [ref=f1e194]:
+          - link "Notre charte" [ref=f1e195] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f1e196]:
+          - link "CGU" [ref=f1e197] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/cgs/
+        - paragraph [ref=f1e198]:
+          - link "Mentions légales" [ref=f1e199] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/mentions-legales/
+        - paragraph [ref=f1e200]:
+          - link "À propos" [ref=f1e201] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/a-propos/
+      - generic [ref=f1e202]:
+        - paragraph [ref=f1e203]:
+          - link "Assistance" [ref=f1e204] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=f1e205]:
+          - link "Actualité" [ref=f1e206] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=f1e207]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f1e208] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f1e209]: © 2026 Les Choux d’à Côté
+      - generic [ref=f1e210]:
+        - link [ref=f1e211] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f1e214] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f1e217] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f1e230]:
+      - paragraph [ref=f1e231]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f1e232] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f1e233]:
+        - button "Refuser" [ref=f1e234] [cursor=pointer]
+        - button "Accepter" [ref=f1e235] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=f1e241] [cursor=pointer]
+  - alert [ref=f1e220]

@@ -1,14 +1,13 @@
 import styled from "@emotion/styled"
-import { Order, pipe, Schema as Sc } from "effect"
-import * as O from "effect/Option"
+import { Array as A, Option as O, Order, pipe, Schema as Sc } from "effect"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
-import * as A from "effect/Array"
 import Link from "src/components/Link"
 import Products from "src/components/Products"
+import ReservationSection from "src/components/ReservationSection"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
 import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
@@ -18,7 +17,7 @@ import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLi
 import Layout from "src/layout"
 import { ProductEncoded, ProductSchema } from "src/models/Product"
 import ErrorPage from "src/pages/_error"
-import { SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
+import { Reservation, SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Producer, Product } from "src/types/model"
 
 const Wrapper = styled.div`
@@ -232,14 +231,18 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
     Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
     O.getOrElse(() => []),
   )
+  const allSlots = product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
   const sortedByDateSlots = pipe(
-    product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : [],
+    allSlots,
     A.sortBy(
-      Order.mapInput(Order.number, (slot) => slot.date.getTime()),
-      Order.mapInput(Order.string, (slot) => slot.heureDebut),
+      Order.mapInput(Order.Number, (slot) => slot.date.getTime()),
+      Order.mapInput(Order.String, (slot) => slot.heureDebut),
     ),
     A.takeRight(10),
   )
+  const reservationSlots = allSlots
+    .filter((slot): slot is SlotSchemaFirestore & { reservation: Reservation } => slot.reservation != null)
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
 
   return (
     <Layout
@@ -304,6 +307,9 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                 ))}
               </ProductSlots>
             </ProductSection>
+            {reservationSlots.length > 0 && (
+              <ReservationSection productId={product.objectID} slots={reservationSlots} unit={product.unit ?? null} />
+            )}
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
               <Text $size={SIZES.card} $color={COLORS.input} $linebreaks>
@@ -363,14 +369,12 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
   const { id } = params as Params
-  const product = pipe(
-    getObject(await firestore.collection("products").doc(id).get()),
-    Sc.decodeUnknownSync(ProductSchema),
-  )
-
-  if (!product) {
+  const snapshot = await firestore.collection("products").doc(id).get()
+  // vérifié avant le décodage : getObject change un document absent en `{ objectID }`, que le schéma rejette (une 500)
+  if (!snapshot.exists) {
     return { notFound: true }
   }
+  const product = pipe(getObject(snapshot), Sc.decodeUnknownSync(ProductSchema))
 
   // const serializableSlots = pipe(
   //   product.slots,

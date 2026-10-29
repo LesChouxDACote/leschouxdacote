@@ -89,6 +89,8 @@ const UserZone = () => {
         {open && (
           <Menu>
             {user?.role === USER_ROLE.PRODUCER && <Entry href="/compte/producteur/annonces">Mes annonces</Entry>}
+            {user?.isAdmin && <Entry href="/csv-export">Export des CSVs</Entry>}
+            <Entry href="/compte/reservations">Mes réservations</Entry>
             <Entry href="/compte/profil">Mon profil</Entry>
             <Entry href="/compte/alertes">Mes alertes</Entry>
             <Logout onClick={signout}>Se déconnecter</Logout>

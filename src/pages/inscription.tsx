@@ -1,6 +1,5 @@
 import styled from "@emotion/styled"
 import { useRouter } from "next/router"
-import React from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { StyledButton, ValidationError } from "src/components/Form"
 import { Input, Radio, Radios, Required, StyledForm, Title } from "src/components/YupForm"
@@ -134,7 +133,7 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
         />
         <Paragraph>
           En créant mon compte je reconnais avoir lu et accepté les{" "}
-          <a href="https://info.leschouxdacote.fr/cgs" target="_blank" rel="noopener">
+          <a href="/cgu" target="_blank" rel="noopener">
             Conditions Générales d’Utilisation
           </a>
           .

@@ -1,4 +1,6 @@
 import Bugsnag from "@bugsnag/js"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { doc, onSnapshot } from "firebase/firestore"
 import { useRouter } from "next/router"
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { USER_ROLE } from "src/constants"
@@ -46,12 +48,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (authUser) {
-      return firestore
-        .collection("users")
-        .doc(authUser.uid)
-        .onSnapshot((doc) => {
-          setUser(getObject(doc) as User)
-        })
+      return onSnapshot(doc(firestore, "users", authUser.uid), (snapshot) => {
+        setUser(getObject(snapshot) as User)
+      })
     } else {
       setUser(null)
     }
@@ -65,7 +64,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user])
 
-  const signin = (email: string, password: string) => auth.signInWithEmailAndPassword(email, password)
+  const signin = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
 
   const isPrivateRoute = pathname.startsWith("/compte")
   const isProducerRoute = pathname.startsWith("/compte/producteur")
@@ -92,14 +91,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (authUser && user?.role === USER_ROLE.BUYER && ANONYMOUS_ROUTES.includes(pathname)) {
       return destination || "/"
     }
-    if (authUser && user?.role === USER_ROLE.ADMIN && ANONYMOUS_ROUTES.includes(pathname)) {
-      return "/csv-export"
-    }
 
-    if (!authUser && isPrivateRoute) {
+    if (!authUser && (isPrivateRoute || ADMIN_ROUTES.includes(pathname))) {
       return "/connexion?next=" + asPath
     }
-    if (authUser && user?.role !== USER_ROLE.ADMIN && ADMIN_ROUTES.includes(pathname)) {
+    if (authUser && user && !user.isAdmin && ADMIN_ROUTES.includes(pathname)) {
       return "/"
     }
   })()

@@ -16,7 +16,7 @@ export const ProductSchema = Sc.Struct({
   uid: Sc.String, // user ID (producer)
   title: Sc.String,
   quantity: Sc.optional(Sc.NullOr(Sc.Number)),
-  unit: Sc.optional(Sc.NullOr(Sc.Literal("g", "kg", "l", "u"))),
+  unit: Sc.optional(Sc.NullOr(Sc.Literals(["g", "kg", "l", "u"]))),
   price: Sc.Number, // total, in cents
   address: Sc.String,
   _geoloc: Geoloc,
@@ -24,17 +24,19 @@ export const ProductSchema = Sc.Struct({
   _tags: Sc.optional(Sc.NullOr(Sc.Array(Sc.String))),
   placeId: Sc.String, // from Google places
   city: Sc.String,
-  dpt: Sc.optional(Sc.Union(Sc.Number, Sc.String)),
+  dpt: Sc.optional(Sc.Union([Sc.Number, Sc.String])),
   description: Sc.String,
   photo: Sc.String,
   email: Sc.optional(Sc.NullOr(Sc.String)),
   phone: Sc.optional(Sc.NullOr(Sc.String)),
   published: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms
   expires: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms (null = disabled)
+  disabled: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms of the last deactivation (absent on older products)
   views: Sc.optional(Sc.NullOr(Sc.Number)),
   // data fan-out:
   producer: Sc.String, // producer.name
   slots: Sc.optional(Sc.Array(SlotSchemaFirestore)),
-}).pipe(Sc.extend(Identified))
+  ...Identified.fields,
+})
 
 export type ProductEncoded = typeof ProductSchema.Encoded

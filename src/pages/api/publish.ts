@@ -1,7 +1,5 @@
 import { addDays } from "date-fns"
-import { pipe } from "effect"
-import * as T from "effect/Effect"
-import { stringify } from "effect/FastCheck"
+import { Effect as T, pipe } from "effect"
 import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
@@ -43,7 +41,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     product.published = published && published.getTime()
     product.expires = expires.getTime()
 
-    pipe(
+    await pipe(
       T.tryPromise({
         try: () =>
           Promise.all([
@@ -51,10 +49,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
               updated: now,
               published,
               expires,
+              disabled: null,
             }),
             productsIndex.saveObject(product),
           ]),
-        catch: stringify,
+        catch: (error) => (error instanceof Error ? error.message : String(error)),
       }),
       T.tapError(T.logError),
       T.runPromise,
@@ -65,7 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
 
   // unpublish
   if (req.method === "PUT") {
-    pipe(
+    await pipe(
       T.tryPromise({
         try: () =>
           Promise.all([
@@ -73,10 +72,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
               updated: now,
               published: null,
               expires: null,
+              disabled: now,
             }),
             productsIndex.deleteObject(product.objectID),
           ]),
-        catch: stringify,
+        catch: (error) => (error instanceof Error ? error.message : String(error)),
       }),
       T.tapError(T.logError),
       T.runPromise,

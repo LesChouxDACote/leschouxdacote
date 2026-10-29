@@ -1,7 +1,6 @@
 import styled from "@emotion/styled"
 import { differenceInCalendarDays } from "date-fns"
-import { Schema as Sc } from "effect"
-import { stringify } from "effect/FastCheck"
+import { Schema as Sc, SchemaTransformation } from "effect"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
@@ -9,12 +8,15 @@ import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
-import { MAX_PUBLICATION_DAYS } from "src/constants"
+import UnsavedChangesModal from "src/components/UnsavedChangesModal"
+import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
+import { sortSlots } from "src/helpers/date"
 import { useObjectQuery } from "src/helpers/firebase"
 import { getCity, getDpt, loadGmaps } from "src/helpers/google"
 import { formatPricePerUnit } from "src/helpers/text"
+import { useUnsavedChanges } from "src/helpers/useUnsavedChanges"
 import { validatePhoneNumber } from "src/helpers/validators"
 import Layout from "src/layout"
 import type { AuthUser, Producer, Product, ProductPayload, Unit } from "src/types/model"
@@ -24,35 +26,85 @@ const ACCEPTED_MIMETYPES = ["image/jpeg", "image/png", "image/webp", "image/tiff
 const Photo = styled.img`
   width: 100%;
 `
-const SlotDate = Sc.DateFromString.annotations({
-  message: () => "Veuillez entrer une date.",
-  override: true,
+
+const TwoColumnLayout = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: ${LAYOUT.maxWidth}px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`
+
+const LeftColumn = styled.div`
+  min-width: 0;
+`
+
+const RightColumn = styled.div`
+  min-width: 0;
+`
+
+const UnsavedBadge = styled.p`
+  color: ${COLORS.red};
+  font-weight: bold;
+  text-align: center;
+  margin: 4px 0;
+`
+
+// Bouton d'envoi toujours visible en bas de l'écran, quelle que soit la partie de l'annonce modifiée
+const SubmitBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  max-width: ${LAYOUT.maxWidth}px;
+  padding: 8px 0;
+  background-color: ${COLORS.white};
+  border-top: 1px solid ${COLORS.border};
+  box-shadow: 0 -3px 6px ${COLORS.shadow.light};
+  button {
+    margin: 4px auto;
+  }
+`
+const SlotDate = Sc.DateFromString.pipe(Sc.annotate({ message: "Veuillez entrer une date." }))
+
+export const ReservationSchema = Sc.Struct({
+  totalQuantity: Sc.Number,
+  maxQuantityPerPerson: Sc.optional(Sc.NullOr(Sc.Number)),
+  instructions: Sc.optional(Sc.NullOr(Sc.String)),
 })
+
+export type Reservation = typeof ReservationSchema.Type
 
 export const SlotSchema = Sc.Struct({
   date: SlotDate,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type Slot = typeof SlotSchema.Type
 
-export const SlotDateFirestore = Sc.transform(
-  Sc.Struct({
-    seconds: Sc.Int,
-  }),
-  Sc.DateFromSelf,
+const serializeSlots = (slots: readonly Slot[]) => JSON.stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots))
 
-  {
-    decode: (timestamp) => new Date(timestamp.seconds * 1000),
-    encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
-    strict: true,
-  },
+export const SlotDateFirestore = Sc.Struct({
+  seconds: Sc.Int,
+}).pipe(
+  Sc.decodeTo(
+    Sc.Date,
+    SchemaTransformation.transform({
+      decode: (timestamp) => new Date(timestamp.seconds * 1000),
+      encode: (fireBaseTimestamp) => ({ seconds: Math.floor(fireBaseTimestamp.getTime() / 1000) }),
+    }),
+  ),
 )
 export const SlotSchemaFirestore = Sc.Struct({
   date: SlotDateFirestore,
   heureDebut: Sc.String,
   heureFin: Sc.String,
+  reservation: Sc.optional(Sc.NullOr(ReservationSchema)),
 })
 
 export type SlotSchemaFirestore = typeof SlotSchemaFirestore.Type
@@ -71,6 +123,10 @@ const PriceInfos = () => {
 const EditProductPage = () => {
   const { authUser, user } = useUser<Producer>()
   const [slots, setSlots] = useState<readonly Slot[]>([])
+  const [formDirty, setFormDirty] = useState(false)
+  const [slotsInvalid, setSlotsInvalid] = useState(false)
+  const [slotsError, setSlotsError] = useState(false)
+  const initialSlotsRef = useRef(serializeSlots([]))
   const { query, push } = useRouter()
 
   const productId = Array.isArray(query.id) ? undefined : query.id
@@ -83,11 +139,18 @@ const EditProductPage = () => {
     if (place === undefined && data) {
       setPlace({ id: data.placeId, city: data.city, dpt: data.dpt, lat: data._geoloc.lat, lng: data._geoloc.lng })
 
-      const slots = data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : []
-      //const slots = []
-      setSlots(slots)
+      const loadedSlots = sortSlots(data.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(data.slots) : [])
+      initialSlotsRef.current = serializeSlots(loadedSlots)
+      setSlots(loadedSlots)
     }
   }, [place, data])
+
+  // Indicateur unifié « modifié » : champs du formulaire, créneaux/réservations, adresse, réglages de réservation invalides
+  const slotsDirty = serializeSlots(slots) !== initialSlotsRef.current
+  const placeDirty = place !== undefined && (place === null || place.id !== data?.placeId)
+  const dirty = formDirty || slotsDirty || placeDirty || slotsInvalid
+
+  const guard = useUnsavedChanges({ isDirty: dirty })
 
   const title = productId ? "Modifier une annonce" : "Créer une annonce"
 
@@ -99,6 +162,12 @@ const EditProductPage = () => {
   }
 
   const handleSubmit: Submit<ProductPayload> = async (values, target) => {
+    // Réglages de réservation invalides : ils ne sont pas écrits dans le créneau, on n'envoie rien
+    setSlotsError(slotsInvalid)
+    if (slotsInvalid) {
+      return
+    }
+
     const payload = new FormData(target)
     if (!payload.get("email") && !payload.get("phone")) {
       throw new ValidationError("email", "Vous devez au moins spécifier une adresse e-mail ou un numéro de téléphone")
@@ -106,6 +175,10 @@ const EditProductPage = () => {
 
     if (!place) {
       throw new ValidationError("address", "Veuillez sélectionner l'adresse dans la liste déroulante")
+    }
+
+    if (slots.some((slot) => slot.reservation != null) && !payload.get("unit")) {
+      throw new ValidationError("unit", "L'unité est obligatoire pour activer une réservation.")
     }
 
     if (payload.get("days") === "0") {
@@ -122,7 +195,7 @@ const EditProductPage = () => {
     payload.append("city", place.city)
     payload.append("dpt", place.dpt)
     payload.append("uid", (authUser as AuthUser).uid)
-    payload.append("slots", stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
+    payload.append("slots", JSON.stringify(Sc.encodeSync(Sc.Array(SlotSchema))(slots)))
 
     if (productId) {
       payload.append("id", productId)
@@ -133,43 +206,53 @@ const EditProductPage = () => {
       alert("Votre annonce a bien été créée. Elle sera visible dans quelques minutes.")
     }
 
+    guard.allowNext()
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
-  const autocomplete = useRef<google.maps.places.Autocomplete>()
-  const handleRef = async (el: HTMLInputElement | null) => {
-    if (!el || autocomplete.current) {
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const handleRef = (el: HTMLInputElement | null) => {
+    if (!el) {
       return
     }
 
-    await loadGmaps()
-
-    autocomplete.current = new google.maps.places.Autocomplete(el, {
-      componentRestrictions: { country: "fr" },
-      fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
-      // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
-    })
-    autocomplete.current.addListener("place_changed", () => {
-      const res = autocomplete.current?.getPlace()
-      if (!res || !res.geometry || !res.address_components || !res.place_id) {
-        setPlace(null)
+    void loadGmaps().then(() => {
+      // vérifié après le chargement, comme SearchBar : chaque rendu rappelle handleRef pendant que Google Maps charge,
+      // et sans cela chacun créait son Autocomplete — des listes de suggestions superposées sur le même champ
+      if (autocomplete.current) {
         return
       }
+      autocomplete.current = new google.maps.places.Autocomplete(el, {
+        componentRestrictions: { country: "fr" },
+        fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
+        // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
+      })
+      autocomplete.current.addListener("place_changed", () => {
+        const res = autocomplete.current?.getPlace()
+        if (!res || !res.geometry || !res.address_components || !res.place_id) {
+          setPlace(null)
+          return
+        }
 
-      const city = getCity(res)
-      const dpt = getDpt(res)
-      if (!city || !dpt) {
-        setPlace(null)
-        return
-      }
+        const city = getCity(res)
+        const dpt = getDpt(res)
+        if (!city || !dpt) {
+          setPlace(null)
+          return
+        }
 
-      const { location } = res.geometry
-      setPlace({
-        id: res.place_id,
-        lat: location.lat(),
-        lng: location.lng(),
-        city,
-        dpt,
+        const { location } = res.geometry
+        if (!location) {
+          setPlace(null)
+          return
+        }
+        setPlace({
+          id: res.place_id,
+          lat: location.lat(),
+          lng: location.lng(),
+          city,
+          dpt,
+        })
       })
     })
   }
@@ -179,63 +262,80 @@ const EditProductPage = () => {
       <Form
         title={title}
         hasRequired
+        wide
         onSubmit={handleSubmit}
         defaultValues={defaultValues}
         resetOnChange={data?.objectID}
+        onDirtyChange={setFormDirty}
       >
-        <TextInput name="title" label="Titre" required maxLength={100} />
-        <Row>
-          <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
-          <SelectInput name="unit" label="Unité">
-            <option></option>
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-            <option value="l">litre(s)</option>
-            <option value="u">pièce(s)</option>
-          </SelectInput>
-        </Row>
-        <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
-        <PriceInfos />
-        <TextInput
-          name="address"
-          label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
-          required
-          placeholder=""
-          id="place"
-          ref={handleRef}
-        />
-        <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
-        <TagsInput label="Mots-clés" />
-        {data && <Photo src={data.photo} />}
-        <TextInput
-          name="photo"
-          label={productId ? "Changer la photo" : "Photo"}
-          type="file"
-          required={productId ? false : true}
-          accept={ACCEPTED_MIMETYPES.join(",")}
-        />
-        <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
-        <TextInput
-          type="tel"
-          name="phone"
-          label="Téléphone"
-          validate={validatePhoneNumber}
-          defaultValue={user?.phone}
-        />
-        <TextInput
-          name="days"
-          label="Publier maintenant pour une durée de :"
-          type="number"
-          min={0}
-          max={MAX_PUBLICATION_DAYS}
-          step={1}
-          defaultValue={0}
-          suffix="jour(s)"
-        />
-        <ProductEndDate />
-        <SlotsForm setSlots={setSlots} slots={slots} />
-        <SubmitButton />
+        <TwoColumnLayout>
+          <LeftColumn>
+            <TextInput name="title" label="Titre" required maxLength={100} />
+            <Row>
+              <TextInput name="quantity" label="Quantité" type="number" min={0} step={0.01} />
+              <SelectInput name="unit" label="Unité">
+                <option></option>
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="l">litre(s)</option>
+                <option value="u">pièce(s)</option>
+              </SelectInput>
+            </Row>
+            <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
+            <PriceInfos />
+            <TextInput
+              name="address"
+              label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
+              required
+              placeholder=""
+              id="place"
+              ref={handleRef}
+            />
+            <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
+            <TagsInput label="Mots-clés" required />
+            {data && <Photo src={data.photo} />}
+            <TextInput
+              name="photo"
+              label={productId ? "Changer la photo" : "Photo"}
+              type="file"
+              required={productId ? false : true}
+              accept={ACCEPTED_MIMETYPES.join(",")}
+            />
+            <TextInput type="email" name="email" label="Adresse e-mail" defaultValue={authUser?.email} />
+            <TextInput
+              type="tel"
+              name="phone"
+              label="Téléphone"
+              validate={validatePhoneNumber}
+              defaultValue={user?.phone}
+            />
+            <TextInput
+              name="days"
+              label="Publier maintenant pour une durée de :"
+              type="number"
+              min={0}
+              max={MAX_PUBLICATION_DAYS}
+              step={1}
+              defaultValue={0}
+              suffix="jour(s)"
+            />
+            <ProductEndDate />
+          </LeftColumn>
+          <RightColumn>
+            <SlotsForm productId={productId} setSlots={setSlots} slots={slots} onInvalidChange={setSlotsInvalid} />
+          </RightColumn>
+        </TwoColumnLayout>
+        <SubmitBar>
+          {dirty && <UnsavedBadge>Modifications non enregistrées</UnsavedBadge>}
+          {slotsError && slotsInvalid && (
+            <UnsavedBadge>
+              Un créneau contient une réservation incomplète : corrigez-la avant d&apos;enregistrer.
+            </UnsavedBadge>
+          )}
+          <SubmitButton>Enregistrer l&apos;annonce</SubmitButton>
+        </SubmitBar>
       </Form>
+      {guard.pending && <UnsavedChangesModal onStay={guard.stay} onLeave={guard.leave} />}
     </Layout>
   )
 }

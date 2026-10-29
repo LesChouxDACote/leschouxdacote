@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns"
-import fr from "date-fns/locale/fr"
+import { fr } from "date-fns/locale"
 
 export const formatDate = (ts: number | Date | null, pattern = "do MMMM yyyy") => {
   if (!ts) {
@@ -19,10 +19,38 @@ export const daysFromNow = (ts: number | Date | null | undefined) => {
   if (!ts) {
     return ""
   }
-  return `dans ${differenceInCalendarDays(ts, new Date())} jours`
+  const days = differenceInCalendarDays(ts, new Date())
+  if (days <= 0) {
+    return "aujourd’hui"
+  }
+  if (days === 1) {
+    return "demain"
+  }
+  return `dans ${days} jours`
 }
 
 export const formatEnd = (days: number, start?: number | Date | null) => {
   const end = addDays(start || new Date(), days)
   return formatDateTime(end)
 }
+
+// La date d'un créneau est à minuit UTC (input date "YYYY-MM-DD") : un créneau n'est passé
+// qu'après sa fin réelle (date + heure de fin), et pas à minuit.
+export const getSlotEnd = (date: Date, heureFin: string) => {
+  const day = date.toISOString().slice(0, 10)
+  return new Date(`${day}T${heureFin}`).getTime()
+}
+
+// Identifiant stable d'un créneau au sein d'une annonce (clé des totaux de réservation).
+export const getSlotKey = (date: Date, heureDebut: string, heureFin: string) =>
+  `${date.getTime()}_${heureDebut}_${heureFin}`
+
+export const formatHours = (heure: string) => heure.replace(":", "h")
+
+// « samedi 12 octobre, 10h–12h »
+export const formatSlotDate = (date: Date, heureDebut: string, heureFin: string) =>
+  `${formatDate(date, "EEEE d MMMM")}, ${formatHours(heureDebut)}–${formatHours(heureFin)}`
+
+// Créneaux du plus proche au plus lointain (date, puis heure de début).
+export const sortSlots = <T extends { date: Date; heureDebut: string }>(slots: readonly T[]): T[] =>
+  [...slots].sort((a, b) => a.date.getTime() - b.date.getTime() || a.heureDebut.localeCompare(b.heureDebut))

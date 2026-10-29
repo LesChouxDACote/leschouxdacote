@@ -8,6 +8,12 @@
 # testing
 /coverage
 
+# e2e (tests Playwright, paquet isolé)
+/e2e/node_modules/
+/e2e/.yarn/
+/e2e/test-results/
+/e2e/playwright-report/
+
 # next.js
 /.next/
 /out/
@@ -28,6 +34,7 @@ yarn-error.log*
 # local env files - uncomment the following line to ignore the configuration files
 .env
 .env.*
+!e2e/.env.example
 
 # vercel
 .vercel
@@ -38,6 +45,11 @@ yarn-error.log*
 # firebase
 .firebaserc
 
+# automatisation trello + ia
+.ia-sessions.json
+.ia-plan.md
+.ia-ticket/
+
 # typescript cache
 *.tsbuildinfoz
 
@@ -46,3 +58,10 @@ yarn-error.log*
 .yarn/install-state.gz
 
 tsconfig.tsbuildinfo
+
+# config du proxy LiteLLM : le proxy tourne hors du dépôt
+litellm_config.yaml
+
+# claude code (réglages personnels, worktrees)
+.claude/settings.local.json
+.claude/worktrees/

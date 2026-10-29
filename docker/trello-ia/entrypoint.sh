@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+mkdir -p /data/worktrees "$CLAUDE_CONFIG_DIR"
+
+# identité git pour les commits de l'orchestrateur
+git config --global user.name "${GIT_AUTHOR_NAME:-Automatisation IA}"
+git config --global user.email "${GIT_AUTHOR_EMAIL:-ia@leschouxdacote.fr}"
+git config --global --add safe.directory "*"
+
+# gh sert de credential helper git : fetch/push via GH_TOKEN
+if [ -z "$GH_TOKEN" ]; then
+  echo "ERREUR : GH_TOKEN manquant (token GitHub avec droits repo)" >&2
+  exit 1
+fi
+gh auth setup-git
+
+# Coolify construit l'image sans le dossier .git : on recrée un dépôt relié à origin
+IA_BASE_BRANCH="${IA_BASE_BRANCH:-develop}"
+if [ ! -d .git ]; then
+  git init --initial-branch "$IA_BASE_BRANCH" --quiet
+  git remote add origin "https://github.com/${GITHUB_REPO:?GITHUB_REPO manquant (ex. LesChouxDACote/leschouxdacote)}.git"
+fi
+git fetch origin "$IA_BASE_BRANCH"
+
+if [ -z "$ANTHROPIC_AUTH_TOKEN" ] && [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ] &&
+  [ ! -f "$CLAUDE_CONFIG_DIR/.credentials.json" ]; then
+  echo "ATTENTION : aucune authentification Claude détectée." >&2
+  echo "Via le proxy LiteLLM : LITELLM_VIRTUAL_KEY, avec LITELLM_BASE_URL." >&2
+  echo "Via Anthropic : CLAUDE_CODE_OAUTH_TOKEN (généré avec « claude setup-token » sur ta machine)," >&2
+  echo "ou lance « claude /login » depuis le terminal du conteneur." >&2
+fi
+
+exec "$@"
