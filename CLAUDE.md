@@ -60,7 +60,7 @@ Petites annonces alimentaires (producteurs locaux). Next.js 16 (pages router), T
 - `docker-compose.yaml` + `Dockerfile` = l'application déployée par Kedalia ; `docker-compose.yml` = le watcher Trello.
 - `scripts/dev.sh` = l'« Aperçu » de Kedalia : `next dev` sur `FRONTEND_PORT`, avec les clés de dev que Kedalia lui
   passe (les données de dev sont réelles). Sous Node 25+ (l'image de Kedalia est en 26), `scripts/node-slowbuffer.cjs`
-  rend à `firebase-admin` le `SlowBuffer` que Node a retiré ; le build, la CI et Vercel restent en Node 22.
+  rend à `firebase-admin` le `SlowBuffer` que Node a retiré ; le build, la CI et Vercel restent en Node 24.
   Le build pré-rend toutes les annonces depuis Firestore : il lui faut les clés serveur, pas seulement les `NEXT_PUBLIC_*`.
 - Les mails de l'Aperçu ne partent pas : `scripts/kedalia-mail-relay` demande à Kedalia son capteur, et
   `src/helpers-api/mail.ts` poste au relais (`MAIL_RELAY_URL`, `MAIL_RELAY_TOKEN`) au lieu de Mailjet. On les lit sous
