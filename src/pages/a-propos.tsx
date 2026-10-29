@@ -4,8 +4,27 @@ import { COLORS, CONTACT_EMAIL, LAYOUT, SIZES } from "src/constants"
 import Layout from "src/layout"
 
 // Texte repris de l'ancienne page « À propos » (info.leschouxdacote.fr/a-propos), équipe complétée de Charles ILIEFF.
-// Photos de l'équipe dans public/a-propos/ ; sans photo, les initiales s'affichent à la place.
+// Photos de l'équipe et illustrations dans public/a-propos/ ; sans photo, les initiales s'affichent à la place.
 
+// Fond vert pâle sur toute la largeur, texte plus gros, plus gras et plus aéré que le reste du site (Roboto 300)
+const Page = styled.div`
+  background-color: ${COLORS.background.success};
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.7;
+  h1,
+  h2 {
+    color: ${COLORS.dark};
+  }
+`
+const Column = styled.div`
+  max-width: ${LAYOUT.maxWidth}px;
+  margin: 0 auto;
+  padding: 32px;
+  @media (max-width: ${LAYOUT.mobile}px) {
+    padding: 24px;
+  }
+`
 const Findings = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -19,9 +38,16 @@ const Finding = styled.section`
   border: 1px solid ${COLORS.border};
   border-radius: 8px;
   padding: 16px;
+  background-color: ${COLORS.white};
   h3 {
     margin-top: 0;
     color: ${COLORS.green};
+  }
+  img {
+    display: block;
+    width: 180px;
+    max-width: 100%;
+    margin: 0 auto 16px;
   }
 `
 const Center = styled.p`
@@ -119,8 +145,8 @@ const getInitials = (name: string) =>
     .map((part) => part[0])
     .join("")
 
-const AboutPage = () => (
-  <Layout title="À propos">
+const AboutContent = () => (
+  <>
     <h1>À propos</h1>
 
     <h2>D&apos;où vient l&apos;idée Les Choux d&apos;à Côté ?</h2>
@@ -137,6 +163,7 @@ const AboutPage = () => (
 
     <Findings>
       <Finding>
+        <img src="/a-propos/producteurs.webp" alt="" />
         <h3>Les producteurs</h3>
         <p>
           La vente à la ferme et le marché sont les principaux modes de commercialisation en circuit court : de la vente
@@ -151,6 +178,7 @@ const AboutPage = () => (
         </p>
       </Finding>
       <Finding>
+        <img src="/a-propos/acheteurs-professionnels.webp" alt="" />
         <h3>Les acheteurs professionnels</h3>
         <p>
           Les acheteurs professionnels cherchent à acheter en grande quantité des produits de qualité. Ils veulent
@@ -164,6 +192,7 @@ const AboutPage = () => (
         </p>
       </Finding>
       <Finding>
+        <img src="/a-propos/particuliers.webp" alt="" />
         <h3>Les particuliers</h3>
         <p>
           Les particuliers sont de plus en plus nombreux à se tourner vers une consommation locale et responsable. Mais
@@ -207,6 +236,16 @@ const AboutPage = () => (
       </LinkButton>
       <LinkButton href={`mailto:${CONTACT_EMAIL}`}>Nous contacter</LinkButton>
     </Actions>
+  </>
+)
+
+const AboutPage = () => (
+  <Layout title="À propos" fullWidth>
+    <Page>
+      <Column>
+        <AboutContent />
+      </Column>
+    </Page>
   </Layout>
 )
 
