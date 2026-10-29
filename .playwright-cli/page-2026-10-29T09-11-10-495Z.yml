@@ -1,0 +1,86 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link [ref=f1e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e42]:
+          - generic [ref=f1e43]:
+            - textbox "Que recherchez-vous ?" [ref=f1e44]
+            - textbox "Où ?" [ref=f1e45]
+          - button [ref=f1e46] [cursor=pointer]
+          - generic [ref=f1e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f1e53]
+            - generic [ref=f1e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=f1e57] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=f1e59]:
+      - heading "Mentions légales – leschouxdacote.fr" [level=1] [ref=f1e60]
+      - paragraph [ref=f1e61]: "Dernière mise à jour : 29 octobre 2026."
+      - heading "1. Éditeur" [level=2] [ref=f1e62]
+      - paragraph [ref=f1e63]: Le site leschouxdacote.fr (le « Site ») est édité à titre personnel et non professionnel par Anthony NGUYEN, particulier (l’« Éditeur »), qui en est aussi le directeur de la publication.
+      - paragraph [ref=f1e64]:
+        - text: "Contact :"
+        - link "contact@leschouxdacote.fr" [ref=f1e65] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+      - paragraph [ref=f1e66]: Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique, l’Éditeur, non professionnel, a communiqué ses éléments d’identification personnels à l’hébergeur du Site.
+      - heading "2. Hébergeur" [level=2] [ref=f1e67]
+      - paragraph [ref=f1e68]:
+        - text: "Vercel Inc.440 N Barranca Ave #4133, Covina, CA 91723, États-Unis"
+        - link "vercel.com" [ref=f1e69] [cursor=pointer]:
+          - /url: https://vercel.com
+      - heading "3. Propriété intellectuelle" [level=2] [ref=f1e70]
+      - paragraph [ref=f1e71]: Le Site, sa présentation et ses éléments propres (nom, logo, textes, mise en page) appartiennent à l’Éditeur. Toute reproduction ou réutilisation sans son autorisation est interdite.
+      - paragraph [ref=f1e72]: Les textes et photos des annonces appartiennent aux producteurs qui les publient, seuls responsables de leur contenu.
+      - heading "4. Données personnelles et conditions d’utilisation" [level=2] [ref=f1e73]
+      - paragraph [ref=f1e74]:
+        - text: Le traitement de vos données personnelles et l’usage des cookies sont décrits dans
+        - link "notre charte de respect de la vie privée" [ref=f1e75] [cursor=pointer]:
+          - /url: /charte
+        - text: . Les règles d’utilisation du Site figurent dans les
+        - link "Conditions Générales d’Utilisation" [ref=f1e76] [cursor=pointer]:
+          - /url: /cgu
+        - text: .
+    - contentinfo [ref=f1e77]:
+      - generic [ref=f1e78]:
+        - paragraph [ref=f1e79]:
+          - link "Notre charte" [ref=f1e80] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f1e81]:
+          - link "CGU" [ref=f1e82] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/cgs/
+        - paragraph [ref=f1e83]:
+          - link "Mentions légales" [ref=f1e84] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/mentions-legales/
+        - paragraph [ref=f1e85]:
+          - link "À propos" [ref=f1e86] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/a-propos/
+      - generic [ref=f1e87]:
+        - paragraph [ref=f1e88]:
+          - link "Assistance" [ref=f1e89] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=f1e90]:
+          - link "Actualité" [ref=f1e91] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=f1e92]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f1e93] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f1e94]: © 2026 Les Choux d’à Côté
+      - generic [ref=f1e95]:
+        - link [ref=f1e96] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f1e99] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f1e102] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f1e105]:
+      - paragraph [ref=f1e106]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f1e107] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f1e108]:
+        - button "Refuser" [ref=f1e109] [cursor=pointer]
+        - button "Accepter" [ref=f1e110] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=f1e116] [cursor=pointer]
+  - alert [ref=f1e120]

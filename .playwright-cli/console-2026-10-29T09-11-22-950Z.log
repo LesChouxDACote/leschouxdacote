@@ -1,0 +1,64 @@
+[     435ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[     566ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26030/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[     629ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     648ms] [LOG] [HMR] connected @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     721ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[     729ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     776ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[     842ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     843ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26030/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     844ms] Event

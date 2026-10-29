@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import { Button } from "src/components/Button"
+import Link from "src/components/Link"
 import { COLORS, CONTACT_EMAIL, LAYOUT } from "src/constants"
 import { useConsent } from "src/helpers/consent"
 import Layout from "src/layout"
@@ -8,6 +9,9 @@ import Layout from "src/layout"
 // (partie 4 : bouton « Modifier mon choix » à la place du lien « Gérer mes cookies », à reporter dans le document).
 
 const TextLink = styled.a`
+  text-decoration: underline;
+`
+const PageLink = styled(Link)`
   text-decoration: underline;
 `
 const TableWrapper = styled.div`
@@ -166,8 +170,8 @@ const CharterPage = () => {
         adressée à l&apos;adresse ci-dessus.
       </p>
       <p>
-        Cette Charte s&apos;applique avec les Conditions Générales d&apos;Utilisation. Elle respecte le Règlement
-        général sur la protection des données (RGPD) et la loi Informatique et Libertés.
+        Cette Charte s&apos;applique avec les <PageLink href="/cgu">Conditions Générales d&apos;Utilisation</PageLink>.
+        Elle respecte le Règlement général sur la protection des données (RGPD) et la loi Informatique et Libertés.
       </p>
 
       <h2>2. Quelles données, pourquoi, et sur quelle base ?</h2>
