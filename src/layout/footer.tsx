@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import Facebook from "src/assets/facebook.svg"
 import Linkedin from "src/assets/linkedin.svg"
 import Twitter from "src/assets/twitter.svg"
+import Link from "src/components/Link"
 import { COLORS } from "src/constants"
 
 const Container = styled.footer`
@@ -41,7 +42,7 @@ const Footer = () => {
     <Container>
       <div>
         <p>
-          <a href="https://info.leschouxdacote.fr/notre-charte/">Notre charte</a>
+          <Link href="/charte">Notre charte</Link>
         </p>
         <p>
           <a href="https://info.leschouxdacote.fr/cgs/">CGU</a>

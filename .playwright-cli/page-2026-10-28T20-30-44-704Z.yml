@@ -1,0 +1,65 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]: development
+    - main [ref=e8]:
+      - 'heading "Vente directe : Le circuit plus court des produits alimentaires" [level=1] [ref=e44]'
+      - link [ref=e45] [cursor=pointer]:
+        - /url: https://info.leschouxdacote.fr/
+        - paragraph [ref=e46]:
+          - strong [ref=e47]: Producteurs de produits alimentaires
+          - text: ", augmentez vos"
+          - strong [ref=e48]: ventes directes
+          - text: en publiant gratuitement des annonces.Acheteurs, découvrez les
+          - strong [ref=e49]: produits locaux en circuit court
+          - text: près de chez vous.
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - textbox "Que recherchez-vous ?" [ref=e52]
+          - textbox "Où ?" [ref=e53]
+        - button [ref=e54] [cursor=pointer]
+        - generic [ref=e58] [cursor=pointer]:
+          - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e61]
+          - generic [ref=e64]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - contentinfo [ref=e65]:
+      - generic [ref=e66]:
+        - paragraph [ref=e67]:
+          - link "Notre charte" [ref=e68] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e69]:
+          - link "CGU" [ref=e70] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/cgs/
+        - paragraph [ref=e71]:
+          - link "Mentions légales" [ref=e72] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/mentions-legales/
+        - paragraph [ref=e73]:
+          - link "À propos" [ref=e74] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/a-propos/
+      - generic [ref=e75]:
+        - paragraph [ref=e76]:
+          - link "Assistance" [ref=e77] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e78]:
+          - link "Actualité" [ref=e79] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=e80]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e81] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e82]: © 2026 Les Choux d’à Côté
+      - generic [ref=e83]:
+        - link [ref=e84] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e87] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e90] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e93]:
+      - paragraph [ref=e94]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e95] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e96]:
+        - button "Refuser" [ref=e97] [cursor=pointer]
+        - button "Accepter" [ref=e98] [cursor=pointer]
+  - alert [ref=e99]
