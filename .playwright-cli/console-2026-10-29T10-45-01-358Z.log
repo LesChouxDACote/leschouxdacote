@@ -1,0 +1,249 @@
+[     278ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[     530ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26033/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[     635ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     670ms] [LOG] [HMR] connected @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     823ms] [ERROR] Invalid attribute name: `%s` $variant @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[     847ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary FallbackComponent={function ErrorComponent}>
+      <EmotionGlobal>
+      <Head>
+      <ConsentProvider>
+        <UserProvider>
+          <AboutPage>
+            <Layout title="À propos">
+              <SEO>
+              ...
+                <div className="css-pmcapz...">
+                  <SearchBar>
+                    <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                      <Insertion>
+                      <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                        <div>
+                        <Styled(button)>
+                        <Styled(div)>
+                          <Insertion>
+                          <div className="css-1ykdma...">
+                            <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <Insertion>
+                              <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                                <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                  <Insertion>
+                                  <label
++                                   className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p..."
+-                                   className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1..."
+                                  >
+                                    <Styled(Component) name="bio" disabled={undefined} required={undefined} ...>
+                                      <Insertion>
+                                      <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                        <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                          <Insertion>
+                                          <span
++                                           className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwit..."
+-                                           className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-re..."
+                                          >
+                                    ...
+              <Styled(div)>
+                <Insertion>
+                <div className="css-1hc6xk...">
+                  <Styled(main)>
+                    <Insertion>
+                    <main className="css-6qxfsq...">
+                      <h1>
+                      <h2>
+                      <p>
+                      <p>
+                      <p>
+                      <Styled(div)>
+                      <p>
+                      <Styled(p)>
+                        <Insertion>
+                        <p className="css-4bl01d...">
+                          <Styled(Component) href="/" $variant="green">
+                            <Insertion>
+                            <LinkComponent href="/" $variant="green" className="css-lrjsci...">
+                              <a
++                               $variant="green"
+-                               $variant={undefined}
+                                className="css-lrjsci edpzwll1"
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/"
+                              >
++                               Je veux voir cette plateforme !
+                      <h2>
+                      <Styled(ul)>
+                      <Styled(p)>
+                      <Styled(p)>
+                        <Insertion>
+                        <p className="css-17vkjb...">
+                          <Styled(Component) href="/inscription" $variant="green">
+                            <Insertion>
+                            <LinkComponent href="/inscription" $variant="green" className="css-lrjsci...">
+                              <a
++                               $variant="green"
+-                               $variant={undefined}
+                                className="css-lrjsci edpzwll1"
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/inscription"
+                              >
++                               Inscription gratuite
+                          ...
+              ...
+          ...
+ @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[     863ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     932ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[    1022ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1023ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1025ms] Event
+[   26982ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   27012ms] [LOG] [Fast Refresh] done in 25ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   28059ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   28088ms] [LOG] [Fast Refresh] done in 5ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   29363ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   29393ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   30614ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   30647ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   31811ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   31842ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   32962ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   32992ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   34711ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   34751ms] [LOG] [Fast Refresh] done in 11ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   37918ms] [LOG] [Fast Refresh] done in 11ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   37940ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[   38071ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26033/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[   38092ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   38108ms] [LOG] [HMR] connected @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   38145ms] [ERROR] Invalid attribute name: `%s` $variant @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   38151ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <ErrorBoundary FallbackComponent={function ErrorComponent}>
+      <EmotionGlobal>
+      <Head>
+      <ConsentProvider>
+        <UserProvider>
+          <AboutPage>
+            <Layout title="À propos">
+              <SEO>
+              ...
+                <div className="css-pmcapz...">
+                  <SearchBar>
+                    <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                      <Insertion>
+                      <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                        <div>
+                        <Styled(button)>
+                        <Styled(div)>
+                          <Insertion>
+                          <div className="css-1ykdma...">
+                            <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <Insertion>
+                              <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                                <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                  <Insertion>
+                                  <label
++                                   className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p..."
+-                                   className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1..."
+                                  >
+                                    <Styled(Component) name="bio" disabled={undefined} required={undefined} ...>
+                                      <Insertion>
+                                      <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                        <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                          <Insertion>
+                                          <span
++                                           className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwit..."
+-                                           className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-re..."
+                                          >
+                                    ...
+              <Styled(div)>
+                <Insertion>
+                <div className="css-1hc6xk...">
+                  <Styled(main)>
+                    <Insertion>
+                    <main className="css-6qxfsq...">
+                      <h1>
+                      <h2>
+                      <p>
+                      <p>
+                      <p>
+                      <Styled(div)>
+                      <p>
+                      <Styled(p)>
+                        <Insertion>
+                        <p className="css-4bl01d...">
+                          <Styled(Component) href="/" $variant="green">
+                            <Insertion>
+                            <LinkComponent href="/" $variant="green" className="css-lrjsci...">
+                              <a
++                               $variant="green"
+-                               $variant={undefined}
+                                className="css-lrjsci edpzwll1"
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/"
+                              >
++                               Je veux voir cette plateforme !
+                      <h2>
+                      <Styled(ul)>
+                      <Styled(p)>
+                      <Styled(p)>
+                        <Insertion>
+                        <p className="css-17vkjb...">
+                          <Styled(Component) href="/inscription" $variant="green">
+                            <Insertion>
+                            <LinkComponent href="/inscription" $variant="green" className="css-lrjsci...">
+                              <a
++                               $variant="green"
+-                               $variant={undefined}
+                                className="css-lrjsci edpzwll1"
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/inscription"
+                              >
++                               Inscription gratuite
+                          ...
+              ...
+          ...
+ @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   38155ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   38177ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[   38228ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   38229ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   38230ms] Event
+[   62919ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   62949ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26033/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756

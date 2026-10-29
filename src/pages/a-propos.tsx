@@ -4,8 +4,7 @@ import { COLORS, CONTACT_EMAIL, LAYOUT, SIZES } from "src/constants"
 import Layout from "src/layout"
 
 // Texte repris de l'ancienne page « À propos » (info.leschouxdacote.fr/a-propos), équipe complétée de Charles ILIEFF.
-// Illustrations et photos de l'ancienne page non reprises : à déposer dans public/a-propos/ puis à référencer ici
-// (`photo: "/a-propos/anthony.png"`) ; sans photo, les initiales s'affichent à la place.
+// Photos de l'équipe dans public/a-propos/ ; sans photo, les initiales s'affichent à la place.
 
 const Findings = styled.div`
   display: grid;
@@ -41,17 +40,18 @@ const Team = styled.ul`
     grid-template-columns: repeat(2, 1fr);
   }
 `
-const Avatar = styled.div`
+// $shaped : photo déjà détourée (forme et feuilles de l'ancienne page), affichée entière sans cercle ni fond
+const Avatar = styled.div<{ $shaped?: boolean }>`
   width: 140px;
   height: 140px;
   max-width: 100%;
   margin: 0 auto 12px;
-  border-radius: 50%;
+  border-radius: ${({ $shaped }) => ($shaped ? 0 : "50%")};
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${COLORS.background.success};
+  background-color: ${({ $shaped }) => ($shaped ? "transparent" : COLORS.background.success)};
   color: ${COLORS.green};
   font-size: ${SIZES.price}px;
   img {
@@ -80,13 +80,37 @@ interface Member {
   role: string
   url: string
   photo?: string
+  shaped?: boolean
 }
 
 const TEAM: Member[] = [
-  { name: "Anthony NGUYEN", role: "Fondateur", url: "https://www.linkedin.com/in/anthonynguyen83/" },
-  { name: "Antoine ROUSSEAU", role: "Développeur", url: "https://antoine.rousseau.im/" },
-  { name: "Charles ILIEFF", role: "Développeur", url: "https://www.linkedin.com/in/charles-ilieff-3b286a39/" },
-  { name: "Margot DAUBAN", role: "Communication", url: "https://www.margotdauban.fr/" },
+  {
+    name: "Anthony NGUYEN",
+    role: "Fondateur",
+    url: "https://www.linkedin.com/in/anthonynguyen83/",
+    photo: "/a-propos/anthony.webp",
+    shaped: true,
+  },
+  {
+    name: "Antoine ROUSSEAU",
+    role: "Développeur",
+    url: "https://antoine.rousseau.im/",
+    photo: "/a-propos/antoine.webp",
+    shaped: true,
+  },
+  {
+    name: "Charles ILIEFF",
+    role: "Développeur",
+    url: "https://www.linkedin.com/in/charles-ilieff-3b286a39/",
+    photo: "/a-propos/charles.jpg",
+  },
+  {
+    name: "Margot DAUBAN",
+    role: "Communication",
+    url: "https://www.margotdauban.fr/",
+    photo: "/a-propos/margot.webp",
+    shaped: true,
+  },
 ]
 
 const getInitials = (name: string) =>
@@ -165,7 +189,9 @@ const AboutPage = () => (
     <Team>
       {TEAM.map((member) => (
         <li key={member.name}>
-          <Avatar>{member.photo ? <img src={member.photo} alt={member.name} /> : getInitials(member.name)}</Avatar>
+          <Avatar $shaped={member.shaped}>
+            {member.photo ? <img src={member.photo} alt={member.name} /> : getInitials(member.name)}
+          </Avatar>
           <Name href={member.url} target="_blank" rel="noopener">
             {member.name}
           </Name>
