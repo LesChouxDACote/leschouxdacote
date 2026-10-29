@@ -1,5 +1,5 @@
 # Watcher Trello + IA (yarn watch-trello) — voir README « Automatisation Trello + IA »
-FROM node:22-slim
+FROM node:24-slim
 
 # git (worktrees), gh (pull requests), claude (plan + implémentation)
 RUN apt-get update \
