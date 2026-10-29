@@ -208,11 +208,6 @@ const AboutContent = () => (
     </Findings>
 
     <p>La plateforme de vente directe Les Choux d&apos;à Côté répond justement à toutes ces problématiques !</p>
-    <Center>
-      <LinkButton href="/" $variant="green">
-        Je veux voir cette plateforme !
-      </LinkButton>
-    </Center>
 
     <h2>L&apos;équipe derrière le projet</h2>
     <Team>
