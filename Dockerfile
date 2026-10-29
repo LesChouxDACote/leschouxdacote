@@ -1,6 +1,6 @@
-# The image Kedalia deploys (`docker-compose.yaml`), one per branch; Vercel builds without it. Node 22 like the CI.
+# The image Kedalia deploys (`docker-compose.yaml`), one per branch; Vercel builds without it. Node 24 like the CI and Vercel.
 # corepack hands over to the yarn of `packageManager`, which runs the repository's own (yarnPath).
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 RUN corepack enable && chown node:node /app
 USER node

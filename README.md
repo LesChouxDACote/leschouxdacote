@@ -169,7 +169,7 @@ Prérequis sur la machine qui exécute le watcher :
 Créer une ressource « Docker Compose » pointant sur ce dépôt, « Docker Compose Location » à `/docker-compose.yml` (le
 défaut `/docker-compose.yaml` est l'application que déploie Kedalia ; en local, `docker compose -f docker-compose.yml`) :
 le `docker-compose.yml` à la racine construit
-`docker/trello-ia/Dockerfile` (Node 22 + git + gh + claude) et lance `yarn watch-trello`.
+`docker/trello-ia/Dockerfile` (Node 24 + git + gh + claude) et lance `yarn watch-trello`.
 Le volume `/data` persiste l'authentification et les sessions Claude (nécessaires à la reprise par ticket),
 l'état des tickets (`ia-sessions.json`) et les worktrees.
 
