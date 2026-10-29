@@ -45,10 +45,10 @@ const Footer = () => {
           <Link href="/charte">Notre charte</Link>
         </p>
         <p>
-          <a href="https://info.leschouxdacote.fr/cgs/">CGU</a>
+          <Link href="/cgu">CGU</Link>
         </p>
         <p>
-          <a href="https://info.leschouxdacote.fr/mentions-legales/">Mentions légales</a>
+          <Link href="/mentions-legales">Mentions légales</Link>
         </p>
         <p>
           <a href="https://info.leschouxdacote.fr/a-propos/">À propos</a>

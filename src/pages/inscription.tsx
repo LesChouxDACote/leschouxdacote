@@ -133,7 +133,7 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
         />
         <Paragraph>
           En créant mon compte je reconnais avoir lu et accepté les{" "}
-          <a href="https://info.leschouxdacote.fr/cgs" target="_blank" rel="noopener">
+          <a href="/cgu" target="_blank" rel="noopener">
             Conditions Générales d’Utilisation
           </a>
           .

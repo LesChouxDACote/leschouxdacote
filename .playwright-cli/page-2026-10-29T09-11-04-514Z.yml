@@ -1,0 +1,123 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - textbox "Que recherchez-vous ?" [ref=e44]
+            - textbox "Où ?" [ref=e45]
+          - button [ref=e46] [cursor=pointer]
+          - generic [ref=e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e53]
+            - generic [ref=e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - main [ref=e59]:
+      - heading "Conditions générales d’utilisation – leschouxdacote.fr" [level=1] [ref=e60]
+      - paragraph [ref=e61]: "Dernière mise à jour : 29 octobre 2026."
+      - heading "1. Objet" [level=2] [ref=e62]
+      - paragraph [ref=e63]: Le site leschouxdacote.fr (le « Site ») permet à des producteurs de produits alimentaires de publier des annonces et à des acheteurs de les trouver, de les réserver et de contacter directement les producteurs, sans intermédiaire.
+      - paragraph [ref=e64]: Le Site est édité à titre personnel et non professionnel par Anthony NGUYEN (l’« Éditeur »). Son utilisation est gratuite.
+      - paragraph [ref=e65]:
+        - text: "Les présentes Conditions Générales d’Utilisation (les « CGU ») fixent les règles d’utilisation du Site. Contact :"
+        - link "contact@leschouxdacote.fr" [ref=e66] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+      - heading "2. Acceptation des CGU" [level=2] [ref=e67]
+      - paragraph [ref=e68]: La consultation des annonces est libre. La création d’un compte vaut acceptation des CGU dans leur version en vigueur. Si vous ne les acceptez pas, ne créez pas de compte.
+      - heading "3. Comptes" [level=2] [ref=e69]
+      - paragraph [ref=e70]: "Deux types de comptes existent :"
+      - list [ref=e71]:
+        - listitem [ref=e72]: "Compte producteur : réservé aux professionnels qui vendent les produits qu’ils produisent ou transforment. Il demande un numéro SIRET, un nom commercial, une adresse, une description de l’activité et un numéro de téléphone."
+        - listitem [ref=e73]: "Compte acheteur : il permet de suivre des producteurs, de recevoir des alertes et de réserver des produits."
+      - paragraph [ref=e74]: "Le Site est réservé aux personnes majeures. Vous vous engagez à fournir des informations exactes et à les tenir à jour. Votre mot de passe est personnel : gardez-le confidentiel. Toute action réalisée depuis votre compte est réputée faite par vous."
+      - heading "4. Annonces" [level=2] [ref=e75]
+      - paragraph [ref=e76]: "Le producteur est seul responsable des annonces qu’il publie. Il s’engage à :"
+      - list [ref=e77]:
+        - listitem [ref=e78]: ne proposer que des produits alimentaires qu’il produit ou transforme lui-même ;
+        - listitem [ref=e79]: respecter la réglementation applicable à ses produits, notamment les règles d’hygiène, de traçabilité, d’étiquetage et d’information sur les prix ;
+        - listitem [ref=e80]: décrire ses produits de façon exacte et loyale (nature, quantité, prix, lieu et créneaux de retrait) ;
+        - listitem [ref=e81]: ne publier que des textes et des photos dont il détient les droits.
+      - paragraph [ref=e82]: "Une annonce a une durée de validité limitée : à sa date d’expiration, elle n’est plus visible. Le producteur peut être prévenu par e-mail et la remettre en ligne depuis son compte."
+      - paragraph [ref=e83]: L’Éditeur peut retirer, sans préavis, une annonce illicite, trompeuse ou contraire aux CGU ou à l’objet du Site.
+      - heading "5. Réservations" [level=2] [ref=e84]
+      - paragraph [ref=e85]: Lorsqu’un producteur l’a prévu, l’acheteur peut réserver une quantité d’un produit sur un créneau de retrait, dans la limite des quantités disponibles. Ses prénom, nom, adresse e-mail et numéro de téléphone sont alors transmis au producteur, qui est prévenu par e-mail.
+      - paragraph [ref=e86]: L’acheteur peut modifier ou annuler sa réservation jusqu’à la fin du créneau. Le producteur peut ajuster la quantité réservée ; il en informe lui-même l’acheteur.
+      - paragraph [ref=e87]: Une réservation n’est pas un paiement. Le paiement et la remise des produits se font directement entre le producteur et l’acheteur, en dehors du Site. L’Éditeur n’est pas partie à la vente et n’intervient pas dans son exécution. Le producteur et l’acheteur s’engagent à honorer les réservations ou à prévenir l’autre partie dans les meilleurs délais.
+      - heading "6. Alertes et producteurs suivis" [level=2] [ref=e88]
+      - paragraph [ref=e89]: Vous pouvez suivre des producteurs et recevoir un e-mail lors de leurs nouvelles annonces. Ces alertes, comme celles qui préviennent un producteur de l’expiration de ses annonces, se désactivent à tout moment depuis la page « Mes alertes » de votre compte.
+      - heading "7. Responsabilités" [level=2] [ref=e90]
+      - paragraph [ref=e91]: Pour les annonces et les informations publiées par les utilisateurs, l’Éditeur agit en tant qu’hébergeur au sens de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l’économie numérique (LCEN). Il ne contrôle pas ces contenus avant leur publication. Il ne garantit ni la qualité, ni la conformité, ni la disponibilité des produits proposés.
+      - paragraph [ref=e92]: L’Éditeur s’efforce de rendre le Site accessible, sans pouvoir le garantir en permanence. Il peut l’interrompre, notamment pour maintenance, sans que sa responsabilité puisse être engagée.
+      - paragraph [ref=e93]: Chaque utilisateur est responsable de l’usage qu’il fait du Site et des coordonnées des autres utilisateurs. Il s’interdit tout usage illicite, frauduleux ou contraire à l’objet du Site (démarchage, spam, collecte automatisée de données…).
+      - heading "8. Signaler un contenu" [level=2] [ref=e94]
+      - paragraph [ref=e95]:
+        - text: Pour signaler une annonce ou un contenu illicite, écrivez à
+        - link "contact@leschouxdacote.fr" [ref=e96] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+        - text: en indiquant l’adresse de la page concernée et la raison de votre signalement. L’Éditeur le traitera dans les meilleurs délais.
+      - heading "9. Suspension et suppression du compte" [level=2] [ref=e97]
+      - paragraph [ref=e98]: L’Éditeur peut suspendre ou supprimer un compte en cas de manquement aux CGU, après avoir, sauf urgence, invité l’utilisateur à s’expliquer.
+      - paragraph [ref=e99]:
+        - text: Vous pouvez demander la suppression de votre compte à tout moment en écrivant à
+        - link "contact@leschouxdacote.fr" [ref=e100] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+        - text: . Vos annonces et vos données sont alors supprimées, dans les conditions prévues par la charte.
+      - heading "10. Données personnelles" [level=2] [ref=e101]
+      - paragraph [ref=e102]:
+        - text: Le traitement de vos données personnelles et l’usage des cookies sont décrits dans
+        - link "notre charte de respect de la vie privée" [ref=e103] [cursor=pointer]:
+          - /url: /charte
+        - text: .
+      - heading "11. Propriété intellectuelle" [level=2] [ref=e104]
+      - paragraph [ref=e105]: Le Site, sa présentation et ses éléments propres (nom, logo, textes, mise en page) appartiennent à l’Éditeur. Leur reproduction sans autorisation est interdite.
+      - paragraph [ref=e106]: Le producteur conserve ses droits sur les textes et photos de ses annonces. Il autorise l’Éditeur à les afficher gratuitement sur le Site, pendant la durée de leur publication, pour les besoins de son fonctionnement.
+      - heading "12. Modification des CGU" [level=2] [ref=e107]
+      - paragraph [ref=e108]: L’Éditeur peut modifier les CGU. La date de dernière mise à jour figure en haut de page. Continuer à utiliser le Site après une modification vaut acceptation des nouvelles CGU.
+      - heading "13. Droit applicable" [level=2] [ref=e109]
+      - paragraph [ref=e110]:
+        - text: Les CGU sont soumises au droit français. En cas de litige, une solution amiable sera recherchée en priorité, en écrivant à
+        - link "contact@leschouxdacote.fr" [ref=e111] [cursor=pointer]:
+          - /url: mailto:contact@leschouxdacote.fr
+        - text: . À défaut, les tribunaux français seront compétents.
+    - contentinfo [ref=e112]:
+      - generic [ref=e113]:
+        - paragraph [ref=e114]:
+          - link "Notre charte" [ref=e115] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e116]:
+          - link "CGU" [ref=e117] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/cgs/
+        - paragraph [ref=e118]:
+          - link "Mentions légales" [ref=e119] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/mentions-legales/
+        - paragraph [ref=e120]:
+          - link "À propos" [ref=e121] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/a-propos/
+      - generic [ref=e122]:
+        - paragraph [ref=e123]:
+          - link "Assistance" [ref=e124] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e125]:
+          - link "Actualité" [ref=e126] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=e127]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e128] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e129]: © 2026 Les Choux d’à Côté
+      - generic [ref=e130]:
+        - link [ref=e131] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e134] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e137] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e140]:
+      - paragraph [ref=e141]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e142] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e143]:
+        - button "Refuser" [ref=e144] [cursor=pointer]
+        - button "Accepter" [ref=e145] [cursor=pointer]
+  - alert [ref=e146]
