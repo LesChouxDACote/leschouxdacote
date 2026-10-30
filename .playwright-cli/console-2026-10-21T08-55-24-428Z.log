@@ -1,0 +1,216 @@
+[     541ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[     683ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[     761ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     786ms] [LOG] [HMR] connected @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     851ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[     861ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     887ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebase.googleapis.com/v1alpha/projects/-/apps/1:493947474406:web:b52c12a8eb58b94b710627/webConfig:0
+[     887ms] [WARNING] [2026-10-21T08:55:25.314Z]  @firebase/analytics: Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID G-ETQ9TZL9RW provided in the "measurementId" field in the local Firebase config. [Failed to fetch] @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     890ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[     960ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebaseinstallations.googleapis.com/v1/projects/les-choux-da-cote/installations:0
+[     990ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU:0
+[    1011ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://www.googletagmanager.com/gtag/js?l=dataLayer&id=G-ETQ9TZL9RW:0
+[    1018ms] [ERROR] TypeError: Failed to fetch
+    at wrappedFetch (http://127.0.0.1:26015/_next/static/chunks/node_modules_%40bugsnag_browser_dist_bugsnag_1jzrct8.js:3111:43)
+    at http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:51
+    at retryIfServerError (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5658:26)
+    at createInstallationRequest (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:28)
+    at async registerInstallation (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:6075:45) @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[    1019ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1020ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1021ms] Event
+[   10590ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10597ms] [ERROR] %o
+
+%s
+
+%s
+ ReferenceError: Paragraph is not defined
+    at NewPasswordPage (http://127.0.0.1:26015/_next/static/chunks/%5Broot-of-the-server%5D__1vta7hm._.js?id=%255Bproject%255D/src/pages/nouveau-mot-de-passe.tsx+%255Bclient%255D+(ecmascript):89:284)
+    at Object.react_stack_bottom_frame (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:13588:24)
+    at renderWithHooks (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:4252:24)
+    at updateFunctionComponent (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:5705:21)
+    at beginWork (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:6286:24)
+    at runWithFiberInDEV (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:674:74)
+    at performUnitOfWork (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:8682:97)
+    at workLoopSync (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:8576:40)
+    at renderRootSync (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:8560:13)
+    at performWorkOnRoot (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:8225:47)
+    at performSyncWorkOnRoot (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:9330:9)
+    at flushSyncWorkAcrossRoots_impl (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:9246:316)
+    at flushSyncWork$1 (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:8357:86)
+    at Object.scheduleRefresh (http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:82:13)
+    at http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_compiled_1n82w36._.js:7622:33
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_compiled_1n82w36._.js:7615:38)
+    at applyUpdate (http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_compiled_1n82w36._.js:137:31)
+    at http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_compiled_1n82w36._.js:145:13 The above error occurred in the <NewPasswordPage> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary. @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   10597ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10633ms] [LOG] [Fast Refresh] done in 16ms @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   11975ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   11976ms] [WARNING] [Fast Refresh] performing full reload
+
+Fast Refresh will perform a full reload when you edit a file that's imported by modules outside of the React rendering tree.
+You might have a file which exports a React component but also exports a value that is imported by a non-React component file.
+Consider migrating the non-React component export to a separate file and importing it into both files.
+
+It is also possible the parent component of the component you edited is a class component, which disables Fast Refresh.
+Fast Refresh requires at least one parent function component in your React tree. @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12025ms] [LOG] [Fast Refresh] done in 3ms @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12060ms] [LOG] [Fast Refresh] done in 3ms @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12260ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12309ms] [LOG] [Fast Refresh] done in 150ms @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12315ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://127.0.0.1:26015/nouveau-mot-de-passe?oobCode=invalide:0
+[   12408ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[   12421ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12431ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12432ms] ReferenceError: styled is not defined
+    at <unknown> (file:///workspaces/leschouxdacote/branches/mot-de-passe-oubl/repo/.next/dev/server/chunks/ssr/[root-of-the-server]__0auke3u._.js:2484:19)
+[   12432ms] [LOG] [HMR] connected @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12441ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebase.googleapis.com/v1alpha/projects/-/apps/1:493947474406:web:b52c12a8eb58b94b710627/webConfig:0
+[   12441ms] [WARNING] [2026-10-21T08:55:36.869Z]  @firebase/analytics: Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID G-ETQ9TZL9RW provided in the "measurementId" field in the local Firebase config. [Failed to fetch] @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12470ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebaseinstallations.googleapis.com/v1/projects/les-choux-da-cote/installations:0
+[   12492ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://www.googletagmanager.com/gtag/js?l=dataLayer&id=G-ETQ9TZL9RW:0
+[   12503ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12521ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[   12521ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[   12521ms] [ERROR] TypeError: Failed to fetch
+    at wrappedFetch (http://127.0.0.1:26015/_next/static/chunks/node_modules_%40bugsnag_browser_dist_bugsnag_1jzrct8.js:3111:43)
+    at http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:51
+    at retryIfServerError (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5658:26)
+    at createInstallationRequest (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:28)
+    at async registerInstallation (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:6075:45) @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   12551ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12551ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   12552ms] Event
+[   13216ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13297ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[   13398ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26015/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[   13419ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13431ms] [LOG] [HMR] connected @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13436ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebase.googleapis.com/v1alpha/projects/-/apps/1:493947474406:web:b52c12a8eb58b94b710627/webConfig:0
+[   13436ms] [WARNING] [2026-10-21T08:55:37.864Z]  @firebase/analytics: Failed to fetch this Firebase app's measurement ID from the server. Falling back to the measurement ID G-ETQ9TZL9RW provided in the "measurementId" field in the local Firebase config. [Failed to fetch] @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13440ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://firebaseinstallations.googleapis.com/v1/projects/les-choux-da-cote/installations:0
+[   13459ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   13463ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13471ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://www.googletagmanager.com/gtag/js?l=dataLayer&id=G-ETQ9TZL9RW:0
+[   13472ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[   13502ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13503ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   13503ms] Event
+[   13510ms] [ERROR] TypeError: Failed to fetch
+    at wrappedFetch (http://127.0.0.1:26015/_next/static/chunks/node_modules_%40bugsnag_browser_dist_bugsnag_1jzrct8.js:3111:43)
+    at http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:51
+    at retryIfServerError (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5658:26)
+    at createInstallationRequest (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:5711:28)
+    at async registerInstallation (http://127.0.0.1:26015/_next/static/chunks/node_modules_033td-_._.js:6075:45) @ http://127.0.0.1:26015/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   13532ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://identitytoolkit.googleapis.com/v1/accounts:resetPassword?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU:0

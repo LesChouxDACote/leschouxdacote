@@ -1,30 +1,18 @@
-import { sendPasswordResetEmail } from "firebase/auth"
 import { useState } from "react"
-import { Form, SubmitButton, TextInput, ValidationError } from "src/components/Form"
+import { Form, SubmitButton, TextInput } from "src/components/Form"
 import Link from "src/components/Link"
-import { auth } from "src/helpers/firebase"
-import { getAbsoluteUrl } from "src/helpers/text"
+import api from "src/helpers/api"
 import Layout from "src/layout"
 import { Register } from "src/pages/connexion"
 
 export const LostPasswordPage = () => {
   const [sent, setSent] = useState(false)
 
+  // L'e-mail part du serveur (Mailjet) avec un lien vers /nouveau-mot-de-passe ; les adresses
+  // invalides ou inconnues reviennent en erreurs de champ (ValidationError via api.post)
   const handleSubmit: Submit<LostPassword> = async (data) => {
-    try {
-      await sendPasswordResetEmail(auth, data.email, {
-        url: getAbsoluteUrl("connexion"),
-      })
-      setSent(true)
-    } catch (error) {
-      if (error.code === "auth/invalid-email") {
-        throw new ValidationError("email", "Adresse e-mail invalide")
-      }
-      if (error.code === "auth/user-not-found") {
-        throw new ValidationError("email", "Adresse e-mail inconnue")
-      }
-      throw error
-    }
+    await api.post("password-reset", { email: data.email })
+    setSent(true)
   }
 
   return (
