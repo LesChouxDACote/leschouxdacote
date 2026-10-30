@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Button as GreenButton } from "src/components/Button"
 import { ValidationError as ApiValidationError } from "src/components/Form"
+import HelpLink from "src/components/HelpLink"
 import { Text } from "src/components/Text"
 import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
 import api from "src/helpers/api"
@@ -86,6 +87,10 @@ const SectionTitle = styled.h3`
   margin: 0 0 15px;
   font-size: ${SIZES.large}px;
   font-weight: bold;
+`
+
+const HelpRow = styled.div`
+  margin: -10px 0 15px;
 `
 
 const Instructions = styled(Text)`
@@ -331,6 +336,9 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
           </CloseButton>
 
           <SectionTitle>Réservation</SectionTitle>
+          <HelpRow>
+            <HelpLink slug="reserver" />
+          </HelpRow>
 
           <SlotsLabel>
             Choisissez votre créneau <span style={{ color: COLORS.red }}>*</span>

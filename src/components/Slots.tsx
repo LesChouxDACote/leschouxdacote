@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { pipe, Result, Schema as Sc, SchemaIssue } from "effect"
+import HelpLink from "src/components/HelpLink"
 import Modal from "src/components/Modal"
 import SlotBookings from "src/components/SlotBookings"
 import SlotCard from "src/components/SlotCard"
@@ -207,9 +208,12 @@ const SlotsForm = ({ productId, setSlots, slots, onInvalidChange }: SlotsFormPro
 
   return (
     <Stack spacing={2} sx={{ alignItems: "start" }}>
-      <Typography variant="h2" sx={{ fontSize: "25px" }}>
-        Créneaux
-      </Typography>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
+        <Typography variant="h2" sx={{ fontSize: "25px" }}>
+          Créneaux
+        </Typography>
+        <HelpLink slug="creneaux" />
+      </Stack>
 
       {isAdding ? (
         <Paper variant="outlined" sx={{ width: "100%", p: 2 }}>

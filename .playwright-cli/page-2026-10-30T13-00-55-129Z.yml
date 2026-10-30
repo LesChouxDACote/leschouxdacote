@@ -1,0 +1,98 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - banner [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - link [ref=f3e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f3e42]:
+          - generic [ref=f3e43]:
+            - textbox "Que recherchez-vous ?" [ref=f3e44]
+            - textbox "Où ?" [ref=f3e45]
+          - button [ref=f3e46] [cursor=pointer]
+          - generic [ref=f3e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f3e53]
+            - generic [ref=f3e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=f3e57] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=f3e59]:
+      - generic [ref=f3e60]:
+        - link "← Retour à l'aide" [ref=f3e61] [cursor=pointer]:
+          - /url: /aide
+        - heading "Foire aux questions" [level=1] [ref=f3e62]
+        - heading "Quelles différences avec des sites marchands comme La Fourche ou La Ruche qui dit Oui ! ?" [level=2] [ref=f3e63]
+        - paragraph [ref=f3e64]: "Les Choux d'à Côté est une plateforme d'annonces alimentaires qui défend le circuit court sans imposer de mode de vente ni de paiement. Producteurs et acheteurs échangent directement, par e-mail, par téléphone ou sur place. Le règlement se fait en dehors de la plateforme, et chaque producteur reste libre de son mode de distribution : vente à la ferme, marché, AMAP, tournée…"
+        - heading "Comment fonctionne la plateforme ?" [level=2] [ref=f3e65]
+        - paragraph [ref=f3e66]: Des producteurs professionnels publient des annonces. Les acheteurs les trouvent par mot-clé et par lieu, sur une liste ou une carte, puis les contactent ou réservent un créneau de retrait quand le producteur en propose.
+        - heading "Comment se passe la livraison ?" [level=2] [ref=f3e67]
+        - paragraph [ref=f3e68]: "Le producteur et l'acheteur choisissent ensemble : retrait à la ferme, tournée, point relais, drive fermier, achat groupé… Les Choux d'à Côté ne joue pas le rôle d'intermédiaire."
+        - heading "Comment Les Choux d'à Côté se rémunère ?" [level=2] [ref=f3e69]
+        - paragraph [ref=f3e70]:
+          - text: La consultation est gratuite. Les éventuelles conditions de publication sont précisées dans les
+          - link "CGU" [ref=f3e71] [cursor=pointer]:
+            - /url: /cgu
+          - text: .
+        - heading "Qui peut publier des annonces ?" [level=2] [ref=f3e72]
+        - paragraph [ref=f3e73]: Seuls les producteurs et artisans professionnels de l'alimentaire, après vérification de leur SIRET et de leur activité. Les particuliers ne peuvent pas publier, pour éviter une concurrence déloyale envers ceux qui paient des charges professionnelles.
+        - heading "Qui peut répondre aux annonces ?" [level=2] [ref=f3e74]
+        - paragraph [ref=f3e75]: "Tout le monde : particuliers comme professionnels (restaurants, épiceries, boucheries…)."
+        - heading "Est-il possible d'acheter en ligne ?" [level=2] [ref=f3e76]
+        - paragraph [ref=f3e77]:
+          - text: Vous pouvez réserver en ligne quand le producteur propose des créneaux de retrait, mais le paiement se fait sur place, directement avec lui (espèces, chèque, virement… selon ce qu'il accepte). Voir
+          - link "Réserver un produit" [ref=f3e78] [cursor=pointer]:
+            - /url: /aide/reserver
+          - text: .
+        - heading "Comment annuler une réservation ?" [level=2] [ref=f3e79]
+        - paragraph [ref=f3e80]:
+          - text: Dans le menu, ouvrez
+          - strong [ref=f3e81]: Mes réservations
+          - text: ", cliquez sur"
+          - strong [ref=f3e82]: Annuler
+          - text: sur la réservation concernée, puis sur
+          - strong [ref=f3e83]: Confirmer l’annulation
+          - text: .
+        - heading "Comment supprimer mon compte ?" [level=2] [ref=f3e84]
+        - paragraph [ref=f3e85]:
+          - text: Dans le menu, ouvrez
+          - strong [ref=f3e86]: Mon profil
+          - text: et cliquez sur
+          - strong [ref=f3e87]: Supprimer le compte
+          - text: en bas de la page. Pour un producteur, toutes ses annonces sont supprimées avec le compte.
+        - paragraph [ref=f3e88]:
+          - text: Vous ne trouvez pas la réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=f3e89] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=f3e90]:
+      - generic [ref=f3e91]:
+        - paragraph [ref=f3e92]:
+          - link "Notre charte" [ref=f3e93] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f3e94]:
+          - link "CGU" [ref=f3e95] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f3e96]:
+          - link "Mentions légales" [ref=f3e97] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f3e98]:
+          - link "À propos" [ref=f3e99] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f3e100]:
+        - paragraph [ref=f3e101]:
+          - link "Assistance" [ref=f3e102] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f3e103]:
+          - link "Actualité" [ref=f3e104] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=f3e105]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f3e106] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f3e107]: © 2026 Les Choux d’à Côté
+      - generic [ref=f3e108]:
+        - link [ref=f3e109] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f3e112] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f3e115] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+  - alert [ref=f3e118]

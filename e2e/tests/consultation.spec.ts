@@ -88,6 +88,39 @@ test.describe("Consultation", () => {
     )
   })
 
+  test("le lien « Assistance » du pied de page ouvre l'aide du site, dont la recherche filtre les sujets", async ({
+    page,
+  }) => {
+    await page.goto("/")
+    await page.getByRole("button", { name: "Refuser" }).click()
+    await page.getByRole("link", { name: "Assistance" }).click()
+    await expect(page).toHaveURL(/\/aide$/)
+    await expect(page.getByRole("heading", { name: "Aide en ligne" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Publier une annonce" })).toBeVisible()
+
+    // sans accent : « creneau » trouve « Créer des créneaux de retrait »
+    await page.getByRole("searchbox", { name: "Rechercher un sujet" }).fill("creneau")
+    await expect(page.getByRole("link", { name: "Créer des créneaux de retrait" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Gérer ses favoris et ses alertes" })).toHaveCount(0)
+
+    await page.getByRole("link", { name: "Créer des créneaux de retrait" }).click()
+    await expect(page).toHaveURL(/\/aide\/creneaux$/)
+    await page.getByRole("link", { name: "← Retour à l'aide" }).click()
+    await expect(page).toHaveURL(/\/aide$/)
+  })
+
+  test("la FAQ de l'aide renvoie aux CGU pour la publication", async ({ page }) => {
+    await page.goto("/aide/faq")
+    await expect(page.getByText("La consultation est gratuite.")).toBeVisible()
+    await expect(page.getByRole("link", { name: "CGU", exact: true }).first()).toHaveAttribute("href", "/cgu")
+    await expect(page.getByText(/3 (premiers )?mois/)).toHaveCount(0)
+  })
+
+  test("l'inscription propose un lien « Besoin d'aide ? » vers sa page d'aide", async ({ page }) => {
+    await page.goto("/inscription")
+    await expect(page.getByRole("link", { name: "Besoin d'aide ?" })).toHaveAttribute("href", "/aide/creer-son-compte")
+  })
+
   test("le bandeau cookies retient le refus et revient via « Modifier mon choix »", async ({ page }) => {
     await page.goto("/")
     const banner = page.getByRole("region", { name: "Cookies" })

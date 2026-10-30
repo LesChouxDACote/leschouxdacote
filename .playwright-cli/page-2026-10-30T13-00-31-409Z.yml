@@ -1,0 +1,106 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e129]:
+      - generic [ref=e130]:
+        - link [ref=e131] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e168]:
+          - generic [ref=e169]:
+            - textbox "Que recherchez-vous ?" [ref=e170]
+            - textbox "Où ?" [ref=e171]
+          - button [ref=e172] [cursor=pointer]
+          - generic [ref=e176] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e179]
+            - generic [ref=e182]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=e183] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=e185]:
+      - generic [ref=e186]:
+        - link "← Retour à l'aide" [ref=e187] [cursor=pointer]:
+          - /url: /aide
+        - heading "Créer des créneaux de retrait" [level=1] [ref=e188]
+        - paragraph [ref=e189]: Les créneaux indiquent à vos clients quand venir chercher leurs produits. Avec une réservation, ils peuvent aussi réserver une quantité à l'avance.
+        - heading "Ajouter un créneau" [level=2] [ref=e190]
+        - list [ref=e191]:
+          - listitem [ref=e192]:
+            - text: Dans votre annonce, partie
+            - strong [ref=e193]: Créneaux
+            - text: ", cliquez sur"
+            - strong [ref=e194]: Ajouter un créneau
+            - text: .
+          - listitem [ref=e195]: Renseignez la date, l'heure de début et l'heure de fin.
+          - listitem [ref=e196]:
+            - text: Cliquez sur
+            - strong [ref=e197]: Ajouter
+            - text: .
+        - heading "Ouvrir les réservations sur un créneau" [level=2] [ref=e198]
+        - paragraph [ref=e199]:
+          - text: Sur le créneau, cliquez sur
+          - strong [ref=e200]: Configurer la réservation
+          - text: ", puis indiquez :"
+        - list [ref=e201]:
+          - listitem [ref=e202]:
+            - text: le
+            - strong [ref=e203]: Stock disponible
+            - text: ": quand il est atteint, plus personne ne peut réserver ce créneau ;"
+          - listitem [ref=e204]:
+            - text: une
+            - strong [ref=e205]: Quantité maximale par personne
+            - text: "(facultative : laissez vide pour ne pas fixer de limite) ;"
+          - listitem [ref=e206]:
+            - text: des
+            - strong [ref=e207]: Informations et consignes pour les clients
+            - text: (lieu exact, sac à apporter…).
+        - paragraph [ref=e208]: L'unité du produit doit être renseignée dans l'annonce pour activer une réservation.
+        - heading "⚠️ Enregistrer" [level=2] [ref=e209]
+        - paragraph [ref=e210]:
+          - text: Cliquez ensuite sur
+          - strong [ref=e211]: Enregistrer l'annonce
+          - text: ": sans cela, vos créneaux ne sont pas gardés."
+        - heading "Supprimer un créneau" [level=2] [ref=e212]
+        - paragraph [ref=e213]: Si des clients ont déjà réservé ce créneau, l'application vous prévient avant la suppression. Pensez à les contacter.
+        - paragraph [ref=e214]:
+          - text: "Pour voir qui a réservé :"
+          - link "Suivre les réservations" [ref=e215] [cursor=pointer]:
+            - /url: /aide/reservations-clients
+          - text: .
+        - paragraph [ref=e216]:
+          - text: Vous ne trouvez pas la réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=e217] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=e218]:
+      - generic [ref=e219]:
+        - paragraph [ref=e220]:
+          - link "Notre charte" [ref=e221] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e222]:
+          - link "CGU" [ref=e223] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e224]:
+          - link "Mentions légales" [ref=e225] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e226]:
+          - link "À propos" [ref=e227] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e228]:
+        - paragraph [ref=e229]:
+          - link "Assistance" [ref=e230] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e231]:
+          - link "Actualité" [ref=e232] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=e233]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e234] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e235]: © 2026 Les Choux d’à Côté
+      - generic [ref=e236]:
+        - link [ref=e237] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e240] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e243] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+  - button "Open Next.js Dev Tools" [ref=e124] [cursor=pointer]
+  - alert [ref=e128]: Créer des créneaux de retrait – Aide | Les Choux d'à Côté

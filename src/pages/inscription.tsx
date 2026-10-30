@@ -2,6 +2,7 @@ import styled from "@emotion/styled"
 import { useRouter } from "next/router"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { StyledButton, ValidationError } from "src/components/Form"
+import HelpLink from "src/components/HelpLink"
 import { Input, Radio, Radios, Required, StyledForm, Title } from "src/components/YupForm"
 import { USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
@@ -16,6 +17,9 @@ const Paragraph = styled.p`
   a {
     text-decoration: underline;
   }
+`
+const HelpRow = styled.p`
+  text-align: center;
 `
 
 const RegisterPage = () => {
@@ -74,6 +78,9 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
       <StyledForm method="POST" onSubmit={handleSubmit(onSubmit)}>
         <Title>Création du compte </Title>
         <Required>* champs obligatoires</Required>
+        <HelpRow>
+          <HelpLink slug="creer-son-compte" />
+        </HelpRow>
         <Radios>
           <Radio
             value={USER_ROLE.PRODUCER}
