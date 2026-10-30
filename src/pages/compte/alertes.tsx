@@ -3,6 +3,7 @@ import { IconButton, Table, TableBody, TableCell, TableContainer, TableHead, Tab
 import type { ChangeEvent } from "react"
 import DeleteIcon from "src/assets/delete.svg"
 import CustomSwitch from "src/components/CustomSwitch"
+import HelpLink from "src/components/HelpLink"
 import Link from "src/components/Link"
 import { COLORS, USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
@@ -18,6 +19,9 @@ const Container = styled.div`
   }
 `
 const Title = styled.h1`
+  text-align: center;
+`
+const HelpRow = styled.p`
   text-align: center;
 `
 const Card = styled.div`
@@ -101,6 +105,9 @@ const AlertsPage = () => {
     <Layout title="Mes alertes" noindex fullWidth>
       <Container>
         <Title>Mes alertes utilisateur</Title>
+        <HelpRow>
+          <HelpLink slug="favoris-et-alertes" />
+        </HelpRow>
         <Card>
           <CardTitle>Liste des producteurs favoris</CardTitle>
           <Content>
