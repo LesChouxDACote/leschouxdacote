@@ -25,6 +25,8 @@ export const SLOT_1: TestSlot = { date: addDays(2), start: "10:00", end: "12:00"
 export const SLOT_2: TestSlot = { date: addDays(3), start: "14:00", end: "16:00" }
 // Plus proche que SLOT_1 : ajouté après lui, il doit pourtant s'afficher en premier.
 export const SLOT_EARLY: TestSlot = { date: addDays(1), start: "08:00", end: "09:00" }
+// Quatrième créneau à venir : « Mes annonces » n'en montre que 3, il n'apparaît qu'avec « Voir tous les créneaux ».
+export const SLOT_LATE: TestSlot = { date: addDays(4), start: "17:00", end: "18:00" }
 
 export const TEST_ADDRESS = "1 Place du Capitole, 31000 Toulouse"
 
@@ -109,8 +111,8 @@ export function submitProductForm(page: Page) {
   return page.getByRole("button", { name: "Enregistrer l'annonce" }).click()
 }
 
-// Carte de l'annonce de test sur « Mes annonces » : le h4 (titre) remonte de 3 div jusqu'au
-// conteneur de la carte, qui porte les actions (édition, suppression, statut). Le sélecteur est
+// Carte de l'annonce de test sur « Mes annonces » : le h4 (titre, lien vers la fiche publique) remonte de 3 div
+// jusqu'au conteneur de la carte, qui porte les actions (édition, suppression, statut). Le sélecteur est
 // borné à <main> pour exclure les modales (rendues dans un portail hors du main).
 export function getTestProductCard(page: Page) {
   return page
@@ -134,9 +136,8 @@ export async function deleteTestProduct(page: Page) {
   await gotoMyProducts(page)
   const card = getTestProductCard(page)
   await card.waitFor({ timeout: 20000 })
-  // Le premier bouton de la carte est l'icône de suppression.
-  await card.getByRole("button").first().click()
-  await page.getByText("Supprimer l’annonce ?", { exact: true }).waitFor()
+  await card.getByRole("button", { name: "Supprimer l’annonce" }).click()
+  await page.getByText("Supprimer définitivement l’annonce ?", { exact: true }).waitFor()
   await page.getByRole("button", { name: "Valider" }).first().click()
   await expect(getTestProductCard(page)).toHaveCount(0)
 }

@@ -3,10 +3,12 @@ import styled from "@emotion/styled"
 import { AppProps } from "next/app"
 import Head from "next/head"
 import { ErrorInfo } from "react"
+import CookieBanner from "src/components/CookieBanner"
 import "src/components/Nprogress"
 import { FONT, LAYOUT } from "src/constants"
 import { UserProvider } from "src/helpers/auth"
 import { ErrorBoundary } from "src/helpers/bugsnag"
+import { ConsentProvider } from "src/helpers/consent"
 
 const globalStyle = css`
   :root {
@@ -112,9 +114,12 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no" />
       </Head>
-      <UserProvider>
-        <Component {...pageProps} />
-      </UserProvider>
+      <ConsentProvider>
+        <UserProvider>
+          <Component {...pageProps} />
+          <CookieBanner />
+        </UserProvider>
+      </ConsentProvider>
     </>
   )
 

@@ -1,0 +1,114 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - textbox "Que recherchez-vous ?" [ref=e44]
+            - textbox "Où ?" [ref=e45]
+          - button [ref=e46] [cursor=pointer]
+          - generic [ref=e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e53]
+            - generic [ref=e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - main [ref=e59]:
+      - generic [ref=e61]:
+        - heading "À propos" [level=1] [ref=e62]
+        - heading "D'où vient l'idée Les Choux d'à Côté ?" [level=2] [ref=e63]
+        - paragraph [ref=e64]: En septembre 2020, Anthony a vu un documentaire montrant que des pêcheurs de Porto Rico indiquaient dans une application mobile leur pêche du jour. Les restaurateurs utilisant ce service pouvaient contacter directement les pêcheurs afin d'acheter leurs produits.
+        - paragraph [ref=e65]: L'idée était née ! Un site d'annonces alimentaires, voilà le chaînon qu'il manquait pour rapprocher les producteurs et acheteurs d'un même territoire.
+        - paragraph [ref=e66]: "Au fil de ses recherches et entretiens autour du circuit court, Anthony a constaté plusieurs points :"
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - heading "Les producteurs" [level=3] [ref=e69]
+            - paragraph [ref=e70]: "La vente à la ferme et le marché sont les principaux modes de commercialisation en circuit court : de la vente directe, sans intermédiaire. Pourtant, pour gagner en visibilité, beaucoup de producteurs se tournent vers des marketplaces qui imposent leurs règles."
+            - paragraph [ref=e71]:
+              - emphasis [ref=e72]: Ce qu'il manque, c'est un service de diffusion d'annonces alimentaires, pour mettre en avant ses produits, élargir son réseau en toute autonomie et vendre en direct.
+          - generic [ref=e73]:
+            - heading "Les acheteurs professionnels" [level=3] [ref=e74]
+            - paragraph [ref=e75]: Les acheteurs professionnels cherchent à acheter en grande quantité des produits de qualité. Ils veulent pouvoir comparer les offres, négocier et rencontrer les producteurs, ce que la vente en ligne ne permet pas.
+            - paragraph [ref=e76]:
+              - emphasis [ref=e77]: Ce qu'il manque, c'est un site de mise en relation directe et flexible, qui n'impose pas de moyen de paiement ni de livraison.
+          - generic [ref=e78]:
+            - heading "Les particuliers" [level=3] [ref=e79]
+            - paragraph [ref=e80]: Les particuliers sont de plus en plus nombreux à se tourner vers une consommation locale et responsable. Mais comment rencontrer les producteurs et découvrir leurs produits ?
+            - paragraph [ref=e81]:
+              - emphasis [ref=e82]: Ce qu'il manque, c'est une plateforme qui référence et géolocalise des produits, pour faciliter la recherche et acheter directement auprès du producteur.
+        - paragraph [ref=e83]: La plateforme de vente directe Les Choux d'à Côté répond justement à toutes ces problématiques !
+        - heading "L'équipe derrière le projet" [level=2] [ref=e84]
+        - list [ref=e85]:
+          - listitem [ref=e86]:
+            - img "Anthony NGUYEN" [ref=e88]
+            - link "Anthony NGUYEN" [ref=e89] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/anthonynguyen83/
+            - paragraph [ref=e90]: Fondateur
+          - listitem [ref=e91]:
+            - img "Antoine ROUSSEAU" [ref=e93]
+            - link "Antoine ROUSSEAU" [ref=e94] [cursor=pointer]:
+              - /url: https://antoine.rousseau.im/
+            - paragraph [ref=e95]: Développeur
+          - listitem [ref=e96]:
+            - img "Charles ILIEFF" [ref=e98]
+            - link "Charles ILIEFF" [ref=e99] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/charles-ilieff-3b286a39/
+            - paragraph [ref=e100]: Développeur
+          - listitem [ref=e101]:
+            - img "Margot DAUBAN" [ref=e103]
+            - link "Margot DAUBAN" [ref=e104] [cursor=pointer]:
+              - /url: https://www.margotdauban.fr/
+            - paragraph [ref=e105]: Communication
+        - heading "Les Choux d'à Côté évolue avec Kedalia" [level=2] [ref=e106]
+        - paragraph [ref=e107]:
+          - text: Le site continue d'évoluer avec
+          - link "Kedalia" [ref=e108] [cursor=pointer]:
+            - /url: https://kedalia.com
+          - text: ", un service qui construit et fait évoluer des applications web pour celles et ceux qui ne sont pas développeurs : les nouveautés sont décrites en mots simples, puis réalisées et mises en ligne. Charles ILIEFF est le porteur de ce projet."
+        - paragraph [ref=e109]: Les Choux d'à Côté, la plateforme pour l'achat et la vente de produits locaux
+        - paragraph [ref=e110]:
+          - link "Inscription gratuite" [ref=e111] [cursor=pointer]:
+            - /url: /inscription
+          - link "Nous contacter" [ref=e112] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+    - contentinfo [ref=e113]:
+      - generic [ref=e114]:
+        - paragraph [ref=e115]:
+          - link "Notre charte" [ref=e116] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e117]:
+          - link "CGU" [ref=e118] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e119]:
+          - link "Mentions légales" [ref=e120] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e121]:
+          - link "À propos" [ref=e122] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e123]:
+        - paragraph [ref=e124]:
+          - link "Assistance" [ref=e125] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e126]:
+          - link "Actualité" [ref=e127] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=e128]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e129] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e130]: © 2026 Les Choux d’à Côté
+      - generic [ref=e131]:
+        - link [ref=e132] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e135] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e138] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e141]:
+      - paragraph [ref=e142]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e143] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e144]:
+        - button "Refuser" [ref=e145] [cursor=pointer]
+        - button "Accepter" [ref=e146] [cursor=pointer]
+  - alert [ref=e147]

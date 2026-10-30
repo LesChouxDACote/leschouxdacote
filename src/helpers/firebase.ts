@@ -1,4 +1,4 @@
-import { getAnalytics, isSupported } from "firebase/analytics"
+import { getAnalytics, isSupported, setAnalyticsCollectionEnabled, type Analytics } from "firebase/analytics"
 import { getApps, initializeApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import {
@@ -33,13 +33,36 @@ const app = getApps().length
       measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASURE,
     })
 
-if (typeof window !== "undefined") {
+// Mesure d'audience lancée seulement après le consentement du visiteur (bandeau cookies, cf. src/helpers/consent.tsx)
+let analytics: Analytics | null = null
+
+export const enableAnalytics = async () => {
   // getAnalytics échoue si le SDK n'est pas supporté (webview, node…) : on ne log que si possible
-  isSupported().then((yes) => {
-    if (yes) {
-      getAnalytics(app)
+  if (!(await isSupported())) {
+    return
+  }
+  if (analytics) {
+    setAnalyticsCollectionEnabled(analytics, true)
+  } else {
+    analytics = getAnalytics(app)
+  }
+}
+
+export const disableAnalytics = () => {
+  if (analytics) {
+    setAnalyticsCollectionEnabled(analytics, false)
+  }
+  // cookies Google Analytics (_ga, _ga_<id>) déposés sur le domaine courant ou son domaine parent
+  const hostname = window.location.hostname
+  const domains = ["", hostname, `.${hostname}`, `.${hostname.split(".").slice(-2).join(".")}`]
+  for (const cookie of document.cookie.split(";")) {
+    const name = cookie.split("=")[0].trim()
+    if (name === "_ga" || name.startsWith("_ga_")) {
+      for (const domain of domains) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domain ? `; domain=${domain}` : ""}`
+      }
     }
-  })
+  }
 }
 
 export const auth = getAuth(app)
@@ -104,6 +127,8 @@ export const useQuery = function <T extends Identified>(
       return
     }
 
+    // la requête précédente était peut-être vide (false) : sans ça, un état vide s'affiche avant les résultats
+    setLoading(true)
     let ref: Query<DocumentData> = collection(firestore, collectionName)
 
     if (whereClause) {

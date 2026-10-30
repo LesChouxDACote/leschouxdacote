@@ -31,6 +31,7 @@ export const ProductSchema = Sc.Struct({
   phone: Sc.optional(Sc.NullOr(Sc.String)),
   published: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms
   expires: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms (null = disabled)
+  disabled: Sc.optional(Sc.NullOr(Sc.Number)), // timestamp in ms of the last deactivation (absent on older products)
   views: Sc.optional(Sc.NullOr(Sc.Number)),
   // data fan-out:
   producer: Sc.String, // producer.name

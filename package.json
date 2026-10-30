@@ -24,7 +24,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "env": "vercel env pull",
+    "env": "yarn dlx vercel env pull",
     "dev": "next dev",
     "lint": "lint-staged",
     "build": "NODE_ENV=production next build",
@@ -78,7 +78,7 @@
     "yup": "^1.7.1"
   },
   "engines": {
-    "node": ">= 22",
+    "node": "24.x",
     "yarn": "4.5.1"
   },
   "devDependencies": {
@@ -97,8 +97,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
-    "prettier-plugin-organize-imports": "^4.3.0",
-    "vercel": "^58.9.4"
+    "prettier-plugin-organize-imports": "^4.3.0"
+  },
+  "resolutions": {
+    "jwks-rsa/jose": "^5.10.0"
   },
   "packageManager": "yarn@4.5.1"
 }

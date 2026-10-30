@@ -100,7 +100,7 @@ const ReservationBlock = ({ slot, slotKey, updateReservation, onInvalidChange }:
           <TextField
             label="Stock disponible *"
             type="number"
-            slotProps={{ htmlInput: { min: 1, step: 1 } }}
+            slotProps={{ htmlInput: { step: 1 } }}
             value={totalQuantity}
             onChange={(event) => handleChange(event.target.value, maxQuantityPerPerson, instructions)}
             error={error != null}
@@ -118,7 +118,7 @@ const ReservationBlock = ({ slot, slotKey, updateReservation, onInvalidChange }:
           <TextField
             label="Quantité maximale par personne"
             type="number"
-            slotProps={{ htmlInput: { min: 1, step: 1 } }}
+            slotProps={{ htmlInput: { step: 1 } }}
             value={maxQuantityPerPerson}
             onChange={(event) => handleChange(totalQuantity, event.target.value, instructions)}
             fullWidth
