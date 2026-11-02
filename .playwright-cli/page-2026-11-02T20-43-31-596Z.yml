@@ -1,0 +1,233 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link [ref=f1e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e42]:
+          - generic [ref=f1e43]:
+            - textbox "Que recherchez-vous ?" [ref=f1e44]
+            - textbox "Où ?" [ref=f1e45]
+          - button [ref=f1e46] [cursor=pointer]
+          - generic [ref=f1e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f1e53]
+            - generic [ref=f1e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - main [ref=f1e59]:
+      - heading "Essai de style" [level=1] [ref=f1e60]
+      - paragraph [ref=f1e61]: "Page visible seulement dans l'Aperçu : choisissez une police puis un arrondi."
+      - generic [ref=f1e62]:
+        - heading "Polices" [level=2] [ref=f1e63]
+        - generic [ref=f1e64]:
+          - generic [ref=f1e65]:
+            - paragraph [ref=f1e66]: Roboto (actuelle)
+            - heading "Titre de page" [level=1] [ref=f1e67]
+            - heading "Sous-titre de section" [level=2] [ref=f1e68]
+            - paragraph [ref=f1e69]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e70]:
+              - button "Réserver" [ref=f1e71] [cursor=pointer]
+              - button "Annuler" [ref=f1e72] [cursor=pointer]
+            - generic [ref=f1e73]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e75]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e77]:
+              - link "Bio / raisonnée" [ref=f1e78] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e79]:
+                - link [ref=f1e80] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e81]
+                - link "La Ferme d'Exemple" [ref=f1e82] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e83] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e84]
+                  - generic [ref=f1e85]: 12,50 €
+                  - generic [ref=f1e86]: 4,17 € / kg
+                  - generic [ref=f1e87]: 3 kg
+          - generic [ref=f1e88]:
+            - paragraph [ref=f1e89]: Nunito
+            - heading "Titre de page" [level=1] [ref=f1e90]
+            - heading "Sous-titre de section" [level=2] [ref=f1e91]
+            - paragraph [ref=f1e92]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e93]:
+              - button "Réserver" [ref=f1e94] [cursor=pointer]
+              - button "Annuler" [ref=f1e95] [cursor=pointer]
+            - generic [ref=f1e96]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e98]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e100]:
+              - link "Bio / raisonnée" [ref=f1e101] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e102]:
+                - link [ref=f1e103] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e104]
+                - link "La Ferme d'Exemple" [ref=f1e105] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e106] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e107]
+                  - generic [ref=f1e108]: 12,50 €
+                  - generic [ref=f1e109]: 4,17 € / kg
+                  - generic [ref=f1e110]: 3 kg
+          - generic [ref=f1e111]:
+            - paragraph [ref=f1e112]: Inter
+            - heading "Titre de page" [level=1] [ref=f1e113]
+            - heading "Sous-titre de section" [level=2] [ref=f1e114]
+            - paragraph [ref=f1e115]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e116]:
+              - button "Réserver" [ref=f1e117] [cursor=pointer]
+              - button "Annuler" [ref=f1e118] [cursor=pointer]
+            - generic [ref=f1e119]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e121]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e123]:
+              - link "Bio / raisonnée" [ref=f1e124] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e125]:
+                - link [ref=f1e126] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e127]
+                - link "La Ferme d'Exemple" [ref=f1e128] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e129] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e130]
+                  - generic [ref=f1e131]: 12,50 €
+                  - generic [ref=f1e132]: 4,17 € / kg
+                  - generic [ref=f1e133]: 3 kg
+      - generic [ref=f1e134]:
+        - heading "Arrondis" [level=2] [ref=f1e135]
+        - generic [ref=f1e136]:
+          - generic [ref=f1e137]:
+            - paragraph [ref=f1e138]: Léger (4 px)
+            - heading "Titre de page" [level=1] [ref=f1e139]
+            - heading "Sous-titre de section" [level=2] [ref=f1e140]
+            - paragraph [ref=f1e141]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e142]:
+              - button "Réserver" [ref=f1e143] [cursor=pointer]
+              - button "Annuler" [ref=f1e144] [cursor=pointer]
+            - generic [ref=f1e145]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e147]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e149]:
+              - link "Bio / raisonnée" [ref=f1e150] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e151]:
+                - link [ref=f1e152] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e153]
+                - link "La Ferme d'Exemple" [ref=f1e154] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e155] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e156]
+                  - generic [ref=f1e157]: 12,50 €
+                  - generic [ref=f1e158]: 4,17 € / kg
+                  - generic [ref=f1e159]: 3 kg
+          - generic [ref=f1e160]:
+            - paragraph [ref=f1e161]: Moyen (8 px)
+            - heading "Titre de page" [level=1] [ref=f1e162]
+            - heading "Sous-titre de section" [level=2] [ref=f1e163]
+            - paragraph [ref=f1e164]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e165]:
+              - button "Réserver" [ref=f1e166] [cursor=pointer]
+              - button "Annuler" [ref=f1e167] [cursor=pointer]
+            - generic [ref=f1e168]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e170]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e172]:
+              - link "Bio / raisonnée" [ref=f1e173] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e174]:
+                - link [ref=f1e175] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e176]
+                - link "La Ferme d'Exemple" [ref=f1e177] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e178] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e179]
+                  - generic [ref=f1e180]: 12,50 €
+                  - generic [ref=f1e181]: 4,17 € / kg
+                  - generic [ref=f1e182]: 3 kg
+          - generic [ref=f1e183]:
+            - paragraph [ref=f1e184]: Marqué (16 px)
+            - heading "Titre de page" [level=1] [ref=f1e185]
+            - heading "Sous-titre de section" [level=2] [ref=f1e186]
+            - paragraph [ref=f1e187]: Des légumes cueillis le matin même, en vente directe à la ferme. Réservez votre panier et passez le récupérer sur le créneau de votre choix.
+            - generic [ref=f1e188]:
+              - button "Réserver" [ref=f1e189] [cursor=pointer]
+              - button "Annuler" [ref=f1e190] [cursor=pointer]
+            - generic [ref=f1e191]:
+              - text: Adresse e-mail
+              - textbox "Adresse e-mail" [ref=f1e193]:
+                - /placeholder: vous@exemple.fr
+            - generic [ref=f1e195]:
+              - link "Bio / raisonnée" [ref=f1e196] [cursor=pointer]:
+                - /url: /annonce/essai-style
+                - strong: Bio / raisonnée
+              - generic [ref=f1e197]:
+                - link [ref=f1e198] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Panier de légumes de saison" [level=2] [ref=f1e199]
+                - link "La Ferme d'Exemple" [ref=f1e200] [cursor=pointer]:
+                  - /url: /producteur/essai-style
+                - link "Toulouse (31) 12,50 € 4,17 € / kg 3 kg" [ref=f1e201] [cursor=pointer]:
+                  - /url: /annonce/essai-style
+                  - heading "Toulouse (31)" [level=4] [ref=f1e202]
+                  - generic [ref=f1e203]: 12,50 €
+                  - generic [ref=f1e204]: 4,17 € / kg
+                  - generic [ref=f1e205]: 3 kg
+    - contentinfo [ref=f1e206]:
+      - generic [ref=f1e207]:
+        - paragraph [ref=f1e208]:
+          - link "Notre charte" [ref=f1e209] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f1e210]:
+          - link "CGU" [ref=f1e211] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f1e212]:
+          - link "Mentions légales" [ref=f1e213] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f1e214]:
+          - link "À propos" [ref=f1e215] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f1e216]:
+        - paragraph [ref=f1e217]:
+          - link "Assistance" [ref=f1e218] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f1e219]:
+          - link "Actualité" [ref=f1e220] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=f1e221]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f1e222] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f1e223]: © 2026 Les Choux d’à Côté
+      - generic [ref=f1e224]:
+        - link [ref=f1e225] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f1e228] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f1e231] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f1e234]:
+      - paragraph [ref=f1e235]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f1e236] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f1e237]:
+        - button "Refuser" [ref=f1e238] [cursor=pointer]
+        - button "Accepter" [ref=f1e239] [cursor=pointer]
+  - alert [ref=f1e240]

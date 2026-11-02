@@ -145,6 +145,12 @@ test.describe("Consultation", () => {
     await expect(page.getByText("Page introuvable")).toBeVisible()
   })
 
+  // La page d'essai de style n'existe que sous `next dev` : les tests tournent sur un build publié
+  test("la page d'essai de style répond 404 dans l'application publiée", async ({ page }) => {
+    const response = await page.goto("/essai-style")
+    expect(response?.status()).toBe(404)
+  })
+
   test("en mobile, la recherche bascule entre liste et carte", async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 })
     await page.goto(SEARCH_URL)

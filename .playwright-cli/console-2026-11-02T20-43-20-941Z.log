@@ -1,0 +1,331 @@
+[     606ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[     606ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Nunito:wght@300;400;500;700&display=swap:0
+[     798ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26057/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[     882ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     907ms] [LOG] [HMR] connected @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[     997ms] [ERROR] Invalid attribute name: `%s` $variant @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[    1028ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Layout title="Essai de s..." noindex={true}>
+      <SEO>
+      ...
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+      ...
+        <h1>
+        <Styled(p)>
+        <Styled(section)>
+          <Insertion>
+          <section className="css-1n43yq...">
+            <h2>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-1ms268...">
+                <Styled(div) $family={"'Roboto'..."}>
+                  <Insertion>
+                  <div className="css-c4eubd...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+                <Styled(div) $family={"'Nunito'..."}>
+                  <Insertion>
+                  <div className="css-s6cjr2...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+                <Styled(div) $family={"'Inter',..."}>
+                  <Insertion>
+                  <div className="css-wegb7n...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+        <Styled(section)>
+          <Insertion>
+          <section className="css-1n43yq...">
+            <h2>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-1ms268...">
+                <Styled(div) $radius={4}>
+                  <Insertion>
+                  <div className="css-zmjfg ...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+                <Styled(div) $radius={8}>
+                  <Insertion>
+                  <div className="css-15hduu...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+                <Styled(div) $radius={16}>
+                  <Insertion>
+                  <div className="css-16zq2j...">
+                    <Styled(p)>
+                    <Samples>
+                      <h1>
+                      <h2>
+                      <p>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-rmjvrx...">
+                          <Styled(button)>
+                          <Styled(button)>
+                          <Styled(Component) className="sample-button" $variant="white" href="/essai-style">
+                            <Insertion>
+                            <LinkComponent className="sample-but..." $variant="white" href="/essai-style">
+                              <a
+                                className="sample-button css-10ghxbw edpzwll1"
++                               $variant="white"
+-                               $variant={undefined}
+                                ref={function}
+                                onClick={function onClick}
+                                onMouseEnter={function onMouseEnter}
+                                onTouchStart={function onTouchStart}
+                                href="/essai-style"
+                              >
++                               {"Voir l'annonce"}
+                      ...
+      ...
+ @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[    1039ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1039ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Nunito:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1115ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[    1244ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1246ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    1248ms] Event
+[    8179ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    8253ms] [LOG] [Fast Refresh] done in 13ms @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    9361ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[    9416ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10290ms] [LOG] [Fast Refresh] done in 4ms @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10314ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap:0
+[   10314ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Nunito:wght@300;400;500;700&display=swap:0
+[   10440ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26057/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[   10458ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10462ms] [LOG] [HMR] connected @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10464ms] [WARNING] [HMR] Invalid message: {"type":"isrManifest","data":{"/essai-style":false,"/":true}}
+TypeError: Cannot read properties of undefined (reading 'components')
+    at handleStaticIndicator (http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:665:46)
+    at processMessage (http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:679:17)
+    at http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:553:13
+    at WebSocket.handleMessage (http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_client_01nfwoe._.js:991:17) @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10536ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-pmcapz...">
+                <SearchBar>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-1ab1jl...">
+                      <div>
+                      <Styled(button)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-1ykdma...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Uniqueme..."} checked={false} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null}>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e14o2x8p2 ..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-16w1cc..."
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-vyvw7s-MuiSwitch..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1hm4mvl ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:1817
+[   10540ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10541ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Nunito:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10617ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[   10662ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10662ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26057/_next/static/chunks/node_modules_next_dist_0zk-zb1._.js:756
+[   10663ms] Event
