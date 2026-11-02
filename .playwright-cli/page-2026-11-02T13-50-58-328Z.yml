@@ -1,0 +1,144 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e144]:
+      - generic [ref=e145]:
+        - link [ref=e146] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e183]:
+          - generic [ref=e184]:
+            - textbox "Que recherchez-vous ?" [ref=e185]
+            - textbox "Où ?" [ref=e186]
+          - button [ref=e187] [cursor=pointer]
+          - generic [ref=e191] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e194]
+            - generic [ref=e197]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=e198] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=e200]:
+      - article [ref=e203]:
+        - 'heading "Vente directe à la ferme : pourquoi et comment s''y mettre ?" [level=1] [ref=e204]'
+        - paragraph [ref=e205]:
+          - time [ref=e206]: 15 décembre 2021
+          - text: · Margot Dauban
+        - paragraph [ref=e207]: "La vente à la ferme rencontre un fort engouement : d'une part grâce au regain d'intérêt pour le circuit court et les produits locaux depuis la crise sanitaire, d'autre part grâce à l'essor de l'agritourisme en France. Les producteurs souhaitent garder la main sur leur distribution, et les consommateurs sont de plus en plus attentifs à la qualité et à l'origine de leur alimentation."
+        - paragraph [ref=e208]: "L'opportunité est réelle, mais le projet comporte de nombreuses contraintes : il doit être mûrement réfléchi."
+        - heading "Les avantages de la vente directe à la ferme" [level=2] [ref=e209]
+        - list [ref=e210]:
+          - listitem [ref=e211]:
+            - strong [ref=e212]: La traçabilité
+            - text: ": le produit passe de la main du producteur à celle du consommateur, quasiment sans transport."
+          - listitem [ref=e213]:
+            - strong [ref=e214]: Une rémunération plus juste
+            - text: ": sans intermédiaire, le revenu s'améliore ; des revenus diversifiés stabilisent l'exploitation, et le producteur échappe aux règles des distributeurs (calibrage des produits, par exemple)."
+          - listitem [ref=e215]:
+            - strong [ref=e216]: Une relation renforcée
+            - text: ": rencontrer les acheteurs, c'est recevoir directement leur avis sur son travail."
+        - paragraph [ref=e217]:
+          - strong [ref=e218]: 22 % des consommateurs
+          - text: "achètent à la ferme au moins une fois par mois (source : CERD), et"
+          - strong [ref=e219]: 48 % des producteurs
+          - text: "en circuit court privilégient la vente à la ferme (source : SSP – Agreste – Recensement agricole 2010)."
+        - 'heading "Vente directe à la ferme : quelques clés pour se lancer" [level=2] [ref=e220]'
+        - paragraph [ref=e221]: Le producteur endosse de nouveaux rôles, en particulier ceux de commerçant et de communicant.
+        - heading "Faire le point sur l'existant" [level=3] [ref=e222]
+        - paragraph [ref=e223]: "Avant de se lancer, il est nécessaire de faire le point sur les moyens dont vous disposez :"
+        - list [ref=e224]:
+          - listitem [ref=e225]: Votre exploitation est-elle sur un axe passant, près d'une ville ou d'un site touristique, ou isolée ?
+          - listitem [ref=e226]: Disposez-vous déjà d'équipements, de locaux, de main-d'œuvre ?
+          - listitem [ref=e227]: Avez-vous le temps, les compétences et le financement nécessaires ?
+        - paragraph [ref=e228]: "Les réponses dessinent les prochaines étapes : construire ou rénover, déléguer certaines tâches, se former, prévoir sa communication."
+        - heading "S'informer sur les différentes réglementations" [level=3] [ref=e229]
+        - list [ref=e230]:
+          - listitem [ref=e231]: Le local doit être accessible à tous et respecter les normes de sécurité incendie.
+          - listitem [ref=e232]: "Les règles d'hygiène et de sécurité alimentaire s'appliquent : stockage, chaîne du froid…"
+          - listitem [ref=e233]: Le code de la consommation aussi, notamment pour l'étiquetage des produits.
+        - heading "Organiser l'accueil à la ferme" [level=3] [ref=e234]
+        - list [ref=e235]:
+          - listitem [ref=e236]: "Aménager un espace de vente : présentoirs, moyen de paiement, réfrigérateur si besoin."
+          - listitem [ref=e237]: "Choisir ses horaires : ouverture en continu (au risque d'être souvent interrompu) ou créneaux fixes, comme le soir ou le samedi matin."
+        - paragraph [ref=e238]:
+          - text: Le principal frein cité par les producteurs reste la nécessité d'une
+          - strong [ref=e239]: disponibilité importante
+          - text: .
+        - heading "Communiquer sur votre activité" [level=3] [ref=e240]
+        - paragraph [ref=e241]: "L'effort à fournir dépend de votre visibilité actuelle et du bouche-à-oreille (marchés, AMAP…). Plusieurs pistes :"
+        - list [ref=e242]:
+          - listitem [ref=e243]: des panneaux en bord de route, avec l'autorisation du gestionnaire de la voirie ;
+          - listitem [ref=e244]: une page Facebook ou Instagram ;
+          - listitem [ref=e245]:
+            - text: des annonces sur
+            - link "Les Choux d'à Côté" [ref=e246] [cursor=pointer]:
+              - /url: /
+            - text: ;
+          - listitem [ref=e247]: une fiche Google My Business ou un site internet, avec éventuellement du click and collect ou un drive ;
+          - listitem [ref=e248]:
+            - text: l'adhésion à
+            - link "Bienvenue à la Ferme" [ref=e249] [cursor=pointer]:
+              - /url: https://www.bienvenue-a-la-ferme.com/
+            - text: ;
+          - listitem [ref=e250]:
+            - text: les annuaires de producteurs, comme
+            - link "Frais et Local" [ref=e251] [cursor=pointer]:
+              - /url: https://www.fraisetlocal.fr/
+            - text: ;
+          - listitem [ref=e252]:
+            - text: les outils tout-en-un, comme
+            - link "Coop Circuits" [ref=e253] [cursor=pointer]:
+              - /url: https://coopcircuits.fr/
+            - text: .
+        - paragraph [ref=e254]:
+          - text: "Ces conseils ne sont pas exhaustifs : n'hésitez pas à contacter votre"
+          - strong [ref=e255]: Chambre d'Agriculture
+          - text: . Une fois prêt, publiez vos annonces sur Les Choux d'à Côté, qui accueille tous les produits alimentaires, transformés ou non.
+        - paragraph [ref=e256]:
+          - link "Publier une annonce" [ref=e257] [cursor=pointer]:
+            - /url: /inscription
+          - text: ·
+          - link "Trouver des producteurs" [ref=e258] [cursor=pointer]:
+            - /url: /recherche
+        - paragraph [ref=e259]:
+          - link "← Toutes les actualités" [ref=e260] [cursor=pointer]:
+            - /url: /actualite
+    - contentinfo [ref=e261]:
+      - generic [ref=e262]:
+        - paragraph [ref=e263]:
+          - link "Notre charte" [ref=e264] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e265]:
+          - link "CGU" [ref=e266] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e267]:
+          - link "Mentions légales" [ref=e268] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e269]:
+          - link "À propos" [ref=e270] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e271]:
+        - paragraph [ref=e272]:
+          - link "Assistance" [ref=e273] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e274]:
+          - link "Actualité" [ref=e275] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e276]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e277] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e278]: © 2026 Les Choux d’à Côté
+      - generic [ref=e279]:
+        - link [ref=e280] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e283] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e286] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e137]:
+      - paragraph [ref=e138]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e139] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e140]:
+        - button "Refuser" [ref=e141] [cursor=pointer]
+        - button "Accepter" [ref=e142] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e294] [cursor=pointer]
+  - alert [ref=e143]: "Vente directe à la ferme : pourquoi et comment s'y mettre ? | Les Choux d'à Côté"

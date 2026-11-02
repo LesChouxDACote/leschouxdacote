@@ -1,0 +1,114 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - textbox "Que recherchez-vous ?" [ref=e44]
+            - textbox "Où ?" [ref=e45]
+          - button [ref=e46] [cursor=pointer]
+          - generic [ref=e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e53]
+            - generic [ref=e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - main [ref=e59]:
+      - generic [ref=e61]:
+        - heading "Actualité" [level=1] [ref=e62]
+        - generic [ref=e63]:
+          - link [ref=e64] [cursor=pointer]:
+            - /url: /actualite/la-presse-en-parle-maddyness
+            - generic [ref=e65]:
+              - 'heading "La presse en parle : Maddyness" [level=2] [ref=e66]'
+              - time [ref=e67]: 11 janvier 2022
+              - paragraph [ref=e68]: Maddyness, média de référence de l'écosystème entrepreneurial français, s'est intéressé au projet Les Choux d'à Côté.
+          - link [ref=e69] [cursor=pointer]:
+            - /url: /actualite/vente-directe-a-la-ferme-pourquoi-et-comment-sy-mettre
+            - generic [ref=e70]:
+              - 'heading "Vente directe à la ferme : pourquoi et comment s''y mettre ?" [level=2] [ref=e71]'
+              - time [ref=e72]: 15 décembre 2021
+              - paragraph [ref=e73]: La vente à la ferme rencontre un fort engouement, porté par le retour des produits locaux et l'essor de l'agritourisme. Nos conseils pour se lancer.
+          - link [ref=e74] [cursor=pointer]:
+            - /url: /actualite/vente-directe-circuit-court-on-revoit-les-bases
+            - generic [ref=e75]:
+              - 'heading "Vente directe, circuit court : on revoit les bases !" [level=2] [ref=e76]'
+              - time [ref=e77]: 7 décembre 2021
+              - paragraph [ref=e78]: Consommer local et de saison s'installe durablement, mais le terme « circuit court » est souvent mal employé. Petit rappel des définitions.
+          - link [ref=e79] [cursor=pointer]:
+            - /url: /actualite/les-differentes-formes-de-vente-directe
+            - generic [ref=e80]:
+              - heading "Les différentes formes de vente directe" [level=2] [ref=e81]
+              - time [ref=e82]: 30 novembre 2021
+              - paragraph [ref=e83]: "Vente à la ferme, marchés, AMAP, drive fermier : tour d'horizon des principales formes de vente directe, du producteur à l'acheteur, sans intermédiaire."
+          - link [ref=e84] [cursor=pointer]:
+            - /url: /actualite/avantages-plateforme-vente-directe
+            - generic [ref=e85]:
+              - heading "Les avantages d'une plateforme de vente directe" [level=2] [ref=e86]
+              - time [ref=e87]: 30 novembre 2021
+              - paragraph [ref=e88]: 70 % des Français privilégient l'alimentation locale, mais la vente directe ne pèse que 5 à 10 % de leur consommation. Une plateforme peut aider producteurs et acheteurs.
+          - link [ref=e89] [cursor=pointer]:
+            - /url: /actualite/nouveau-les-produits-issus-de-lagriculture-biologique-raisonnee-a-lhonneur
+            - generic [ref=e90]:
+              - heading "Nouveau ! Les produits issus de l'Agriculture Biologique / Raisonnée à l'honneur" [level=2] [ref=e91]
+              - time [ref=e92]: 23 novembre 2021
+              - paragraph [ref=e93]: Les producteurs peuvent désormais signaler leurs produits bio ou issus de l'agriculture raisonnée, et les acheteurs les retrouver grâce à un filtre.
+          - link [ref=e94] [cursor=pointer]:
+            - /url: /actualite/producteurs-communiquez-plus-facilement-sur-vos-produits-en-vente-directe
+            - generic [ref=e95]:
+              - heading "Producteurs, communiquez plus facilement sur vos produits en vente directe" [level=2] [ref=e96]
+              - time [ref=e97]: 15 novembre 2021
+              - paragraph [ref=e98]: "Petit rappel : Les Choux d'à Côté est une plateforme d'annonces alimentaires qui aide les producteurs à faire connaître leurs produits."
+          - link [ref=e99] [cursor=pointer]:
+            - /url: /actualite/appel-a-volontaires
+            - generic [ref=e100]:
+              - heading "Appel à volontaires" [level=2] [ref=e101]
+              - time [ref=e102]: 22 octobre 2021
+              - paragraph [ref=e103]: Envie de participer à l'aventure ? Nous cherchons des volontaires pour faire connaître la plateforme aux producteurs, notamment sur les marchés.
+          - link [ref=e104] [cursor=pointer]:
+            - /url: /actualite/les-choux-da-cote-vous-votre-avis-nous-interesse
+            - generic [ref=e105]:
+              - 'heading "Les Choux d''à Côté & vous : votre avis nous intéresse !" [level=2] [ref=e106]'
+              - time [ref=e107]: 13 octobre 2021
+              - paragraph [ref=e108]: "Producteurs, acheteurs locavores, déjà conquis ou encore hésitants : 2 minutes pour nous aider à améliorer la plateforme."
+    - contentinfo [ref=e109]:
+      - generic [ref=e110]:
+        - paragraph [ref=e111]:
+          - link "Notre charte" [ref=e112] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e113]:
+          - link "CGU" [ref=e114] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e115]:
+          - link "Mentions légales" [ref=e116] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e117]:
+          - link "À propos" [ref=e118] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e119]:
+        - paragraph [ref=e120]:
+          - link "Assistance" [ref=e121] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e122]:
+          - link "Actualité" [ref=e123] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e124]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e125] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e126]: © 2026 Les Choux d’à Côté
+      - generic [ref=e127]:
+        - link [ref=e128] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e131] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e134] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e137]:
+      - paragraph [ref=e138]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e139] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e140]:
+        - button "Refuser" [ref=e141] [cursor=pointer]
+        - button "Accepter" [ref=e142] [cursor=pointer]
+  - alert [ref=e143]

@@ -59,7 +59,7 @@ const Footer = () => {
           <a href="https://assistance.leschouxdacote.fr/">Assistance</a>
         </p>
         <p>
-          <a href="https://info.leschouxdacote.fr/actualites/">Actualité</a>
+          <Link href="/actualite">Actualité</Link>
         </p>
         <p>
           Contact : <a href="mailto:contact@leschouxdacote.fr">contact@leschouxdacote.fr</a>
