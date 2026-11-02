@@ -16,9 +16,9 @@ import type { Producer } from "src/types/model"
 
 const Title = styled.h1`
   a {
-    font-size: ${SIZES.card}px;
+    font-size: ${SIZES.regular}px;
     font-weight: 300;
-    color: ${COLORS.input};
+    color: ${COLORS.muted};
   }
   @media (min-width: ${LAYOUT.mobile}px) {
     br {

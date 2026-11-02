@@ -29,7 +29,7 @@ const Total = styled(Text)`
   display: block;
   margin-top: 12px;
   padding: 8px 12px;
-  border-top: 2px solid ${COLORS.divider};
+  border-top: 2px solid ${COLORS.muted};
   background-color: ${COLORS.odd};
   font-weight: bold;
   text-align: right;
@@ -162,7 +162,7 @@ const SlotBookings = ({
               />
             ))}
           </Stack>
-          <Total $size={SIZES.card}>
+          <Total $size={SIZES.regular}>
             {totalQuantity != null ? `Total réservé : ${total} / ${totalQuantity}` : `Total réservé : ${total}`}
           </Total>
         </>

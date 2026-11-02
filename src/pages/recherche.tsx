@@ -33,7 +33,7 @@ const MobileSwitches = styled.div`
     background-color: ${COLORS.white};
   }
   svg {
-    fill: ${COLORS.dark};
+    fill: ${COLORS.text};
     margin-right: 2px;
   }
 `

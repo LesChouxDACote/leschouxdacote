@@ -209,9 +209,7 @@ const SlotsForm = ({ productId, setSlots, slots, onInvalidChange }: SlotsFormPro
   return (
     <Stack spacing={2} sx={{ alignItems: "start" }}>
       <Stack direction="row" spacing={2} sx={{ alignItems: "baseline" }}>
-        <Typography variant="h2" sx={{ fontSize: "25px" }}>
-          Créneaux
-        </Typography>
+        <Typography variant="h2">Créneaux</Typography>
         <HelpLink slug="creneaux" />
       </Stack>
 

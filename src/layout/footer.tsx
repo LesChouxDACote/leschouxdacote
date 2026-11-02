@@ -3,13 +3,13 @@ import Facebook from "src/assets/facebook.svg"
 import Linkedin from "src/assets/linkedin.svg"
 import Twitter from "src/assets/twitter.svg"
 import Link from "src/components/Link"
-import { COLORS } from "src/constants"
+import { COLORS, SIZES } from "src/constants"
 
 const Container = styled.footer`
   border-top: 1px solid ${COLORS.border};
   padding: 24px 32px;
-  color: ${COLORS.grey};
-  font-size: 0.8em;
+  color: ${COLORS.muted};
+  font-size: ${SIZES.small}px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;

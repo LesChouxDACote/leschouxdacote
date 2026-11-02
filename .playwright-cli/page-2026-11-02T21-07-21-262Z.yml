@@ -1,0 +1,63 @@
+- generic [active] [ref=f39e1]:
+  - generic [ref=f39e2]:
+    - banner [ref=f39e3]:
+      - generic [ref=f39e4]: development
+    - main [ref=f39e8]:
+      - 'heading "Vente directe : Le circuit plus court des produits alimentaires" [level=1] [ref=f39e44]'
+      - paragraph [ref=f39e45]:
+        - strong [ref=f39e46]: Producteurs de produits alimentaires
+        - text: ", augmentez vos"
+        - strong [ref=f39e47]: ventes directes
+        - text: en publiant gratuitement des annonces.Acheteurs, découvrez les
+        - strong [ref=f39e48]: produits locaux en circuit court
+        - text: près de chez vous.
+      - generic [ref=f39e49]:
+        - generic [ref=f39e50]:
+          - textbox "Que recherchez-vous ?" [ref=f39e51]
+          - textbox "Où ?" [ref=f39e52]
+        - button [ref=f39e53] [cursor=pointer]
+        - generic [ref=f39e57] [cursor=pointer]:
+          - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f39e60]
+          - generic [ref=f39e63]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - contentinfo [ref=f39e64]:
+      - generic [ref=f39e65]:
+        - paragraph [ref=f39e66]:
+          - link "Notre charte" [ref=f39e67] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f39e68]:
+          - link "CGU" [ref=f39e69] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f39e70]:
+          - link "Mentions légales" [ref=f39e71] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f39e72]:
+          - link "À propos" [ref=f39e73] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f39e74]:
+        - paragraph [ref=f39e75]:
+          - link "Assistance" [ref=f39e76] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f39e77]:
+          - link "Actualité" [ref=f39e78] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=f39e79]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f39e80] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f39e81]: © 2026 Les Choux d’à Côté
+      - generic [ref=f39e82]:
+        - link [ref=f39e83] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f39e86] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f39e89] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f39e92]:
+      - paragraph [ref=f39e93]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f39e94] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f39e95]:
+        - button "Refuser" [ref=f39e96] [cursor=pointer]
+        - button "Accepter" [ref=f39e97] [cursor=pointer]
+  - alert [ref=f39e98]

@@ -1,8 +1,11 @@
 import styled from "@emotion/styled"
 import React from "react"
 import { FieldError } from "react-hook-form"
+import { getButtonCss } from "src/components/Button"
 import { ErrorMessage, Label, Row, Suffix } from "src/components/Form"
-import { COLORS, LAYOUT, SIZES } from "src/constants"
+import { COLORS, LAYOUT } from "src/constants"
+
+export { Required } from "src/components/Form"
 
 export const StyledForm = styled.form`
   width: 100%;
@@ -12,35 +15,23 @@ export const StyledForm = styled.form`
 export const Title = styled.h1`
   text-align: center;
 `
-export const Required = styled.p`
-  font-style: italic;
-  color: ${COLORS.grey};
-  text-align: center;
-  margin: -1em 0 1em;
-`
 
+// Choix exclusif en forme de bouton blanc ; le choix retenu prend la bordure et le fond verts
 const RadioButton = styled.div`
-  color: ${COLORS.blue};
+  ${getButtonCss("white")}
   padding: 12px 16px;
-  font-size: ${SIZES.regular}px;
-  border-radius: 5px;
-  background-color: ${COLORS.white};
-  border: 1px solid ${COLORS.background.info};
-  cursor: pointer;
   text-align: center;
   width: 100%;
-  position: relative;
-
-  &:hover {
-    background-color: ${COLORS.background.info};
-  }
+  cursor: pointer;
 `
 const RadioInput = styled.input`
   position: absolute;
   visibility: hidden;
 
   &:checked + ${RadioButton} {
-    background-color: ${COLORS.background.info};
+    border-color: ${COLORS.green};
+    background-color: ${COLORS.background.success};
+    color: ${COLORS.green};
   }
 `
 

@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import HelpPage from "src/components/HelpPage"
-import { CONTACT_EMAIL } from "src/constants"
+import { CONTACT_EMAIL, SIZES } from "src/constants"
 
 const Message = styled.h3`
-  font-size: 1em;
+  font-size: ${SIZES.regular}px;
   margin: 24px 0 4px;
 `
 

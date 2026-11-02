@@ -7,7 +7,7 @@ import { Button as GreenButton } from "src/components/Button"
 import { ValidationError as ApiValidationError } from "src/components/Form"
 import HelpLink from "src/components/HelpLink"
 import { Text } from "src/components/Text"
-import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES, UNIT_LABELS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { getSlotEnd, getSlotKey } from "src/helpers/date"
@@ -74,7 +74,7 @@ const Section = styled.section`
   position: relative;
   background-color: ${COLORS.odd};
   border: 1px solid ${COLORS.border};
-  border-radius: 6px;
+  border-radius: ${RADIUS}px;
   padding: 20px 25px;
   margin-top: 30px;
 
@@ -85,7 +85,7 @@ const Section = styled.section`
 
 const SectionTitle = styled.h3`
   margin: 0 0 15px;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
   font-weight: bold;
 `
 
@@ -110,7 +110,7 @@ const SlotsRow = styled.div`
 `
 
 const SlotButton = styled(Button)<{ $selected?: boolean }>`
-  ${({ $selected }) => $selected && `box-shadow: inset 0 0 0 3px ${COLORS.dark};`}
+  ${({ $selected }) => $selected && `box-shadow: inset 0 0 0 3px ${COLORS.text};`}
 `
 
 const FieldsRow = styled.div`
@@ -132,6 +132,7 @@ const QuantityRow = styled.div`
 
 const SlotError = styled(Text)`
   color: ${COLORS.red};
+  font-size: ${SIZES.small}px;
   margin-top: 10px;
 `
 
@@ -340,9 +341,7 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
             <HelpLink slug="reserver" />
           </HelpRow>
 
-          <SlotsLabel>
-            Choisissez votre créneau <span style={{ color: COLORS.red }}>*</span>
-          </SlotsLabel>
+          <SlotsLabel>Choisissez votre créneau *</SlotsLabel>
           <SlotsRow>
             {upcomingSlots.map((slot, index) => {
               const full = isFull(slot)
@@ -364,7 +363,7 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
             })}
           </SlotsRow>
           {errors.slot && <SlotError>{errors.slot}</SlotError>}
-          {instructions && <Instructions $color={COLORS.input}>{instructions}</Instructions>}
+          {instructions && <Instructions $color={COLORS.muted}>{instructions}</Instructions>}
 
           <FieldsRow>
             <QuantityRow>
@@ -417,9 +416,9 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
             <GreenButton $variant="green" onClick={handleValidate} disabled={submitting}>
               Valider la réservation
             </GreenButton>
-            <Button variant="contained" onClick={handleCancel}>
+            <GreenButton $variant="white" onClick={handleCancel}>
               Annuler la réservation
-            </Button>
+            </GreenButton>
           </ActionsRow>
           {globalError && <SlotError>{globalError}</SlotError>}
         </Section>

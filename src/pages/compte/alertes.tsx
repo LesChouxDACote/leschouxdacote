@@ -5,7 +5,7 @@ import DeleteIcon from "src/assets/delete.svg"
 import CustomSwitch from "src/components/CustomSwitch"
 import HelpLink from "src/components/HelpLink"
 import Link from "src/components/Link"
-import { COLORS, USER_ROLE } from "src/constants"
+import { COLORS, RADIUS, SIZES, USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { getMapsLink, s } from "src/helpers/text"
@@ -25,14 +25,15 @@ const HelpRow = styled.p`
   text-align: center;
 `
 const Card = styled.div`
-  background-color: white;
-  box-shadow: 5px 5px 20px #00000029;
+  background-color: ${COLORS.white};
+  box-shadow: 5px 5px 20px ${COLORS.shadow.light};
+  border-radius: ${RADIUS}px;
   padding: 30px;
   margin-top: 20px;
 `
 const CardTitle = styled.h2`
   font-weight: bold;
-  font-size: 20px;
+  font-size: ${SIZES.subtitle}px;
 `
 const Content = styled.div`
   padding: 0 0 16px 0;
@@ -41,14 +42,13 @@ const Content = styled.div`
   }
 `
 const Subtitle = styled.h3`
-  color: ${COLORS.dark};
-  opacity: 0.7;
-  font-size: 18px;
+  color: ${COLORS.muted};
+  font-size: ${SIZES.regular}px;
   font-weight: normal;
 `
 const TableWrapper = styled(TableContainer)`
   margin-top: 50px;
-  color: ${COLORS.lightDark};
+  color: ${COLORS.text};
 `
 const DeleteButton = styled(IconButton)`
   width: 32px;
@@ -61,9 +61,9 @@ const Tooltip = styled.div`
   right: 0px;
   width: 300px;
   padding: 5px 10px;
-  background-color: #101010;
-  color: white;
-  font-size: 10px;
+  background-color: ${COLORS.text};
+  color: ${COLORS.white};
+  font-size: ${SIZES.small}px;
 `
 const Label = styled.label`
   cursor: pointer;

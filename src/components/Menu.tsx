@@ -11,43 +11,45 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import NextLink from "next/link"
 import { useRouter } from "next/router"
+import { transparentize } from "polished"
 import { FC } from "react"
 import Loader from "src/components/Loader"
-import { COLORS, USER_ROLE } from "src/constants"
+import { COLORS, SIZES, USER_ROLE } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { getName } from "src/helpers/user"
 
 const Container = styled.nav`
   width: 300px;
   max-width: 80vw;
-  background-color: ${COLORS.menu};
+  background-color: ${COLORS.text};
   height: 100%;
   color: ${COLORS.white};
   h1 {
     margin: 24px 16px 24px;
     font-weight: normal;
-    font-size: 1.4em;
+    font-size: ${SIZES.subtitle}px;
   }
   h2 {
     margin: -18px 16px 24px;
     font-weight: 300;
-    font-size: 1em;
+    font-size: ${SIZES.regular}px;
   }
   svg {
     fill: ${COLORS.white};
     margin-right: 20px;
   }
   hr {
-    border-color: ${COLORS.divider};
+    border-color: ${COLORS.muted};
   }
   .Mui-selected {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: ${COLORS.green};
+    background-color: ${transparentize(0.9, COLORS.white)};
+    color: ${COLORS.white};
+    font-weight: 500;
     svg {
-      fill: ${COLORS.green};
+      fill: ${COLORS.white};
     }
     &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: ${transparentize(0.8, COLORS.white)};
     }
   }
 `

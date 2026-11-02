@@ -1,0 +1,60 @@
+- generic [active] [ref=f40e1]:
+  - generic [ref=f40e2]:
+    - banner [ref=f40e3]:
+      - generic [ref=f40e4]:
+        - link [ref=f40e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f40e42]:
+          - generic [ref=f40e43]:
+            - textbox "Que recherchez-vous ?" [ref=f40e44]
+            - textbox "Où ?" [ref=f40e45]
+          - button [ref=f40e46] [cursor=pointer]
+          - generic [ref=f40e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f40e53]
+            - generic [ref=f40e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=f40e57] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=f40e59]
+    - contentinfo [ref=f40e61]:
+      - generic [ref=f40e62]:
+        - paragraph [ref=f40e63]:
+          - link "Notre charte" [ref=f40e64] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f40e65]:
+          - link "CGU" [ref=f40e66] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f40e67]:
+          - link "Mentions légales" [ref=f40e68] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f40e69]:
+          - link "À propos" [ref=f40e70] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f40e71]:
+        - paragraph [ref=f40e72]:
+          - link "Assistance" [ref=f40e73] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f40e74]:
+          - link "Actualité" [ref=f40e75] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=f40e76]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f40e77] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f40e78]: © 2026 Les Choux d’à Côté
+      - generic [ref=f40e79]:
+        - link [ref=f40e80] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f40e83] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f40e86] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f40e89]:
+      - paragraph [ref=f40e90]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f40e91] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f40e92]:
+        - button "Refuser" [ref=f40e93] [cursor=pointer]
+        - button "Accepter" [ref=f40e94] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=f40e100] [cursor=pointer]
+  - alert [ref=f40e104]

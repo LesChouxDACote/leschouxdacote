@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { FC, MouseEvent, useEffect } from "react"
 import Portal from "src/components/Portal"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, RADIUS } from "src/constants"
 
 const Overlay = styled.div`
   position: fixed;
@@ -9,7 +9,7 @@ const Overlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: ${COLORS.shadow.overlay};
   z-index: 10;
   backdrop-filter: blur(2px);
 `
@@ -18,8 +18,8 @@ const Box = styled.div`
   max-width: 80%;
   margin: 30vh auto 0;
   background-color: ${COLORS.white};
-  border-radius: 8px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+  border-radius: ${RADIUS}px;
+  box-shadow: 0px 3px 6px ${COLORS.shadow.regular};
   position: relative;
   padding: 5px;
   @media (max-width: ${LAYOUT.mobile}px) {

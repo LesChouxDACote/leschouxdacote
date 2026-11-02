@@ -3,21 +3,21 @@ import { ChangeEvent, FocusEvent, KeyboardEvent, useEffect, useRef, useState } f
 import { useFormContext } from "react-hook-form"
 import CustomSwitch from "src/components/CustomSwitch"
 import { Label } from "src/components/Form"
-import { COLORS } from "src/constants"
+import { COLORS, RADIUS } from "src/constants"
 import { tagsIndex } from "src/helpers/algolia"
 
 const Tag = styled.span`
   display: inline-block;
-  background-color: #dcd9d9;
+  background-color: ${COLORS.border};
   box-shadow: 0px 3px 3px ${COLORS.shadow.light};
   border-radius: 12px;
   margin: 4px 12px 8px 0;
   padding: 4px 8px 4px 10px;
   button {
     margin-left: 8px;
-    background-color: ${COLORS.input};
+    background-color: ${COLORS.muted};
     border-radius: 100%;
-    color: white;
+    color: ${COLORS.white};
     line-height: 18px;
     font-weight: 100;
   }
@@ -27,8 +27,9 @@ const Suggestions = styled.div`
   left: 0;
   right: 0;
   z-index: 2;
-  background-color: white;
+  background-color: ${COLORS.white};
   border: 1px solid ${COLORS.border};
+  border-radius: ${RADIUS}px;
   padding: 4px 0;
   box-shadow: 0px 3px 3px ${COLORS.shadow.light};
   button {

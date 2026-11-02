@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import ProductCard from "src/cards/ProductCard"
 import Products from "src/components/Products"
-import { LAYOUT } from "src/constants"
+import { LAYOUT, SIZES } from "src/constants"
 import { ProductEncoded } from "src/models/Product"
 
 const Container = styled.div`
@@ -10,7 +10,7 @@ const Container = styled.div`
   @media (max-width: ${LAYOUT.mobile}px) {
     h1 {
       margin-right: 75px;
-      font-size: 1.5em;
+      font-size: ${SIZES.subtitle}px;
     }
   }
 `

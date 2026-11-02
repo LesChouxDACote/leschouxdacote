@@ -9,7 +9,7 @@ import Link from "src/components/Link"
 import Loader from "src/components/Loader"
 import Modal from "src/components/Modal"
 import { Text } from "src/components/Text"
-import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES, UNIT_LABELS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { formatSlotHeading, getSlotDayLabel } from "src/helpers/date"
@@ -62,19 +62,19 @@ const HelpRow = styled.p`
 `
 const SectionTitle = styled.h2`
   margin: 40px 0 0;
-  font-size: 1.4em;
+  font-size: ${SIZES.subtitle}px;
   font-weight: 500;
-  color: ${COLORS.dark};
+  color: ${COLORS.text};
 `
-// À venir en noir (la police de base, en 300, paraît grise), passées en gris clair.
+// À venir en noir (la police de base, en 300, paraît grise), passées en gris discret.
 const Card = styled.section<{ $past?: boolean }>`
   position: relative;
-  background-color: white;
-  box-shadow: 5px 5px 20px #00000029;
-  border-radius: 6px;
+  background-color: ${COLORS.white};
+  box-shadow: 5px 5px 20px ${COLORS.shadow.light};
+  border-radius: ${RADIUS}px;
   padding: 20px 25px;
   margin-top: 20px;
-  color: ${({ $past }) => ($past ? COLORS.grey : COLORS.dark)};
+  color: ${({ $past }) => ($past ? COLORS.muted : COLORS.text)};
   font-weight: ${({ $past }) => ($past ? 300 : 400)};
 
   @media (max-width: ${LAYOUT.mobile}px) {
@@ -87,7 +87,7 @@ const SlotHeading = styled.div`
   align-items: center;
   gap: 10px;
   padding-right: 120px;
-  font-size: 1.4em;
+  font-size: ${SIZES.subtitle}px;
   font-weight: 700;
 `
 const DayBadge = styled.span`
@@ -95,13 +95,13 @@ const DayBadge = styled.span`
   color: ${COLORS.white};
   border-radius: 12px;
   padding: 2px 10px;
-  font-size: 0.6em;
+  font-size: ${SIZES.small}px;
   font-weight: 500;
   text-transform: uppercase;
 `
 const CardTitle = styled.h3`
   margin: 8px 0 15px;
-  font-size: 1.1em;
+  font-size: ${SIZES.regular}px;
   font-weight: 500;
 `
 const Label = styled.span`
@@ -140,7 +140,7 @@ const AddressBlock = styled.div`
 `
 const PricesBlock = styled.div`
   margin-top: 15px;
-  font-size: ${SIZES.card}px;
+  font-size: ${SIZES.regular}px;
 
   strong {
     color: ${COLORS.green};
