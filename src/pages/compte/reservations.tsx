@@ -12,7 +12,7 @@ import { Text } from "src/components/Text"
 import { COLORS, LAYOUT, SIZES, UNIT_LABELS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
-import { formatDate } from "src/helpers/date"
+import { formatSlotHeading, getSlotDayLabel } from "src/helpers/date"
 import { formatAmount, formatPhone, formatPricePerUnit, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
 import type { BuyerReservationItem, MyReservationsResponse } from "src/models/Booking"
@@ -24,8 +24,6 @@ const getPageQuery = (value: string | string[] | undefined) => {
   const page = Number(Array.isArray(value) ? value[0] : value)
   return Number.isInteger(page) && page > 0 ? page : 1
 }
-
-const formatHours = (heure: string) => heure.replace(":", "h")
 
 const getQuantityError = (item: BuyerReservationItem, value: string) => {
   const unitLabel = item.product?.unit ? UNIT_LABELS[item.product.unit] : ""
@@ -62,22 +60,52 @@ const PageTitle = styled.h1`
 const HelpRow = styled.p`
   text-align: center;
 `
-const Card = styled.section<{ $muted?: boolean }>`
+const SectionTitle = styled.h2`
+  margin: 40px 0 0;
+  font-size: 1.4em;
+  font-weight: 500;
+  color: ${COLORS.dark};
+`
+// À venir en noir (la police de base, en 300, paraît grise), passées en gris clair.
+const Card = styled.section<{ $past?: boolean }>`
   position: relative;
   background-color: white;
   box-shadow: 5px 5px 20px #00000029;
   border-radius: 6px;
   padding: 20px 25px;
   margin-top: 20px;
-  color: ${({ $muted }) => ($muted ? COLORS.grey : "inherit")};
+  color: ${({ $past }) => ($past ? COLORS.grey : COLORS.dark)};
+  font-weight: ${({ $past }) => ($past ? 300 : 400)};
 
   @media (max-width: ${LAYOUT.mobile}px) {
     padding: 20px 15px;
   }
 `
-const CardTitle = styled.h2`
-  margin: 0 0 15px;
+const SlotHeading = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   padding-right: 120px;
+  font-size: 1.4em;
+  font-weight: 700;
+`
+const DayBadge = styled.span`
+  background-color: ${COLORS.green};
+  color: ${COLORS.white};
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.6em;
+  font-weight: 500;
+  text-transform: uppercase;
+`
+const CardTitle = styled.h3`
+  margin: 8px 0 15px;
+  font-size: 1.1em;
+  font-weight: 500;
+`
+const Label = styled.span`
+  font-weight: 500;
 `
 const CancelButton = styled(Button)`
   position: absolute;
@@ -86,8 +114,9 @@ const CancelButton = styled(Button)`
 `
 const Notice = styled(Text)`
   display: block;
-  margin: -10px 0 15px;
-  font-style: italic;
+  margin: -5px 0 15px;
+  color: ${COLORS.red};
+  font-weight: 500;
 `
 const InfoGrid = styled.div`
   display: grid;
@@ -98,21 +127,14 @@ const InfoGrid = styled.div`
     grid-template-columns: 1fr;
   }
 `
-const SlotRow = styled(InfoGrid)`
-  grid-template-columns: 1fr 2fr;
+const Instructions = styled.div`
   margin-top: 15px;
-
-  @media (max-width: ${LAYOUT.mobile}px) {
-    grid-template-columns: 1fr;
-  }
-`
-const Instructions = styled(Text)`
-  font-style: italic;
+  white-space: pre-line;
 `
 const AddressBlock = styled.div`
   margin-top: 15px;
 
-  a:hover {
+  a {
     text-decoration: underline;
   }
 `
@@ -169,9 +191,11 @@ interface CardProps {
 
 const ReservationCard = ({ item, quantity, error, saving, success, onChange, onModify, onCancel }: CardProps) => {
   const { booking, product, slot } = item
-  // Créneau passé, annonce supprimée ou créneau retiré : carte grisée, sans actions.
-  const muted = item.isPast || !product || !slot
+  // Créneau passé : carte grisée, sans actions. Annonce supprimée ou créneau retiré d'un créneau à venir :
+  // carte en noir avec un avertissement, annulable mais plus modifiable.
   const editable = Boolean(product && slot) && !item.isPast
+  const unavailable = !item.isPast && (!product || !slot)
+  const dayLabel = item.isPast ? null : getSlotDayLabel(booking.slotDate)
   const unitLabel = product?.unit ? UNIT_LABELS[product.unit] : ""
   const unitPrice = product
     ? formatPricePerUnit({
@@ -186,12 +210,16 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
   const unchanged = Number(quantity) === booking.quantity
 
   return (
-    <Card $muted={muted}>
+    <Card $past={item.isPast}>
       {!item.isPast && (
         <CancelButton $variant="red" onClick={() => onCancel(item)}>
           Annuler
         </CancelButton>
       )}
+      <SlotHeading>
+        {formatSlotHeading(booking.slotDate, booking.heureDebut, booking.heureFin)}
+        {dayLabel && <DayBadge>{dayLabel}</DayBadge>}
+      </SlotHeading>
       <CardTitle>
         {product ? (
           <Link href={`/annonce/${product.objectID}`} target="_blank" rel="noopener">
@@ -201,21 +229,27 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
           "Annonce indisponible"
         )}
       </CardTitle>
-      {product && !slot && <Notice>Annonce indisponible</Notice>}
+      {unavailable && <Notice>Annonce plus disponible, contactez le producteur</Notice>}
       <InfoGrid>
-        <div>{product?.producer ?? "—"}</div>
-        <div>Email : {product?.email ? <a href={`mailto:${product.email}`}>{product.email}</a> : "—"}</div>
-        <div>Tél : {product?.phone ? <a href={`tel:${product.phone}`}>{formatPhone(product.phone)}</a> : "—"}</div>
-      </InfoGrid>
-      <SlotRow>
         <div>
-          {formatDate(booking.slotDate, "dd/MM/yyyy")} de {formatHours(booking.heureDebut)} à{" "}
-          {formatHours(booking.heureFin)}
+          <Label>Producteur :</Label> {product?.producer ?? "—"}
         </div>
-        {slot?.instructions && <Instructions $color={COLORS.input}>{slot.instructions}</Instructions>}
-      </SlotRow>
+        <div>
+          <Label>Email :</Label> {product?.email ? <a href={`mailto:${product.email}`}>{product.email}</a> : "—"}
+        </div>
+        <div>
+          <Label>Téléphone :</Label>{" "}
+          {product?.phone ? <a href={`tel:${product.phone}`}>{formatPhone(product.phone)}</a> : "—"}
+        </div>
+      </InfoGrid>
+      {slot?.instructions && (
+        <Instructions>
+          <Label>Consignes du producteur :</Label> {slot.instructions}
+        </Instructions>
+      )}
       {product && (
         <AddressBlock>
+          <Label>Adresse du retrait :</Label>{" "}
           <a href={getMapsLink(product)} target="_blank" rel="noopener">
             {product.address}
           </a>
@@ -227,9 +261,13 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
       )}
       {product && (
         <PricesBlock>
-          {unitPrice && <div>{unitPrice}</div>}
+          {unitPrice && (
+            <div>
+              <Label>Prix :</Label> {unitPrice}
+            </div>
+          )}
           <div>
-            Total : <strong>{total}</strong>
+            <Label>Total :</Label> <strong>{total}</strong>
           </div>
         </PricesBlock>
       )}
@@ -237,7 +275,7 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
         {editable ? (
           <>
             <QuantityRow>
-              <span>Quantité :</span>
+              <Label>Quantité :</Label>
               <TextField
                 type="number"
                 size="small"
@@ -255,10 +293,12 @@ const ReservationCard = ({ item, quantity, error, saving, success, onChange, onM
           </>
         ) : (
           <div>
-            Quantité : {booking.quantity} {unitLabel}
+            <Label>Quantité :</Label> {booking.quantity} {unitLabel}
           </div>
         )}
-        {editable && item.remaining != null && <Remaining>{item.remaining} quantités restantes</Remaining>}
+        {editable && item.remaining != null && (
+          <Remaining>{`Encore ${item.remaining} ${unitLabel}`.trim()} disponibles</Remaining>
+        )}
       </QuantityBlock>
     </Card>
   )
@@ -395,23 +435,34 @@ const MyReservationsPage = () => {
         ) : (
           data && (
             <>
-              {data.items.map((item) => (
-                <ReservationCard
-                  key={item.booking.objectID}
-                  item={item}
-                  quantity={quantities[item.booking.objectID] ?? String(item.booking.quantity)}
-                  error={cardErrors[item.booking.objectID]}
-                  saving={savingId === item.booking.objectID}
-                  success={successId === item.booking.objectID}
-                  onChange={(id, value) => {
-                    setQuantities((current) => ({ ...current, [id]: value }))
-                    setCardErrors((current) => ({ ...current, [id]: undefined }))
-                    setSuccessId(null)
-                  }}
-                  onModify={handleModify}
-                  onCancel={setCancelTarget}
-                />
-              ))}
+              {/* Liste déjà triée (à venir puis passées) : une page peut contenir l'une des sections ou les deux. */}
+              {[
+                { title: "À venir", items: data.items.filter((item) => !item.isPast) },
+                { title: "Passées", items: data.items.filter((item) => item.isPast) },
+              ]
+                .filter((section) => section.items.length > 0)
+                .map((section) => (
+                  <div key={section.title}>
+                    <SectionTitle>{section.title}</SectionTitle>
+                    {section.items.map((item) => (
+                      <ReservationCard
+                        key={item.booking.objectID}
+                        item={item}
+                        quantity={quantities[item.booking.objectID] ?? String(item.booking.quantity)}
+                        error={cardErrors[item.booking.objectID]}
+                        saving={savingId === item.booking.objectID}
+                        success={successId === item.booking.objectID}
+                        onChange={(id, value) => {
+                          setQuantities((current) => ({ ...current, [id]: value }))
+                          setCardErrors((current) => ({ ...current, [id]: undefined }))
+                          setSuccessId(null)
+                        }}
+                        onModify={handleModify}
+                        onCancel={setCancelTarget}
+                      />
+                    ))}
+                  </div>
+                ))}
               {data.total > data.pageSize && (
                 <ButtonsRow>
                   <Button disabled={data.page <= 1} onClick={() => goToPage(data.page - 1)}>
