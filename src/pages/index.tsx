@@ -81,6 +81,9 @@ const SearchGroup = styled(SearchBar)`
       margin: 8px auto;
       padding-left: 20px;
     }
+    @media (min-width: ${LAYOUT.mobile}px) {
+      margin-top: 12px;
+    }
 
     .MuiFormControlLabel-label {
       font-weight: 300;
@@ -94,14 +97,12 @@ const HomePage = () => {
     <Layout bgImage>
       <Logo />
       <Title>Vente directe : Le circuit plus court des produits alimentaires</Title>
-      <a href="https://info.leschouxdacote.fr/" target="_blank" rel="noreferrer">
-        <Introduction>
-          <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
-          publiant gratuitement des annonces.
-          <br />
-          <b>Acheteurs</b>, découvrez les <strong>produits locaux en circuit court </strong> près de chez vous.
-        </Introduction>
-      </a>
+      <Introduction>
+        <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
+        publiant gratuitement des annonces.
+        <br />
+        <b>Acheteurs</b>, découvrez les <strong>produits locaux en circuit court </strong> près de chez vous.
+      </Introduction>
       <SearchGroup />
     </Layout>
   )
