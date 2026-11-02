@@ -2,7 +2,8 @@ import { ReactNode } from "react"
 import Link from "src/components/Link"
 
 // Articles repris du blog WordPress (informationleschouxdacote.wordpress.com/blog/) le 2 novembre 2026, du plus récent
-// au plus ancien ; l'article d'exemple de WordPress (« Présentation personnelle ») est laissé de côté.
+// au plus ancien ; l'article d'exemple de WordPress (« Présentation personnelle ») et « Appel à volontaires » sont
+// laissés de côté.
 // Les photos du blog sont remplacées par des photos libres (Unsplash) dans public/actualite/.
 
 export interface Article {
@@ -516,32 +517,6 @@ export const ARTICLES: Article[] = [
         </ul>
         <p>
           Intéressé·e ? L&apos;inscription est gratuite : <Link href="/inscription">cliquez ici</Link>.
-        </p>
-      </>
-    ),
-  },
-  {
-    slug: "appel-a-volontaires",
-    title: "Appel à volontaires",
-    date: "2021-10-22",
-    author: "Les Choux d'à Côté",
-    image: "/actualite/volontaires.jpg",
-    summary:
-      "Envie de participer à l'aventure ? Nous cherchons des volontaires pour faire connaître la plateforme aux producteurs, notamment sur les marchés.",
-    body: (
-      <>
-        <p>
-          Envie de participer à la folle aventure des <Link href="/">Choux d&apos;à Côté</Link> ? Nous cherchons des
-          personnes motivées pour aller à la rencontre des producteurs, notamment sur les marchés.
-        </p>
-        <p>Nous vous fournirons des flyers à remettre aux producteurs, et répondrons à toutes vos questions 🙌</p>
-        <p>
-          Que votre aide soit ponctuelle ou régulière, elle est précieuse pour faire connaître la plateforme aux
-          producteurs locaux.
-        </p>
-        <p>
-          Pour vous manifester, écrivez-nous en message privé ou par e-mail :{" "}
-          <a href="mailto:contact@leschouxdacote.fr">contact@leschouxdacote.fr</a> 💚
         </p>
       </>
     ),
