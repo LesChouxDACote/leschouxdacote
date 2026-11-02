@@ -1,0 +1,49 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - textbox "Que recherchez-vous ?" [ref=e44]
+            - textbox "Où ?" [ref=e45]
+          - button [ref=e46] [cursor=pointer]
+          - generic [ref=e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e53]
+            - generic [ref=e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+    - main [ref=e59]
+    - contentinfo [ref=e60]:
+      - generic [ref=e61]:
+        - paragraph [ref=e62]:
+          - link "Notre charte" [ref=e63] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/notre-charte/
+        - paragraph [ref=e64]:
+          - link "CGU" [ref=e65] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/cgs/
+        - paragraph [ref=e66]:
+          - link "Mentions légales" [ref=e67] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/mentions-legales/
+        - paragraph [ref=e68]:
+          - link "À propos" [ref=e69] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/a-propos/
+      - generic [ref=e70]:
+        - paragraph [ref=e71]:
+          - link "Assistance" [ref=e72] [cursor=pointer]:
+            - /url: https://assistance.leschouxdacote.fr/
+        - paragraph [ref=e73]:
+          - link "Actualité" [ref=e74] [cursor=pointer]:
+            - /url: https://info.leschouxdacote.fr/actualites/
+        - paragraph [ref=e75]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e76] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e77]: © 2026 Les Choux d’à Côté
+      - generic [ref=e78]:
+        - link [ref=e79] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e82] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e85] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+  - alert [ref=e88]

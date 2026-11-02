@@ -4,6 +4,7 @@ import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
 import { Button } from "src/components/Button"
 import { ValidationError as ApiValidationError } from "src/components/Form"
+import HelpLink from "src/components/HelpLink"
 import Link from "src/components/Link"
 import Loader from "src/components/Loader"
 import Modal from "src/components/Modal"
@@ -56,6 +57,9 @@ const Container = styled.div`
   }
 `
 const PageTitle = styled.h1`
+  text-align: center;
+`
+const HelpRow = styled.p`
   text-align: center;
 `
 const Card = styled.section<{ $muted?: boolean }>`
@@ -369,6 +373,9 @@ const MyReservationsPage = () => {
     <Layout title="Mes réservations" noindex fullWidth>
       <Container>
         <PageTitle>Mes réservations</PageTitle>
+        <HelpRow>
+          <HelpLink slug="mes-reservations" />
+        </HelpRow>
         {actionError && (
           <Center>
             <ActionError>{actionError}</ActionError>
