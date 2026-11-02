@@ -78,6 +78,13 @@ test.describe.serial("Réservations", () => {
     await expect(page.getByRole("heading", { name: "Mes réservations" })).toBeVisible()
     const card = page.getByRole("link", { name: TEST_PRODUCT_TITLE }).locator("xpath=ancestor::section[1]")
     await card.waitFor({ timeout: 20000 })
+    // Créneau à venir : rangé sous « À venir », son jour et ses heures en tête de carte, le restant dans l'unité
+    await expect(page.getByRole("heading", { name: "À venir" })).toBeVisible()
+    const hours = `${SLOT_1.start.replace(":", "h")} – ${SLOT_1.end.replace(":", "h")}`
+    await expect(card.getByText(new RegExp(`^[A-Z][a-z]+ \\d+ \\S+ · ${hours}`))).toBeVisible()
+    await expect(card.getByText("Producteur :", { exact: true })).toBeVisible()
+    await expect(card.getByText("Consignes du producteur :", { exact: true })).toBeVisible()
+    await expect(card.getByText(/^Encore \d+ kg disponibles$/)).toBeVisible()
     // 2 réservés, 2 au plus par personne (addSlotReservation) : on descend à 1
     await card.locator('input[aria-label="Quantité"]').fill("1")
     await card.getByRole("button", { name: "Modifier" }).click()
