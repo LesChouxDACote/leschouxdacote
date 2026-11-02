@@ -1,6 +1,7 @@
 import { GetServerSideProps } from "next"
 import { getServerSideSitemapLegacy, ISitemapField } from "next-sitemap"
 import { SSR_CACHE_HEADER } from "src/constants"
+import { getHelpHref, HELP_TOPICS } from "src/constants/aide"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import type { Producer, Product } from "src/types/model"
 
@@ -31,6 +32,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       changefreq: "weekly",
       priority: 0.2,
     },
+    {
+      loc: URL + "/aide",
+      changefreq: "monthly",
+      priority: 0.3,
+    },
+    ...HELP_TOPICS.map((topic): ISitemapField => ({
+      loc: URL + getHelpHref(topic.slug),
+      changefreq: "monthly",
+      priority: 0.3,
+    })),
   ]
 
   productsSnapshot.forEach((doc) => {
