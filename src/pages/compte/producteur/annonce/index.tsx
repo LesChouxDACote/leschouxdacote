@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
+import HelpLink from "src/components/HelpLink"
 import ProductEndDate from "src/components/ProductEndDate"
 import SlotsForm from "src/components/Slots"
 import TagsInput from "src/components/TagsInput"
@@ -45,6 +46,10 @@ const LeftColumn = styled.div`
 
 const RightColumn = styled.div`
   min-width: 0;
+`
+
+const HelpRow = styled.p`
+  text-align: center;
 `
 
 const UnsavedBadge = styled.p`
@@ -268,6 +273,9 @@ const EditProductPage = () => {
         resetOnChange={data?.objectID}
         onDirtyChange={setFormDirty}
       >
+        <HelpRow>
+          <HelpLink slug={productId ? "modifier-une-annonce" : "publier-une-annonce"} />
+        </HelpRow>
         <TwoColumnLayout>
           <LeftColumn>
             <TextInput name="title" label="Titre" required maxLength={100} />
