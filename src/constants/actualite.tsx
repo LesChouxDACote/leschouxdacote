@@ -2,8 +2,9 @@ import { ReactNode } from "react"
 import Link from "src/components/Link"
 
 // Articles repris du blog WordPress (informationleschouxdacote.wordpress.com/blog/) le 2 novembre 2026, du plus récent
-// au plus ancien ; l'article d'exemple de WordPress (« Présentation personnelle ») et « Appel à volontaires » sont
-// laissés de côté.
+// au plus ancien ; l'article d'exemple de WordPress (« Présentation personnelle »), « Appel à volontaires », « Nouveau !
+// Les produits issus de l'Agriculture Biologique / Raisonnée à l'honneur » et « Producteurs, communiquez plus
+// facilement sur vos produits en vente directe » sont laissés de côté.
 // Les photos du blog sont remplacées par des photos libres (Unsplash) dans public/actualite/.
 
 export interface Article {
@@ -445,79 +446,6 @@ export const ARTICLES: Article[] = [
           c&apos;est aussi moins de gaspillage.
         </p>
         <CallToAction />
-      </>
-    ),
-  },
-  {
-    slug: "nouveau-les-produits-issus-de-lagriculture-biologique-raisonnee-a-lhonneur",
-    title: "Nouveau ! Les produits issus de l'Agriculture Biologique / Raisonnée à l'honneur",
-    date: "2021-11-23",
-    author: "Les Choux d'à Côté",
-    image: "/actualite/bio.jpg",
-    summary:
-      "Les producteurs peuvent désormais signaler leurs produits bio ou issus de l'agriculture raisonnée, et les acheteurs les retrouver grâce à un filtre.",
-    body: (
-      <>
-        <p>
-          La plateforme Les Choux d&apos;à Côté met désormais en avant les produits issus de l&apos;Agriculture
-          Biologique et de l&apos;Agriculture Raisonnée. C&apos;est tout simple :
-        </p>
-        <ul>
-          <li>
-            💚 <strong>Producteurs</strong> : apposez en un clic le label « Bio / Raisonnée » sur vos produits ;
-          </li>
-          <li>
-            💚 <strong>Acheteurs</strong> : repérez les produits bio près de chez vous en activant le filtre dans la
-            recherche.
-          </li>
-        </ul>
-        <p>Intéressé·e ?</p>
-        <ul>
-          <li>
-            Pour vous inscrire gratuitement, <Link href="/inscription">cliquez ici</Link> ;
-          </li>
-          <li>
-            Pour trouver des produits bio près de chez vous, <Link href="/recherche">cliquez ici</Link>.
-          </li>
-        </ul>
-      </>
-    ),
-  },
-  {
-    slug: "producteurs-communiquez-plus-facilement-sur-vos-produits-en-vente-directe",
-    title: "Producteurs, communiquez plus facilement sur vos produits en vente directe",
-    date: "2021-11-15",
-    author: "Les Choux d'à Côté",
-    image: "/actualite/communication.jpg",
-    summary:
-      "Petit rappel : Les Choux d'à Côté est une plateforme d'annonces alimentaires qui aide les producteurs à faire connaître leurs produits.",
-    body: (
-      <>
-        <p>
-          Petite 💉 de rappel… <Link href="/">Les Choux d&apos;à Côté</Link> est une plateforme d&apos;annonces
-          alimentaires, qui aide les producteurs à faire connaître leurs produits pour augmenter leurs ventes directes.
-        </p>
-        <p>Déjà disponibles :</p>
-        <ul>
-          <li>
-            <strong>Des annonces référencées</strong> sur le web ;
-          </li>
-          <li>
-            <strong>Des e-mails envoyés</strong> automatiquement aux abonnés à chaque nouvelle annonce.
-          </li>
-        </ul>
-        <p>Et bientôt de nouvelles fonctionnalités !</p>
-        <ul>
-          <li>
-            <strong>Le partage simplifié</strong> des annonces sur vos réseaux : page Facebook, conversation WhatsApp… ;
-          </li>
-          <li>
-            <strong>Des commentaires</strong> sous les annonces, pour échanger avec les acheteurs.
-          </li>
-        </ul>
-        <p>
-          Intéressé·e ? L&apos;inscription est gratuite : <Link href="/inscription">cliquez ici</Link>.
-        </p>
       </>
     ),
   },
