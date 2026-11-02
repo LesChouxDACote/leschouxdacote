@@ -1,27 +1,25 @@
 import styled from "@emotion/styled"
 import { lighten } from "polished"
+import { inputCss } from "src/components/Form"
 import { COLORS, LAYOUT } from "src/constants"
 
 const SearchInput = styled.input`
-  color: ${COLORS.input};
+  ${inputCss}
   padding: 6px 16px;
-  border: 1px solid ${COLORS.border};
   outline: none;
-  font-size: 1em;
 
   &::placeholder {
-    font-weight: 100;
+    font-weight: 300;
   }
 
   &:active,
   &:focus {
     position: relative;
-    box-shadow: 0 0 0 0.25rem ${lighten(0.3, COLORS.grey)};
+    box-shadow: 0 0 0 0.25rem ${lighten(0.3, COLORS.muted)};
   }
 
   width: 100%;
   @media (min-width: ${LAYOUT.mobile}px) {
-    border-radius: 32px;
     width: 50%;
     &:first-of-type {
       border-top-right-radius: 0;

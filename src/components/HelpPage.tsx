@@ -1,17 +1,17 @@
 import styled from "@emotion/styled"
 import Link from "src/components/Link"
-import { COLORS, CONTACT_EMAIL, LAYOUT } from "src/constants"
+import { COLORS, CONTACT_EMAIL, LAYOUT, SIZES } from "src/constants"
 import Layout from "src/layout"
 
 // Même apparence que la page « À propos » : fond vert pâle sur toute la largeur, texte plus gros et plus aéré
 export const HelpBackground = styled.div`
   background-color: ${COLORS.background.success};
-  font-size: 17px;
+  font-size: ${SIZES.regular}px;
   font-weight: 400;
   line-height: 1.7;
   h1,
   h2 {
-    color: ${COLORS.dark};
+    color: ${COLORS.text};
   }
 `
 export const HelpColumn = styled.div`
@@ -33,13 +33,13 @@ const Content = styled(HelpColumn)`
 const Back = styled(Link)`
   display: inline-block;
   margin-bottom: 16px;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const Contact = styled.p`
   margin-top: 48px;
   padding-top: 16px;
   border-top: 1px solid ${COLORS.border};
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 
 // Libellé de l'interface cité dans l'aide (bouton, menu, champ)

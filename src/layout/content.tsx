@@ -1,17 +1,17 @@
 import styled from "@emotion/styled"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, SIZES } from "src/constants"
 
 // Mise en page des pages de contenu (À propos, Actualité), à utiliser dans <Layout fullWidth>
 
-// Fond vert pâle sur toute la largeur, texte plus gros, plus gras et plus aéré que le reste du site (Roboto 300)
+// Fond vert pâle sur toute la largeur, texte plus gras et plus aéré que le reste du site (Nunito 300)
 export const Page = styled.div`
   background-color: ${COLORS.background.success};
-  font-size: 17px;
+  font-size: ${SIZES.regular}px;
   font-weight: 400;
   line-height: 1.7;
   h1,
   h2 {
-    color: ${COLORS.dark};
+    color: ${COLORS.text};
   }
 `
 export const Column = styled.div`

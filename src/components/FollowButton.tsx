@@ -2,17 +2,18 @@ import styled from "@emotion/styled"
 import { Button } from "@mui/material"
 import IconHeartEmpty from "src/assets/icon-heart-empty.svg"
 import IconHeart from "src/assets/icon-heart.svg"
+import { COLORS } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { isFollowed } from "src/helpers/user"
 
 const Container = styled(Button)`
   margin: 20px auto 10px;
-  background-color: white;
-  color: #f21414;
+  background-color: ${COLORS.white};
+  color: ${COLORS.red};
   text-transform: none;
   font-weight: 300;
   &:hover {
-    background-color: white;
+    background-color: ${COLORS.white};
   }
 `
 

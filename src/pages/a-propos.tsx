@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import { LinkButton } from "src/components/Button"
-import { COLORS, CONTACT_EMAIL, LAYOUT, SIZES } from "src/constants"
+import { COLORS, CONTACT_EMAIL, LAYOUT, RADIUS, SIZES } from "src/constants"
 import Layout from "src/layout"
 import { Column, Page } from "src/layout/content"
 
@@ -18,7 +18,7 @@ const Findings = styled.div`
 `
 const Finding = styled.section`
   border: 1px solid ${COLORS.border};
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   padding: 16px;
   background-color: ${COLORS.white};
   h3 {
@@ -61,7 +61,7 @@ const Avatar = styled.div<{ $shaped?: boolean }>`
   justify-content: center;
   background-color: ${({ $shaped }) => ($shaped ? "transparent" : COLORS.background.success)};
   color: ${COLORS.green};
-  font-size: ${SIZES.price}px;
+  font-size: ${SIZES.title}px;
   img {
     width: 100%;
     height: 100%;
@@ -77,7 +77,7 @@ const Name = styled.a`
 `
 const Role = styled.p`
   margin: 4px 0 0;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const Actions = styled.p`
   display: flex;

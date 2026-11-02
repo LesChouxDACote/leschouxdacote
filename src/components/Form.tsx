@@ -1,3 +1,4 @@
+import { css } from "@emotion/react"
 import styled from "@emotion/styled"
 import {
   FC,
@@ -12,7 +13,7 @@ import {
 } from "react"
 import { DeepPartial, DefaultValues, FieldValues, FormProvider, useForm, useFormContext } from "react-hook-form"
 import { Button } from "src/components/Button"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { handleError } from "src/helpers/errors"
 import HttpError from "standard-http-error"
 
@@ -34,9 +35,10 @@ const StyledForm = styled.form<{ $wide?: boolean }>`
 const Title = styled.h1`
   text-align: center;
 `
-const Required = styled.p`
+export const Required = styled.p`
   font-style: italic;
-  color: ${COLORS.grey};
+  font-size: ${SIZES.small}px;
+  color: ${COLORS.muted};
   text-align: center;
   margin: -1em 0 1em;
 `
@@ -121,26 +123,30 @@ export const Row = styled.div`
   }
 `
 
+// Aspect commun de tous les champs de saisie, y compris ceux placés hors d'un formulaire (recherche, mots-clés)
+export const inputCss = css`
+  border-radius: ${RADIUS}px;
+  border: 1px solid ${COLORS.border};
+  padding: 8px;
+  font-size: ${SIZES.regular}px;
+  color: ${COLORS.text};
+  background-color: ${COLORS.white};
+`
+
 export const Label = styled.label<{ $error?: boolean }>`
   display: block;
   position: relative;
   margin: 20px 0;
-  color: ${({ $error }) => ($error ? COLORS.red : COLORS.dark)};
+  font-size: ${SIZES.regular}px;
+  color: ${({ $error }) => ($error ? COLORS.red : COLORS.text)};
 
   input,
   textarea,
   select {
+    ${inputCss}
     display: block;
     width: 100%;
     margin: 4px 0;
-    border-radius: 4px;
-    border: 1px solid ${COLORS.border};
-    padding: 8px;
-    font-size: 1em;
-  }
-
-  input,
-  textarea {
   }
 
   select {
@@ -148,6 +154,8 @@ export const Label = styled.label<{ $error?: boolean }>`
   }
 `
 export const ErrorMessage = styled.span`
+  display: block;
+  font-size: ${SIZES.small}px;
   color: ${COLORS.red};
 `
 export const Suffix = styled.div`

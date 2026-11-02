@@ -1,8 +1,9 @@
 import styled from "@emotion/styled"
 import { useState } from "react"
+import { inputCss } from "src/components/Form"
 import { HelpBackground, HelpColumn } from "src/components/HelpPage"
 import Link from "src/components/Link"
-import { COLORS, CONTACT_EMAIL, LAYOUT } from "src/constants"
+import { COLORS, CONTACT_EMAIL, LAYOUT, RADIUS } from "src/constants"
 import { getHelpHref, HELP_GROUPS, HelpGroup, searchHelpTopics } from "src/constants/aide"
 import Layout from "src/layout"
 
@@ -16,14 +17,12 @@ const Intro = styled.p`
   }
 `
 const Search = styled.input`
+  ${inputCss}
   display: block;
   width: 100%;
   max-width: ${LAYOUT.formWidth}px;
   margin: 24px auto 32px;
   padding: 10px 12px;
-  border: 1px solid ${COLORS.border};
-  border-radius: 8px;
-  font-size: 1em;
 `
 const Cards = styled.div`
   display: grid;
@@ -35,7 +34,7 @@ const Card = styled(Link)`
   padding: 16px;
   background-color: ${COLORS.white};
   border: 1px solid ${COLORS.border};
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   font-weight: bold;
   &:hover {
     color: ${COLORS.green};
@@ -43,7 +42,7 @@ const Card = styled(Link)`
 `
 const Empty = styled.p`
   text-align: center;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const Contact = styled.p`
   margin-top: 48px;

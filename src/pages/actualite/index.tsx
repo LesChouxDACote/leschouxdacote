@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 import Link from "src/components/Link"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { ARTICLES } from "src/constants/actualite"
 import { formatDate } from "src/helpers/date"
 import Layout from "src/layout"
@@ -19,7 +19,7 @@ const Card = styled(Link)`
   display: flex;
   flex-direction: column;
   border: 1px solid ${COLORS.border};
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   overflow: hidden;
   background-color: ${COLORS.white};
   color: inherit;
@@ -38,13 +38,13 @@ const Card = styled(Link)`
   }
   h2 {
     margin: 0 0 8px;
-    font-size: 1.15em;
+    font-size: ${SIZES.subtitle}px;
     line-height: 1.4;
     color: ${COLORS.green};
   }
   time {
-    color: ${COLORS.grey};
-    font-size: 0.9em;
+    color: ${COLORS.muted};
+    font-size: ${SIZES.small}px;
   }
   p {
     margin: 8px 0 0;

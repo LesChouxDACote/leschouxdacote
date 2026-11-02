@@ -10,7 +10,7 @@ import Link, { ButtonLink } from "src/components/Link"
 import Menu from "src/components/Menu"
 import SearchBar from "src/components/SearchBar"
 import UserZone from "src/components/UserZone"
-import { COLORS, LAYOUT, USER_ROLE } from "src/constants"
+import { COLORS, LAYOUT, SIZES, USER_ROLE } from "src/constants"
 import { useUser } from "src/helpers/auth"
 
 const Container = styled.header`
@@ -40,7 +40,7 @@ const Mobile = styled(Content)`
   a {
     padding: 8px 10px;
     display: block;
-    font-size: 1.2em;
+    font-size: ${SIZES.subtitle}px;
     font-weight: 400;
   }
   svg {

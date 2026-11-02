@@ -3,7 +3,7 @@ import PrevIcon from "@mui/icons-material/NavigateBefore"
 import NextIcon from "@mui/icons-material/NavigateNext"
 import { forwardRef, useEffect, useState } from "react"
 import { ProductInfos } from "src/cards/ProductCard"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, SIZES } from "src/constants"
 import { useHover } from "src/helpers/hover"
 import { ProductEncoded } from "src/models/Product"
 
@@ -28,7 +28,7 @@ const Nav = styled.nav`
   display: flex;
   align-items: center;
   text-align: center;
-  font-size: 13px;
+  font-size: ${SIZES.small}px;
   border-top: 1px solid ${COLORS.border};
   button {
     height: 34px;

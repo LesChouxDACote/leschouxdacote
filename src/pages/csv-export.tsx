@@ -1,26 +1,15 @@
 import styled from "@emotion/styled"
-import { LAYOUT } from "src/constants"
+import { Button } from "src/components/Button"
 import { auth } from "src/helpers/firebase"
 import Layout from "src/layout"
 
 const Title = styled.h1`
   text-align: center;
-  font-size: 1.7em;
-  font-weight: 500;
-  @media (max-width: ${LAYOUT.mobile}px) {
-    font-size: 14px;
-    margin: 0.5em -16px;
-  }
 `
-const Link = styled.h1`
-  text-align: center;
-  font-size: 1em;
-  font-weight: 300;
-  cursor: pointer;
-  @media (max-width: ${LAYOUT.mobile}px) {
-    font-size: 14px;
-    margin: 0.5em -16px;
-  }
+const Actions = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 16px;
 `
 
 export const CSVExport = () => {
@@ -47,12 +36,14 @@ export const CSVExport = () => {
   return (
     <Layout title="Export des CSVs">
       <Title>Export des CSVs</Title>
-      <Link>
-        <button onClick={() => handleGetCSV("buyers")}>{"Acheteurs"}</button>
-      </Link>
-      <Link>
-        <button onClick={() => handleGetCSV("producers")}>{"Producteurs"}</button>
-      </Link>
+      <Actions>
+        <Button $variant="green" onClick={() => handleGetCSV("buyers")}>
+          Acheteurs
+        </Button>
+        <Button $variant="green" onClick={() => handleGetCSV("producers")}>
+          Producteurs
+        </Button>
+      </Actions>
     </Layout>
   )
 }

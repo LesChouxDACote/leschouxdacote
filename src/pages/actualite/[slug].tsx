@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { GetStaticPaths, GetStaticProps } from "next"
 import Link from "src/components/Link"
-import { COLORS } from "src/constants"
+import { COLORS, RADIUS } from "src/constants"
 import { ARTICLES } from "src/constants/actualite"
 import { formatDate } from "src/helpers/date"
 import Layout from "src/layout"
@@ -23,14 +23,14 @@ const Reading = styled.article`
 `
 const Meta = styled.p`
   margin: 0 0 24px;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const Cover = styled.img`
   display: block;
   width: 100%;
   max-height: 420px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   margin-bottom: 24px;
 `
 const Back = styled.p`

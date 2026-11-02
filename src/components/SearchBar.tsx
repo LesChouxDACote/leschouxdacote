@@ -5,7 +5,7 @@ import { ChangeEvent, FormEvent, KeyboardEvent, useCallback, useEffect, useRef, 
 import SearchIcon from "src/assets/search.svg"
 import { Button } from "src/components/Button"
 import SearchInput from "src/components/SearchInput"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, SIZES } from "src/constants"
 import { tagsIndex } from "src/helpers/algolia"
 import { loadGmaps } from "src/helpers/google"
 import CustomSwitch from "./CustomSwitch"
@@ -25,8 +25,8 @@ export const BioSwitchLabelContainer = styled.div`
 const BioSwitchLabel = styled(FormControlLabel)`
   .MuiFormControlLabel-label {
     font-weight: 300;
-    font-size: 0.75em;
-    color: ${COLORS.input};
+    font-size: ${SIZES.small}px;
+    color: ${COLORS.muted};
   }
 `
 
@@ -44,7 +44,7 @@ const Suggestions = styled.div`
 const Submit = styled(Button)`
   width: 25px;
   height: 25px;
-  border-radius: 25px;
+  border-radius: 50%;
   padding: 0;
   display: flex;
   justify-content: center;

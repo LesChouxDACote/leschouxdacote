@@ -18,7 +18,7 @@ const Dropdown = styled.div`
   svg {
     vertical-align: middle;
     margin: -7px -5px -6px 2px;
-    fill: ${COLORS.input};
+    fill: ${COLORS.text};
   }
   position: relative;
 `
@@ -30,7 +30,7 @@ const ProducerButton = styled(Button)<{ $open: boolean }>`
   top: 0;
   left: 0;
   overflow: hidden;
-  background-color: ${({ $open }) => ($open ? "#e6e6e6" : "initial")};
+  background-color: ${({ $open }) => ($open ? COLORS.odd : "initial")};
 `
 const Menu = styled.div`
   margin: 8px -16px -8px;
@@ -44,7 +44,7 @@ const entryCss = css`
   width: 100%;
   text-align: left;
   background-color: transparent;
-  color: ${COLORS.input};
+  color: ${COLORS.text};
   transition:
     background-color 150ms,
     color 150ms;

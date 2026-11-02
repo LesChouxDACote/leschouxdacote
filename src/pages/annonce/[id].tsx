@@ -11,7 +11,7 @@ import ReservationSection from "src/components/ReservationSection"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
 import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
-import { COLORS, ISR_REVALIDATE, LAYOUT, SIZES } from "src/constants"
+import { COLORS, ISR_REVALIDATE, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
 import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
@@ -58,7 +58,7 @@ const ProductSection = styled.section`
   display: flex;
   gap: 10px;
   box-shadow: 20px 20px 60px ${COLORS.shadow.light};
-  border-radius: 6px;
+  border-radius: ${RADIUS}px;
 
   @media (max-width: ${LAYOUT.mobile}px) {
     flex-direction: column;
@@ -76,7 +76,7 @@ const ImageContainer = styled.div`
     height: 100%;
     max-height: 300px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: ${RADIUS}px;
     box-shadow: 0px 3px 6px ${COLORS.shadow.light};
     display: block;
 
@@ -116,8 +116,8 @@ const Prices = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid ${COLORS.border};
+  border-bottom: 1px solid ${COLORS.border};
   padding: 10px 0 20px;
   margin-top: 10px;
 
@@ -135,9 +135,9 @@ const Address = styled.a`
 `
 
 const ProducerBox = styled.section`
-  background-color: white;
+  background-color: ${COLORS.white};
   box-shadow: 20px 20px 60px ${COLORS.shadow.light};
-  border-radius: 6px;
+  border-radius: ${RADIUS}px;
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
@@ -146,7 +146,7 @@ const ProducerBox = styled.section`
 
 const ProducerTitle = styled.h2`
   margin: 0;
-  font-size: 20px;
+  font-size: ${SIZES.subtitle}px;
   font-weight: bold;
   text-align: center;
   a {
@@ -170,9 +170,9 @@ const ControlPanel = styled.div`
 const Info = styled.p``
 
 const DescriptionSection = styled.section`
-  background-color: white;
+  background-color: ${COLORS.white};
   box-shadow: 20px 20px 60px ${COLORS.shadow.light};
-  border-radius: 6px;
+  border-radius: ${RADIUS}px;
   margin-top: 30px;
   padding: 20px 25px;
 
@@ -181,7 +181,7 @@ const DescriptionSection = styled.section`
   }
 `
 const DescriptionTitle = styled.h3`
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
   font-weight: bold;
   &:first-of-type {
     margin-top: 0;
@@ -262,19 +262,11 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
               </ImageContainer>
               <ProductInfo>
                 <ProductTitle>{product.title}</ProductTitle>
-                {product.quantity && product.unit && (
-                  <Text $size={SIZES.card} $color={COLORS.input}>
-                    {formatQuantity(product)}
-                  </Text>
-                )}
+                {product.quantity && product.unit && <Text $color={COLORS.muted}>{formatQuantity(product)}</Text>}
 
                 <Prices>
-                  {pricePerUnit && (
-                    <Text $size={SIZES.card} $color={COLORS.input}>
-                      {pricePerUnit}
-                    </Text>
-                  )}
-                  <Text $weight={400} $color={COLORS.green} $size={30}>
+                  {pricePerUnit && <Text $color={COLORS.muted}>{pricePerUnit}</Text>}
+                  <Text $weight={400} $color={COLORS.green} $size={SIZES.title}>
                     {price}
                   </Text>
                 </Prices>
@@ -285,7 +277,7 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                       const isPast = date.getTime() < Date.now()
 
                       return (
-                        <div key={date.toString()} style={{ color: isPast ? COLORS.grey : "inherit" }}>
+                        <div key={date.toString()} style={{ color: isPast ? COLORS.muted : "inherit" }}>
                           Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
                         </div>
                       )
@@ -294,7 +286,7 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                 )}
                 <Address href={getMapsLink(product)} target="_blank" rel="noopener">
                   <PinIcon />
-                  <Text as="span" $color={COLORS.input} $size={15}>
+                  <Text as="span" $color={COLORS.muted}>
                     {product.address}
                   </Text>
                 </Address>
@@ -312,7 +304,7 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
             )}
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
-              <Text $size={SIZES.card} $color={COLORS.input} $linebreaks>
+              <Text $color={COLORS.muted} $linebreaks>
                 {product.description}
               </Text>
               {product._tags && (

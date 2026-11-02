@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import CheckIcon from "src/assets/check-circle.svg"
 import InfoIcon from "src/assets/info.svg"
 import CloseCirce from "src/assets/x-circle.svg"
-import { COLORS, LAYOUT, SIZES } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 
 type MessageType = "success" | "info"
 
@@ -13,7 +13,7 @@ const Container = styled.div<{ $type: MessageType }>`
   margin: 0 auto;
   width: 70%;
   padding: 20px 30px;
-  border-radius: 10px;
+  border-radius: ${RADIUS}px;
   background-color: ${({ $type }) => COLORS.background[$type]};
   position: relative;
 
@@ -33,7 +33,7 @@ const Content = styled.div`
 const Title = styled.span`
   color: ${COLORS.green};
   font-weight: bold;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
 
   @media (max-width: ${LAYOUT.mobile}px) {
     font-size: ${SIZES.regular}px;
@@ -42,7 +42,7 @@ const Title = styled.span`
 
 const Text = styled.div`
   margin-top: 10px;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
 
   @media (max-width: ${LAYOUT.mobile}px) {
     font-size: ${SIZES.regular}px;

@@ -3,13 +3,13 @@ import { useRouter } from "next/router"
 import { Form, SubmitButton, TextInput, ValidationError } from "src/components/Form"
 import Link from "src/components/Link"
 import Message from "src/components/Message"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import Layout from "src/layout"
 
 const LostPassword = styled.div`
-  font-size: 0.8em;
-  color: ${COLORS.grey};
+  font-size: ${SIZES.small}px;
+  color: ${COLORS.muted};
   text-align: right;
 `
 export const Register = styled.div`
@@ -23,14 +23,12 @@ export const Wrapper = styled.div`
   justify-content: center;
 `
 const Card = styled.div`
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.24);
-  background: #fff;
+  box-shadow: 0 1px 3px ${COLORS.shadow.regular};
+  background: ${COLORS.white};
   display: inline-block;
   padding: 2rem 3rem;
   min-width: 40vw;
-  border-radius: 4px;
+  border-radius: ${RADIUS}px;
   margin-top: 50px;
 
   @media (max-width: ${LAYOUT.tablet}px) {

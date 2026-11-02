@@ -37,11 +37,11 @@ const Tabs = styled.div`
 `
 const Tab = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
-  color: ${({ $active }) => ($active ? COLORS.green : COLORS.dark)};
+  color: ${({ $active }) => ($active ? COLORS.green : COLORS.text)};
   font-weight: ${({ $active }) => ($active ? 400 : 300)};
   padding: 10px 16px;
   margin-bottom: -1px;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
   border-bottom: 3px solid ${({ $active }) => ($active ? COLORS.green : "transparent")};
   transition: border-color 150ms;
   &:hover {
