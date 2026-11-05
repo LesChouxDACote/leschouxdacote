@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { Close } from "@mui/icons-material"
+import { Check, Close } from "@mui/icons-material"
 import { Button, IconButton, TextField, Typography } from "@mui/material"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -10,19 +10,16 @@ import { Text } from "src/components/Text"
 import { COLORS, LAYOUT, RADIUS, SIZES, UNIT_LABELS } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
-import { getSlotEnd, getSlotKey } from "src/helpers/date"
+import { formatSlotDate, formatSlotHeading, getSlotDayLabel, getSlotEnd, getSlotKey, sortSlots } from "src/helpers/date"
 import { validatePhoneNumber } from "src/helpers/validators"
 import type { ReservationsResponse } from "src/models/Booking"
-import type { Reservation } from "src/pages/compte/producteur/annonce"
+import type { Reservation, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Booking, Unit } from "src/types/model"
 import { ValidationError, number, object, string } from "yup"
 
-export interface ReservableSlot {
-  date: Date
-  heureDebut: string
-  heureFin: string
-  reservation: Reservation
-}
+export type ReservableSlot = SlotSchemaFirestore & { reservation: Reservation }
+
+const isReservable = (slot: SlotSchemaFirestore): slot is ReservableSlot => slot.reservation != null
 
 interface ReservationErrors {
   slot?: string
@@ -53,6 +50,78 @@ const getValidationSchema = (maxQuantityPerPerson: number | null | undefined, un
       ),
     email: string().required("L'e-mail est obligatoire").email("Adresse e-mail invalide"),
   })
+
+const ListSection = styled.section`
+  background-color: ${COLORS.white};
+  box-shadow: 20px 20px 60px ${COLORS.shadow.light};
+  border-radius: ${RADIUS}px;
+  margin-top: 30px;
+  padding: 20px 25px;
+
+  @media (max-width: ${LAYOUT.mobile}px) {
+    padding: 20px 10px;
+  }
+`
+
+const SlotList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`
+
+const slotItemCss = `
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid ${COLORS.border};
+  border-radius: ${RADIUS}px;
+  background-color: ${COLORS.white};
+  color: ${COLORS.text};
+  font-size: ${SIZES.regular}px;
+  text-align: left;
+`
+
+const SlotItem = styled.div`
+  ${slotItemCss}
+`
+
+// Créneau réservable : un clic ouvre la réservation avec ce créneau choisi
+const SlotItemButton = styled.button`
+  ${slotItemCss}
+  border-color: ${COLORS.green};
+  cursor: pointer;
+  transition: background-color 150ms;
+
+  &:hover,
+  &:focus-visible {
+    background-color: ${COLORS.background.success};
+  }
+`
+
+const SlotHeading = styled.span`
+  font-weight: bold;
+`
+
+const DayTag = styled.span`
+  font-size: ${SIZES.small}px;
+  color: ${COLORS.white};
+  background-color: ${COLORS.blue};
+  border-radius: 12px;
+  padding: 2px 10px;
+`
+
+const SlotStatus = styled.span<{ $full?: boolean }>`
+  margin-left: auto;
+  font-size: ${SIZES.small}px;
+  color: ${({ $full }) => ($full ? COLORS.muted : COLORS.green)};
+  font-weight: bold;
+`
 
 const TriggerWrapper = styled.div`
   display: flex;
@@ -109,8 +178,9 @@ const SlotsRow = styled.div`
   gap: 12px;
 `
 
-const SlotButton = styled(Button)<{ $selected?: boolean }>`
-  ${({ $selected }) => $selected && `box-shadow: inset 0 0 0 3px ${COLORS.text};`}
+const SelectedSlot = styled(Text)`
+  margin-top: 12px;
+  font-weight: bold;
 `
 
 const FieldsRow = styled.div`
@@ -151,7 +221,7 @@ const CloseButton = styled(IconButton)`
 
 interface ReservationSectionProps {
   productId: string
-  slots: readonly ReservableSlot[]
+  slots: readonly SlotSchemaFirestore[]
   unit: Unit | null
 }
 
@@ -193,18 +263,22 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
   }, [loading, fetchBooked])
 
   // La page est générée statiquement : l'heure courante n'est connue qu'une fois la page chargée
-  // dans le navigateur. On ne rend donc rien avant, pour éviter que le bouton « Réserver »
-  // n'apparaisse un instant puis ne disparaisse au chargement.
+  // dans le navigateur. On ne rend donc rien avant, pour éviter que des créneaux passés ou le bouton
+  // « Réserver » n'apparaissent un instant puis ne disparaissent au chargement.
   const upcomingSlots = useMemo(
-    () => (now === null ? [] : slots.filter((slot) => getSlotEnd(slot.date, slot.heureFin) >= now)),
+    () => (now === null ? [] : sortSlots(slots.filter((slot) => getSlotEnd(slot.date, slot.heureFin) >= now))),
     [slots, now],
   )
+  // Seuls les créneaux à venir dont la réservation est ouverte se réservent
+  const reservableSlots = useMemo(() => upcomingSlots.filter(isReservable), [upcomingSlots])
 
   if (now === null || upcomingSlots.length === 0) {
     return null
   }
 
-  const instructions = (selectedSlot ?? upcomingSlots[0])?.reservation.instructions ?? null
+  const unitLabel = unit ? UNIT_LABELS[unit] : ""
+  const instructions = (selectedSlot ?? reservableSlots[0])?.reservation.instructions ?? null
+  const ownSlotUpcoming = booking != null && getSlotEnd(new Date(booking.slotDate), booking.heureFin) >= now
 
   const getSlotBooked = (slot: ReservableSlot) => booked[getSlotKey(slot.date, slot.heureDebut, slot.heureFin)] ?? 0
 
@@ -221,7 +295,15 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
 
   const isFull = (slot: ReservableSlot) => getSlotBooked(slot) - getOwnQuantity(slot) >= slot.reservation.totalQuantity
 
-  const handleOpen = () => {
+  const getRemaining = (slot: ReservableSlot) => Math.max(0, slot.reservation.totalQuantity - getSlotBooked(slot))
+
+  const selectSlot = (slot: ReservableSlot) => {
+    setSelectedSlot(slot)
+    setErrors((current) => ({ ...current, slot: undefined }))
+  }
+
+  // `slot` : créneau cliqué dans la liste, présélectionné à la place de celui de la réservation existante
+  const handleOpen = (slot?: ReservableSlot) => {
     if (loading) {
       return
     }
@@ -229,22 +311,28 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
       replace("/connexion?next=" + asPath)
       return
     }
+    if (open && slot) {
+      // Formulaire déjà ouvert : seul le créneau change, la saisie en cours est gardée
+      selectSlot(slot)
+      return
+    }
     if (booking) {
       // Dernière réservation enregistrée : le formulaire est prérempli avec son état. Le créneau
       // n'est présélectionné que s'il est encore à venir ; sinon (passé ou supprimé), l'acheteur
       // en choisit un autre et la validation remplace l'ancienne réservation.
-      const slot =
-        slots.find(
+      const bookedSlot =
+        reservableSlots.find(
           (item) =>
             item.date.getTime() === booking.slotDate &&
             item.heureDebut === booking.heureDebut &&
             item.heureFin === booking.heureFin,
         ) ?? null
-      setSelectedSlot(slot && getSlotEnd(slot.date, slot.heureFin) >= Date.now() ? slot : null)
+      setSelectedSlot(slot ?? bookedSlot)
       setQuantity(String(booking.quantity))
       setPhone(booking.phone)
       setEmail(booking.email)
     } else {
+      setSelectedSlot(slot ?? null)
       setEmail((current) => current || authUser.email)
     }
     setErrors({})
@@ -271,7 +359,7 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
     }
 
     try {
-      getValidationSchema(selectedSlot?.reservation.maxQuantityPerPerson, unit ? UNIT_LABELS[unit] : "").validateSync(
+      getValidationSchema(selectedSlot?.reservation.maxQuantityPerPerson, unitLabel).validateSync(
         { quantity, phone, email },
         { abortEarly: false },
       )
@@ -323,12 +411,69 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
 
   return (
     <>
-      <TriggerWrapper>
-        <TriggerButton $variant="green" onClick={handleOpen}>
-          {booking ? "Modifier ma réservation" : "Réserver"}
-        </TriggerButton>
-        {submitted && !open && <Text $color={COLORS.green}>Votre réservation a bien été validée.</Text>}
-      </TriggerWrapper>
+      <ListSection>
+        <SectionTitle>Créneaux de retrait</SectionTitle>
+        <SlotList>
+          {upcomingSlots.map((slot) => {
+            const key = getSlotKey(slot.date, slot.heureDebut, slot.heureFin)
+            const dayLabel = getSlotDayLabel(slot.date, new Date(now))
+            const content = (
+              <>
+                <SlotHeading>{formatSlotHeading(slot.date, slot.heureDebut, slot.heureFin)}</SlotHeading>
+                {dayLabel && <DayTag>{dayLabel}</DayTag>}
+              </>
+            )
+
+            if (!isReservable(slot)) {
+              return (
+                <li key={key}>
+                  <SlotItem>{content}</SlotItem>
+                </li>
+              )
+            }
+            const full = isFull(slot)
+            const status = (
+              <SlotStatus $full={full}>
+                {full
+                  ? "Réservation possible · Complet"
+                  : ["Réservation possible · Reste", getRemaining(slot), unitLabel]
+                      .filter((part) => part !== "")
+                      .join(" ")}
+              </SlotStatus>
+            )
+
+            return (
+              <li key={key}>
+                {full ? (
+                  <SlotItem>
+                    {content}
+                    {status}
+                  </SlotItem>
+                ) : (
+                  <SlotItemButton type="button" onClick={() => handleOpen(slot)}>
+                    {content}
+                    {status}
+                  </SlotItemButton>
+                )}
+              </li>
+            )
+          })}
+        </SlotList>
+      </ListSection>
+
+      {reservableSlots.length > 0 && (
+        <TriggerWrapper>
+          {booking && ownSlotUpcoming && (
+            <Text>
+              {`Vous avez réservé : ${formatSlotDate(new Date(booking.slotDate), booking.heureDebut, booking.heureFin)} · ${[booking.quantity, unitLabel].filter((part) => part !== "").join(" ")}`}
+            </Text>
+          )}
+          <TriggerButton $variant="green" onClick={() => handleOpen()}>
+            {booking ? "Modifier ma réservation" : "Réserver"}
+          </TriggerButton>
+          {submitted && !open && <Text $color={COLORS.green}>Votre réservation a bien été validée.</Text>}
+        </TriggerWrapper>
+      )}
 
       {open && (
         <Section>
@@ -343,25 +488,30 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
 
           <SlotsLabel>Choisissez votre créneau *</SlotsLabel>
           <SlotsRow>
-            {upcomingSlots.map((slot, index) => {
+            {reservableSlots.map((slot) => {
               const full = isFull(slot)
+              const selected = slot === selectedSlot
 
+              // Créneau choisi : bouton plein avec une coche, les autres en contour
               return (
-                <SlotButton
-                  key={index}
-                  variant="contained"
-                  $selected={slot === selectedSlot}
+                <Button
+                  key={getSlotKey(slot.date, slot.heureDebut, slot.heureFin)}
+                  variant={selected ? "contained" : "outlined"}
+                  startIcon={selected ? <Check /> : undefined}
+                  aria-pressed={selected}
                   disabled={full}
-                  onClick={() => {
-                    setSelectedSlot(slot)
-                    setErrors((current) => ({ ...current, slot: undefined }))
-                  }}
+                  onClick={() => selectSlot(slot)}
                 >
-                  {`Le ${slot.date.toLocaleDateString()} de ${slot.heureDebut} à ${slot.heureFin}${full ? " (complet)" : ""}`}
-                </SlotButton>
+                  {`${formatSlotHeading(slot.date, slot.heureDebut, slot.heureFin)}${full ? " (complet)" : ""}`}
+                </Button>
               )
             })}
           </SlotsRow>
+          {selectedSlot && (
+            <SelectedSlot $color={COLORS.green}>
+              {`Créneau choisi : ${formatSlotDate(selectedSlot.date, selectedSlot.heureDebut, selectedSlot.heureFin)}`}
+            </SelectedSlot>
+          )}
           {errors.slot && <SlotError>{errors.slot}</SlotError>}
           {instructions && <Instructions $color={COLORS.muted}>{instructions}</Instructions>}
 
