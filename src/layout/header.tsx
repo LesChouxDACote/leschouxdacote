@@ -72,7 +72,8 @@ const Middle = styled.div`
     margin: 0 36px;
   }
   form {
-    width: 35vw;
+    width: calc(35vw + 180px);
+    max-width: 100%;
     @media (max-width: ${LAYOUT.tablet}px) {
       display: none;
     }
@@ -108,7 +109,7 @@ const Header = () => {
               <Logo />
             </Link>
             <Middle>
-              <SearchBar />
+              <SearchBar compact />
             </Middle>
           </>
         )}
