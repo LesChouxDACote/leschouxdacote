@@ -15,11 +15,25 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
 `
+const CompactForm = styled(Form)`
+  flex-direction: row;
+  align-items: center;
+`
+const Fields = styled.div`
+  position: relative;
+  flex: 1;
+`
 
 export const BioSwitchLabelContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
+`
+const CompactBioSwitchLabelContainer = styled(BioSwitchLabelContainer)`
+  width: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 16px;
 `
 
 const BioSwitchLabel = styled(FormControlLabel)`
@@ -88,11 +102,15 @@ const ZOOM = {
   region: 6,
 }
 
+const BIO_LABEL = "Uniquement des produits Bio ou issus de l'Agriculture raisonnée"
+
 interface Props {
   className?: string
+  // Interrupteur bio sur la même ligne que les champs, libellé court (header)
+  compact?: boolean
 }
 
-const SearchBar = ({ className }: Props) => {
+const SearchBar = ({ className, compact }: Props) => {
   const router = useRouter()
 
   const [query, setQuery] = useState<SearchQuery>(router.query)
@@ -227,8 +245,8 @@ const SearchBar = ({ className }: Props) => {
     })
   }
 
-  return (
-    <Form method="GET" action="/recherche" onSubmit={handleSearch} className={className}>
+  const fields = (
+    <>
       <div>
         <SearchInput
           name="what"
@@ -261,10 +279,33 @@ const SearchBar = ({ className }: Props) => {
         <span>Rechercher</span>
         <SearchIcon />
       </Submit>
+    </>
+  )
+
+  if (compact) {
+    return (
+      <CompactForm method="GET" action="/recherche" onSubmit={handleSearch} className={className}>
+        <Fields>{fields}</Fields>
+        <CompactBioSwitchLabelContainer>
+          <BioSwitchLabel
+            control={<CustomSwitch name="bio" />}
+            label="Bio & raisonné"
+            title={BIO_LABEL}
+            checked={Boolean(query.bio)}
+            onChange={handleBioChange}
+          />
+        </CompactBioSwitchLabelContainer>
+      </CompactForm>
+    )
+  }
+
+  return (
+    <Form method="GET" action="/recherche" onSubmit={handleSearch} className={className}>
+      {fields}
       <BioSwitchLabelContainer>
         <BioSwitchLabel
           control={<CustomSwitch name="bio" />}
-          label="Uniquement des produits Bio ou issus de l'Agriculture raisonnée"
+          label={BIO_LABEL}
           checked={Boolean(query.bio)}
           onChange={handleBioChange}
         />
