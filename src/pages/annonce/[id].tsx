@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import { pipe, Schema as Sc } from "effect"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
@@ -14,6 +14,8 @@ import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
 import { COLORS, ISR_REVALIDATE, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
+import api from "src/helpers/api"
+import { useUser } from "src/helpers/auth"
 import { isProductActive } from "src/helpers/date"
 import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
@@ -201,11 +203,17 @@ interface Props {
 }
 
 const ProductPage = ({ product, producer, otherProducts }: Props) => {
-  // useEffect(() => {
-  //   if (product) {
-  //     api.post("view", { id: product.objectID })
-  //   }
-  // }, [product])
+  // Une vue par affichage, une fois la connexion connue : le jeton du producteur exclut ses propres visites
+  const { loading } = useUser()
+  const productId = product?.objectID
+  const viewed = useRef<string | null>(null)
+  useEffect(() => {
+    if (loading || !productId || viewed.current === productId) {
+      return
+    }
+    viewed.current = productId
+    api.post("view", { id: productId }).catch(() => undefined)
+  }, [loading, productId])
 
   // Page générée statiquement : l'heure courante n'est connue qu'une fois la page chargée dans le navigateur
   const [now, setNow] = useState<number | null>(null)
