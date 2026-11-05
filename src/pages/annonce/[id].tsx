@@ -1,7 +1,8 @@
 import styled from "@emotion/styled"
-import { Array as A, Option as O, Order, pipe, Schema as Sc } from "effect"
+import { pipe, Schema as Sc } from "effect"
 import type { GetStaticPaths, GetStaticProps } from "next"
 import type { ParsedUrlQuery } from "querystring"
+import { useEffect, useState } from "react"
 import PinIcon from "src/assets/pin.svg"
 import ProductCard from "src/cards/ProductCard"
 import FollowButton from "src/components/FollowButton"
@@ -13,11 +14,12 @@ import Tag, { FloatingTag } from "src/components/Tag"
 import { Text } from "src/components/Text"
 import { COLORS, ISR_REVALIDATE, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { firestore, getObject } from "src/helpers-api/firebase"
+import { isProductActive } from "src/helpers/date"
 import { formatPhone, formatPrice, formatPricePerUnit, formatQuantity, getMapsLink } from "src/helpers/text"
 import Layout from "src/layout"
 import { ProductEncoded, ProductSchema } from "src/models/Product"
 import ErrorPage from "src/pages/_error"
-import { Reservation, SlotSchema, SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
+import { SlotSchemaFirestore } from "src/pages/compte/producteur/annonce"
 import type { Producer, Product } from "src/types/model"
 
 const Wrapper = styled.div`
@@ -95,14 +97,14 @@ const ProductInfo = styled.div`
   justify-content: space-around;
 `
 
-const ProductSlots = styled.div`
-  padding: 20px;
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  justify-content: center;
+const UnavailableBanner = styled.div`
+  margin-bottom: 30px;
+  padding: 15px 20px;
+  border: 1px solid ${COLORS.red};
+  border-radius: ${RADIUS}px;
+  color: ${COLORS.red};
+  font-weight: bold;
+  text-align: center;
 `
 
 const ProductTitle = styled.h1`
@@ -188,11 +190,6 @@ const DescriptionTitle = styled.h3`
   }
 `
 
-const Slots = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
 interface Params extends ParsedUrlQuery {
   id: string
 }
@@ -210,6 +207,12 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
   //   }
   // }, [product])
 
+  // Page générée statiquement : l'heure courante n'est connue qu'une fois la page chargée dans le navigateur
+  const [now, setNow] = useState<number | null>(null)
+  useEffect(() => {
+    setNow(Date.now())
+  }, [])
+
   if (!product) {
     return <ErrorPage statusCode={404} title="Produit introuvable" />
   }
@@ -226,23 +229,8 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
     url: productUrl,
   }
 
-  const productSlots = pipe(
-    product.slots,
-    Sc.decodeUnknownOption(Sc.Array(SlotSchema)),
-    O.getOrElse(() => []),
-  )
   const allSlots = product.slots ? Sc.decodeSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []
-  const sortedByDateSlots = pipe(
-    allSlots,
-    A.sortBy(
-      Order.mapInput(Order.Number, (slot) => slot.date.getTime()),
-      Order.mapInput(Order.String, (slot) => slot.heureDebut),
-    ),
-    A.takeRight(10),
-  )
-  const reservationSlots = allSlots
-    .filter((slot): slot is SlotSchemaFirestore & { reservation: Reservation } => slot.reservation != null)
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
+  const unavailable = now !== null && !isProductActive(product.expires, now)
 
   return (
     <Layout
@@ -253,6 +241,7 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
       fullWidth={true}
     >
       <Wrapper>
+        {unavailable && <UnavailableBanner role="status">Cette annonce n&apos;est plus disponible</UnavailableBanner>}
         <TopSection>
           <ProductColumn>
             <ProductSection>
@@ -270,20 +259,6 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                     {price}
                   </Text>
                 </Prices>
-                {sortedByDateSlots.length > 0 && (
-                  <Slots>
-                    <h5>Créneaux</h5>
-                    {sortedByDateSlots.map(({ date, heureDebut, heureFin }) => {
-                      const isPast = date.getTime() < Date.now()
-
-                      return (
-                        <div key={date.toString()} style={{ color: isPast ? COLORS.muted : "inherit" }}>
-                          Le {date.toLocaleDateString()} de {heureDebut} à {heureFin}
-                        </div>
-                      )
-                    })}
-                  </Slots>
-                )}
                 <Address href={getMapsLink(product)} target="_blank" rel="noopener">
                   <PinIcon />
                   <Text as="span" $color={COLORS.muted}>
@@ -291,16 +266,9 @@ const ProductPage = ({ product, producer, otherProducts }: Props) => {
                   </Text>
                 </Address>
               </ProductInfo>
-              <ProductSlots>
-                {productSlots.map((slot, index) => (
-                  <div key={index}>
-                    Le {slot.date.toLocaleDateString()} de {slot.heureDebut} à {slot.heureFin}
-                  </div>
-                ))}
-              </ProductSlots>
             </ProductSection>
-            {reservationSlots.length > 0 && (
-              <ReservationSection productId={product.objectID} slots={reservationSlots} unit={product.unit ?? null} />
+            {now !== null && !unavailable && allSlots.length > 0 && (
+              <ReservationSection productId={product.objectID} slots={allSlots} unit={product.unit ?? null} />
             )}
             <DescriptionSection>
               <DescriptionTitle>Description</DescriptionTitle>
@@ -383,13 +351,12 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
 
   const { docs } = await firestore.collection("products").where("uid", "==", product.uid).get()
 
+  // Annonces encore en ligne uniquement ; la page est régénérée toutes les ISR_REVALIDATE secondes
+  const now = Date.now()
   props.otherProducts = (docs.map(getObject) as Product[])
-    .filter(
-      ({ objectID }) => objectID !== product.objectID, // && expires && expires > Date.now()
-    )
+    .filter(({ objectID, expires }) => objectID !== product.objectID && isProductActive(expires, now))
     //We don't slots here, and there is issues with Next serialization.
     .map((product) => ({ ...product, slots: [] }))
-  console.log(props.otherProducts)
   return { props, revalidate: ISR_REVALIDATE }
 }
 
