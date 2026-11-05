@@ -72,6 +72,9 @@ export const getSlotDayLabel = (date: Date | number, now = new Date()): "Aujourd
   return null
 }
 
+// Annonce en ligne : publiée jusqu'à une date à venir (expires à null = désactivée), comme dans « Mes annonces ».
+export const isProductActive = (expires: number | null | undefined, now: number) => (expires ? expires > now : false)
+
 // Créneaux du plus proche au plus lointain (date, puis heure de début).
 export const sortSlots = <T extends { date: Date; heureDebut: string }>(slots: readonly T[]): T[] =>
   [...slots].sort((a, b) => a.date.getTime() - b.date.getTime() || a.heureDebut.localeCompare(b.heureDebut))

@@ -69,8 +69,9 @@ test.describe.serial("Publication d'annonce", () => {
     test.skip(!productId, "Annonce de test non créée")
     await page.goto(`/annonce/${productId}`)
     await expect(page.getByRole("heading", { name: TEST_PRODUCT_TITLE, exact: true })).toBeVisible()
-    await expect(page.getByText("Créneaux", { exact: true })).toBeVisible()
-    await expect(page.getByText(`de ${SLOT_1.start} à ${SLOT_1.end}`).first()).toBeVisible()
+    // Les créneaux n'apparaissent qu'après hydratation (créneaux à venir).
+    await expect(page.getByRole("heading", { name: "Créneaux de retrait" })).toBeVisible({ timeout: 20000 })
+    await expect(page.getByText(`${SLOT_1.start.replace(":", "h")} – ${SLOT_1.end.replace(":", "h")}`)).toBeVisible()
     // La section de réservation n'apparaît qu'après hydratation (créneaux à venir).
     await expect(page.getByRole("button", { name: "Réserver" })).toBeVisible({ timeout: 20000 })
   })
