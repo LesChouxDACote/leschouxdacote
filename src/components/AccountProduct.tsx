@@ -361,7 +361,7 @@ const AccountProduct = ({ product, odd }: Props) => {
             <figure>
               <PointerIcon /> {product.views || 0}
             </figure>
-            <figcaption>Nombre de clics</figcaption>
+            <figcaption>Nombre de vues</figcaption>
           </Stats>
         </Infos>
       </Ad>
