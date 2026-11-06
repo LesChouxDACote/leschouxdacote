@@ -196,7 +196,8 @@ test.describe.serial("Publication d'annonce", () => {
     await page.getByText("Désactiver l’annonce ?", { exact: true }).waitFor()
     await page.getByRole("button", { name: "Valider" }).first().click()
     await expect(card.getByText("Annonce désactivée")).toBeVisible({ timeout: 20000 })
-    await expect(card.getByText(/^La publication a été désactivée le \d+ \S+ \d{4} à \d{2}:\d{2}$/)).toBeVisible()
+    // Le 1er du mois s'écrit « 1er novembre », les autres jours « 6 novembre »
+    await expect(card.getByText(/^La publication a été désactivée le \d+(er)? \S+ \d{4} à \d{2}:\d{2}$/)).toBeVisible()
     await card.getByRole("button", { name: "Publier l’annonce" }).click()
     await page.getByText(/jour\(s\) supplémentaires/).waitFor()
     await page.locator('input[name="days"]').fill("1")
@@ -233,7 +234,7 @@ test.describe.serial("Publication d'annonce", () => {
     await gotoMyProducts(page)
     const card = getTestProductCard(page)
     await card.waitFor()
-    await expect(card.getByText(/^Annonce créée le \d+ \S+ \d{4}/)).toBeVisible()
+    await expect(card.getByText(/^Annonce créée le \d+(er)? \S+ \d{4}/)).toBeVisible()
     const slots = card.getByRole("listitem")
     await expect(slots).toHaveCount(3)
     await expect(slots.nth(0)).toContainText(slotHours(SLOT_EARLY))
