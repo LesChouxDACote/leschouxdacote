@@ -32,6 +32,13 @@ interface FollowedProducer {
 interface Follower {
   emailAlert: boolean
 }
+// Abonné tel que le producteur le voit (GET /api/follow)
+interface FollowerInfo {
+  objectID: string
+  firstname: string
+  lastname: string
+  email: string
+}
 
 interface BaseUser extends Identified {
   firstname: string
