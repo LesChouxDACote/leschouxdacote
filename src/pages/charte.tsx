@@ -6,7 +6,8 @@ import { useConsent } from "src/helpers/consent"
 import Layout from "src/layout"
 
 // Texte de la charte repris mot pour mot du Google Doc de l'Éditeur : toute modification passe par ce document
-// (partie 4 : bouton « Modifier mon choix » à la place du lien « Gérer mes cookies », à reporter dans le document).
+// (partie 4 : bouton « Modifier mon choix » à la place du lien « Gérer mes cookies », à reporter dans le document ;
+// 5 novembre 2026 : abonné transmis au producteur suivi, ligne « Mise en relation » et partie 3, à reporter aussi).
 
 const TextLink = styled.a`
   text-decoration: underline;
@@ -56,7 +57,7 @@ const DATA_ROWS = [
   ],
   [
     "Mise en relation",
-    "Prénom, nom, email et téléphone de l'acheteur, détail de la réservation (annonce, créneau, quantité) ; coordonnées de contact du vendeur affichées sur l'annonce",
+    "Prénom, nom, email et téléphone de l'acheteur, détail de la réservation (annonce, créneau, quantité) ; prénom, nom et email de l'abonné, transmis au producteur qu'il suit ; coordonnées de contact du vendeur affichées sur l'annonce",
     "Mettre en contact acheteurs et vendeurs",
     "Exécution du contrat",
     "Durée du compte",
@@ -151,7 +152,7 @@ const CharterPage = () => {
   return (
     <Layout title="Notre charte">
       <h1>Charte de respect de la vie privée – leschouxdacote.fr</h1>
-      <p>Dernière mise à jour : 27 octobre 2026.</p>
+      <p>Dernière mise à jour : 5 novembre 2026.</p>
 
       <h2>1. Qui sommes-nous ?</h2>
       <p>
@@ -189,8 +190,8 @@ const CharterPage = () => {
       <ul>
         <li>Visibles publiquement avec votre annonce : prénom, ville, contenu de l&apos;annonce, etc.</li>
         <li>
-          Visibles uniquement par les utilisateurs connectés, ou transmises lors d’une réservation : ex. email,
-          téléphone.
+          Visibles uniquement par les utilisateurs connectés, ou transmises lors d’une réservation ou lorsque vous
+          suivez un producteur : ex. prénom, nom, email, téléphone.
         </li>
       </ul>
       <p>

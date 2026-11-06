@@ -18,7 +18,7 @@ const ContactLink = () => <TextLink href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EM
 const TermsPage = () => (
   <Layout title="Conditions générales d’utilisation">
     <h1>Conditions générales d’utilisation – leschouxdacote.fr</h1>
-    <p>Dernière mise à jour : 29 octobre 2026.</p>
+    <p>Dernière mise à jour : 5 novembre 2026.</p>
 
     <h2>1. Objet</h2>
     <p>
@@ -100,6 +100,11 @@ const TermsPage = () => (
       Vous pouvez suivre des producteurs et recevoir un e-mail lors de leurs nouvelles annonces. Ces alertes, comme
       celles qui préviennent un producteur de l’expiration de ses annonces, se désactivent à tout moment depuis la page
       « Mes alertes » de votre compte.
+    </p>
+    <p>
+      Suivre un producteur lui transmet vos prénom, nom et adresse e-mail : il les retrouve dans la liste de ses abonnés
+      tant que vous le suivez. Le producteur ne peut les utiliser que pour la relation avec ses abonnés, jamais pour du
+      démarchage ou du spam (voir section 7).
     </p>
 
     <h2>7. Responsabilités</h2>
