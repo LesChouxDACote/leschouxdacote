@@ -3,7 +3,7 @@ import React from "react"
 import IconHeartEmpty from "src/assets/icon-heart-empty.svg"
 import IconHeart from "src/assets/icon-heart.svg"
 import { FloatingTag } from "src/components/Tag"
-import { COLORS } from "src/constants"
+import { COLORS, RADIUS, SIZES } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { useHover } from "src/helpers/hover"
 import { formatPrice, formatPricePerUnit, formatQuantity } from "src/helpers/text"
@@ -11,6 +11,8 @@ import { isFollowed } from "src/helpers/user"
 import { ProductEncoded } from "src/models/Product"
 
 const Container = styled.div<{ $hover: boolean }>`
+  border-radius: ${RADIUS}px;
+  overflow: hidden;
   box-shadow: 0px 3px 3px ${({ $hover }) => ($hover ? COLORS.green : COLORS.shadow.light)};
 `
 const CardLink = styled.div`
@@ -33,9 +35,9 @@ const FollowHover = styled.div`
   top: -40px;
   right: -5px;
   padding: 5px 10px;
-  background-color: #101010;
-  color: white;
-  font-size: 10px;
+  background-color: ${COLORS.text};
+  color: ${COLORS.white};
+  font-size: ${SIZES.small}px;
 `
 
 const Follow = styled.div`
@@ -43,9 +45,9 @@ const Follow = styled.div`
   top: -15px;
   right: 30px;
   padding: 10px;
-  background-color: white;
+  background-color: ${COLORS.white};
   border-radius: 50%;
-  box-shadow: 0px 3px 6px #00000029;
+  box-shadow: 0px 3px 6px ${COLORS.shadow.light};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,7 +60,7 @@ const Follow = styled.div`
 const Title = styled.h2<{ $margin?: boolean }>`
   padding: 0.2em 10px 0;
   margin: ${({ $margin }) => ($margin ? "0 70px 0 0" : "0")};
-  font-size: 1.4em;
+  font-size: ${SIZES.subtitle}px;
 `
 const ProducerLink = styled.a`
   display: block;
@@ -76,20 +78,20 @@ const Location = styled.h4`
 `
 const Price = styled.div`
   padding: 2px 10px 6px;
-  font-size: 1.2em;
+  font-size: ${SIZES.subtitle}px;
 `
 const PPU = styled.div`
   position: absolute;
   right: 10px;
   bottom: 6px;
-  font-size: 1.2em;
+  font-size: ${SIZES.subtitle}px;
   font-weight: 400;
 `
 const Quantity = styled.div`
   position: absolute;
   right: 10px;
   bottom: calc(10px + 2em);
-  font-size: 0.8em;
+  font-size: ${SIZES.small}px;
   font-weight: 400;
 `
 

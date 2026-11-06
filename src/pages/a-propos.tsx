@@ -1,30 +1,12 @@
 import styled from "@emotion/styled"
 import { LinkButton } from "src/components/Button"
-import { COLORS, CONTACT_EMAIL, LAYOUT, SIZES } from "src/constants"
+import { COLORS, CONTACT_EMAIL, LAYOUT, RADIUS, SIZES } from "src/constants"
 import Layout from "src/layout"
+import { Column, Page } from "src/layout/content"
 
 // Texte repris de l'ancienne page « À propos » (info.leschouxdacote.fr/a-propos), équipe complétée de Charles ILIEFF.
 // Photos de l'équipe et illustrations dans public/a-propos/ ; sans photo, les initiales s'affichent à la place.
 
-// Fond vert pâle sur toute la largeur, texte plus gros, plus gras et plus aéré que le reste du site (Roboto 300)
-const Page = styled.div`
-  background-color: ${COLORS.background.success};
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 1.7;
-  h1,
-  h2 {
-    color: ${COLORS.dark};
-  }
-`
-const Column = styled.div`
-  max-width: ${LAYOUT.maxWidth}px;
-  margin: 0 auto;
-  padding: 32px;
-  @media (max-width: ${LAYOUT.mobile}px) {
-    padding: 24px;
-  }
-`
 const Findings = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -36,7 +18,7 @@ const Findings = styled.div`
 `
 const Finding = styled.section`
   border: 1px solid ${COLORS.border};
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   padding: 16px;
   background-color: ${COLORS.white};
   h3 {
@@ -79,7 +61,7 @@ const Avatar = styled.div<{ $shaped?: boolean }>`
   justify-content: center;
   background-color: ${({ $shaped }) => ($shaped ? "transparent" : COLORS.background.success)};
   color: ${COLORS.green};
-  font-size: ${SIZES.price}px;
+  font-size: ${SIZES.title}px;
   img {
     width: 100%;
     height: 100%;
@@ -95,7 +77,7 @@ const Name = styled.a`
 `
 const Role = styled.p`
   margin: 4px 0 0;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const Actions = styled.p`
   display: flex;

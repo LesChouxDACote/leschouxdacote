@@ -1,4 +1,4 @@
-import { lighten } from "polished"
+import { lighten, transparentize } from "polished"
 import type { Unit } from "src/types/model"
 
 export const CONTACT_EMAIL = "contact@leschouxdacote.fr"
@@ -11,30 +11,28 @@ export const UNIT_LABELS: Record<Unit, string> = {
   u: "pièce(s)",
 }
 
+// Palette unique de l'interface : un vert, un rouge, un bleu, trois gris (texte, texte discret, bordures)
 const BASE_COLORS = {
   white: "#ffffff",
-  dark: "#101010",
-  grey: "#a6a6a6",
-  green: "#47D25B",
+  text: "#1F1F1F",
+  muted: "#6B6B6B",
+  border: "#D6D6D6",
+  green: "#2A7F39",
   red: "#DF3D3D",
-  lightDark: "#272D3B",
   blue: "#0077CF",
 }
 
 export const COLORS = {
   ...BASE_COLORS,
-  menu: "#4A4A4A",
-  divider: "#666666",
-  input: "#686666",
-  border: "#D6D6D6",
-  odd: "#F9F9F9",
+  odd: "#F7F7F7",
   background: {
-    success: "rgb(71, 210, 91, 10%)",
-    info: "rgb(0, 119, 207, 10%)",
+    success: transparentize(0.9, BASE_COLORS.green),
+    info: transparentize(0.9, BASE_COLORS.blue),
   },
   shadow: {
     light: "#0000001A",
     regular: "#0000004A",
+    overlay: "#0000004D",
   },
   producer: {
     link: {
@@ -53,15 +51,16 @@ export enum USER_ROLE {
 
 export const BIO = "_bio"
 
+// Les quatre tailles de texte de l'interface (px)
 export const SIZES = {
-  price: 35,
-  subtitle: 22,
-  large: 19,
-  card: 16,
-  regular: 14,
-  small: 12,
-  tiny: 10,
+  title: 28,
+  subtitle: 20,
+  regular: 16,
+  small: 13,
 }
+
+// Arrondi commun des boutons, champs, cartes, encadrés et fenêtres (px)
+export const RADIUS = 4
 
 export const LAYOUT = {
   maxWidth: 1100,
@@ -71,7 +70,7 @@ export const LAYOUT = {
   tablet: 1200,
 }
 
-export const FONT = "'Roboto', sans-serif"
+export const FONT = "'Nunito', sans-serif"
 
 export const SEARCH_RADIUS = {
   // meters, see https://www.algolia.com/doc/api-reference/api-parameters/aroundRadius/

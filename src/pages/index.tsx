@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import LogoSvg from "src/assets/logo.svg"
 import SearchBar, { BioSwitchLabelContainer } from "src/components/SearchBar"
-import { COLORS, LAYOUT } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import Layout from "src/layout"
 
 const Logo = styled(LogoSvg)`
@@ -15,22 +15,22 @@ const Logo = styled(LogoSvg)`
 `
 const Title = styled.h1`
   text-align: center;
-  font-size: 1.7em;
+  font-size: ${SIZES.title}px;
   font-weight: 500;
   @media (max-width: ${LAYOUT.mobile}px) {
-    font-size: 14px;
+    font-size: ${SIZES.regular}px;
     margin: 0.5em -16px;
   }
 `
 const Introduction = styled.p`
   text-align: center;
-  font-size: 1.2em;
+  font-size: ${SIZES.subtitle}px;
   strong,
   b {
     color: ${COLORS.green};
   }
   @media (max-width: ${LAYOUT.mobile}px) {
-    font-size: 14px;
+    font-size: ${SIZES.regular}px;
     margin: 0.5em -16px;
   }
 `
@@ -40,11 +40,11 @@ const SearchGroup = styled(SearchBar)`
 
   input {
     padding: 16px 32px;
-    font-size: 1.5em;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    font-size: ${SIZES.subtitle}px;
+    box-shadow: 0px 3px 6px ${COLORS.shadow.light};
     @media (max-width: ${LAYOUT.mobile}px) {
       padding: 12px 16px;
-      font-size: 1.2em;
+      font-size: ${SIZES.regular}px;
       margin: 8px 0;
     }
   }
@@ -55,12 +55,12 @@ const SearchGroup = styled(SearchBar)`
       display: inline-flex;
       margin: 8px auto;
       padding: 0 20px;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      box-shadow: 0px 3px 6px ${COLORS.shadow.light};
       justify-content: space-between;
       order: 2; // Move below the "bio" switch
       span {
         display: block;
-        font-size: 1.2em;
+        font-size: ${SIZES.regular}px;
         margin-right: 16px;
       }
       svg {
@@ -76,15 +76,19 @@ const SearchGroup = styled(SearchBar)`
   ${BioSwitchLabelContainer} {
     @media (max-width: ${LAYOUT.mobile}px) {
       order: 1; // Move above the submit button
-      background: white;
-      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+      background: ${COLORS.white};
+      box-shadow: 0px 3px 6px ${COLORS.shadow.light};
+      border-radius: ${RADIUS}px;
       margin: 8px auto;
       padding-left: 20px;
+    }
+    @media (min-width: ${LAYOUT.mobile}px) {
+      margin-top: 12px;
     }
 
     .MuiFormControlLabel-label {
       font-weight: 300;
-      font-size: 1.2rem;
+      font-size: ${SIZES.subtitle}px;
     }
   }
 `
@@ -94,14 +98,12 @@ const HomePage = () => {
     <Layout bgImage>
       <Logo />
       <Title>Vente directe : Le circuit plus court des produits alimentaires</Title>
-      <a href="https://info.leschouxdacote.fr/" target="_blank" rel="noreferrer">
-        <Introduction>
-          <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
-          publiant gratuitement des annonces.
-          <br />
-          <b>Acheteurs</b>, découvrez les <strong>produits locaux en circuit court </strong> près de chez vous.
-        </Introduction>
-      </a>
+      <Introduction>
+        <strong>Producteurs de produits alimentaires</strong>, augmentez vos <strong>ventes directes</strong> en
+        publiant gratuitement des annonces.
+        <br />
+        <b>Acheteurs</b>, découvrez les <strong>produits locaux en circuit court </strong> près de chez vous.
+      </Introduction>
       <SearchGroup />
     </Layout>
   )

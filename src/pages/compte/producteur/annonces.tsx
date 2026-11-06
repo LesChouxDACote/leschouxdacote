@@ -1,7 +1,8 @@
 import styled from "@emotion/styled"
 import FavoriteIcon from "@mui/icons-material/FavoriteBorder"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import AccountProduct from "src/components/AccountProduct"
+import FollowersModal from "src/components/FollowersModal"
 import { ButtonLink } from "src/components/Link"
 import { Loading } from "src/components/Loader"
 import { COLORS, LAYOUT, SIZES } from "src/constants"
@@ -25,6 +26,15 @@ const Subtitle = styled.h2`
     margin-right: 8px;
   }
 `
+const FollowersButton = styled.button`
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  &:hover {
+    color: ${COLORS.green};
+  }
+`
 const Tabs = styled.div`
   display: flex;
   margin: 40px 0 20px;
@@ -37,11 +47,11 @@ const Tabs = styled.div`
 `
 const Tab = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
-  color: ${({ $active }) => ($active ? COLORS.green : COLORS.dark)};
+  color: ${({ $active }) => ($active ? COLORS.green : COLORS.text)};
   font-weight: ${({ $active }) => ($active ? 400 : 300)};
   padding: 10px 16px;
   margin-bottom: -1px;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
   border-bottom: 3px solid ${({ $active }) => ($active ? COLORS.green : "transparent")};
   transition: border-color 150ms;
   &:hover {
@@ -69,6 +79,8 @@ const TABS: { id: Tab; title: string; empty: string }[] = [
 const MyAdsPage = () => {
   const { user } = useUser<Producer>()
   const [tab, setTab] = useState<Tab>("all")
+  const [followersOpen, setFollowersOpen] = useState(false)
+  const closeFollowers = useCallback(() => setFollowersOpen(false), [])
 
   const { data, loading } = useQuery<ProductEncoded>("products", user ? ["uid", "==", user.objectID] : false, true)
 
@@ -115,12 +127,15 @@ const MyAdsPage = () => {
   return (
     <Layout title="Mes annonces" noindex>
       <Title>Mes annonces</Title>
-      {followers && (
+      {followers ? (
         <Subtitle>
-          <FavoriteIcon />
-          {followers} abonné{s(followers)}
+          <FollowersButton type="button" aria-haspopup="dialog" onClick={() => setFollowersOpen(true)}>
+            <FavoriteIcon />
+            {followers} abonné{s(followers)}
+          </FollowersButton>
         </Subtitle>
-      )}
+      ) : null}
+      {followersOpen && <FollowersModal onClose={closeFollowers} />}
       {renderContent()}
     </Layout>
   )

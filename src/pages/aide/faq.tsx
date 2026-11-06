@@ -1,10 +1,11 @@
 import styled from "@emotion/styled"
 import HelpPage, { Ui } from "src/components/HelpPage"
 import Link from "src/components/Link"
+import { SIZES } from "src/constants"
 import { getHelpHref } from "src/constants/aide"
 
 const Question = styled.h2`
-  font-size: 1.2em;
+  font-size: ${SIZES.subtitle}px;
   margin-top: 32px;
 `
 

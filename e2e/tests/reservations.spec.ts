@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { expect, type Page, test } from "@playwright/test"
 
 import { ACCOUNTS, hasAccounts, TEST_PRODUCT_TITLE } from "../helpers/config"
 import { login, openUserMenu } from "../helpers/auth"
@@ -9,7 +9,9 @@ import {
   getTestProductCard,
   gotoMyProducts,
   SLOT_1,
+  SLOT_EARLY,
   slotHours,
+  type TestSlot,
 } from "../helpers/produit"
 
 // Parcours de réservation : garde d'accès, réservation acheteur, erreurs de validation,
@@ -18,6 +20,17 @@ import {
 // en fin de parcours.
 
 let productId: string | null = null
+
+// « Samedi 8 novembre · 10h – 12h » : libellé des créneaux de la fiche annonce
+const heading = (slot: TestSlot) => `${slot.start.replace(":", "h")} – ${slot.end.replace(":", "h")}`
+
+// Ligne cliquable du créneau dans la liste (heures puis « Réservation possible »)
+const getListSlot = (page: Page, slot: TestSlot) =>
+  page.getByRole("button", { name: new RegExp(`${heading(slot)}.*Réservation possible`) })
+
+// Bouton du créneau dans le formulaire de réservation (son libellé se termine par les heures)
+const getFormSlot = (page: Page, slot: TestSlot) =>
+  page.getByRole("button", { name: new RegExp(`${heading(slot)}$`) })
 
 test.describe.serial("Réservations", () => {
   test.beforeEach(() => {
@@ -31,6 +44,14 @@ test.describe.serial("Réservations", () => {
     await page.goto(`/annonce/${productId}`)
     // La section de réservation n'apparaît qu'après hydratation (créneaux à venir).
     await expect(page.getByRole("button", { name: "Réserver" })).toBeVisible({ timeout: 20000 })
+    // Créneau réservable : mention et quantité restante (stock de 10 kg, rien de réservé)
+    await expect(getListSlot(page, SLOT_1)).toContainText("Réservation possible · Reste 10 kg")
+    // Créneau sans réservation (SLOT_EARLY, demain) : affiché pour information, ni mention ni clic. Sa date est
+    // calculée en UTC (addDays) : peu après minuit, il peut tomber aujourd'hui.
+    const early = page.getByRole("listitem").filter({ hasText: heading(SLOT_EARLY) })
+    await expect(early).toContainText(/Demain|Aujourd’hui/)
+    await expect(early).not.toContainText("Réservation possible")
+    await expect(early.getByRole("button")).toHaveCount(0)
   })
 
   test("un anonyme qui réserve est redirigé vers la connexion", async ({ page }) => {
@@ -40,19 +61,37 @@ test.describe.serial("Réservations", () => {
     await expect(page).toHaveURL(new RegExp(`/connexion\\?next=.*/annonce/${productId}`))
   })
 
+  test("un clic sur un créneau de la liste ouvre la réservation sur ce créneau", async ({ page }) => {
+    test.skip(!productId, "Annonce de test non trouvée")
+    await login(page, "buyer")
+    await page.goto(`/annonce/${productId}`)
+    await getListSlot(page, SLOT_1).click({ timeout: 20000 })
+    await expect(page.getByRole("heading", { name: "Réservation" })).toBeVisible()
+    await expect(getFormSlot(page, SLOT_1)).toHaveAttribute("aria-pressed", "true")
+    await expect(page.getByText(new RegExp(`^Créneau choisi : .*${slotHours(SLOT_1)}$`))).toBeVisible()
+  })
+
   test("l'acheteur réserve un créneau", async ({ page }) => {
     test.skip(!productId, "Annonce de test non trouvée")
     await login(page, "buyer")
     await page.goto(`/annonce/${productId}`)
     await page.getByRole("button", { name: "Réserver" }).click()
     await expect(page.getByRole("heading", { name: "Réservation" })).toBeVisible()
-    await page.getByRole("button", { name: /de 10:00 à 12:00/ }).click()
+    // Aucun créneau choisi d'avance : le choix le met en avant et le rappelle sous la rangée
+    await expect(getFormSlot(page, SLOT_1)).toHaveAttribute("aria-pressed", "false")
+    await expect(page.getByText(/^Créneau choisi :/)).toHaveCount(0)
+    await getFormSlot(page, SLOT_1).click()
+    await expect(getFormSlot(page, SLOT_1)).toHaveAttribute("aria-pressed", "true")
+    await expect(page.getByText(new RegExp(`^Créneau choisi : .*${slotHours(SLOT_1)}$`))).toBeVisible()
     await page.getByLabel("Quantité").fill("2")
     await page.getByLabel("Téléphone").fill("0612345678")
     await expect(page.getByLabel("E-mail")).toHaveValue(ACCOUNTS.buyer.email)
     await page.getByRole("button", { name: "Valider la réservation" }).click()
     await expect(page.getByText("Votre réservation a bien été validée.")).toBeVisible()
     await expect(page.getByRole("button", { name: "Modifier ma réservation" })).toBeVisible()
+    // Rappel de la réservation et quantité restante du créneau mise à jour
+    await expect(page.getByText(new RegExp(`^Vous avez réservé : .*${slotHours(SLOT_1)} · 2 kg$`))).toBeVisible()
+    await expect(getListSlot(page, SLOT_1)).toContainText("Reste 8 kg")
   })
 
   test("les erreurs de validation de la réservation s'affichent", async ({ page }) => {
@@ -78,6 +117,13 @@ test.describe.serial("Réservations", () => {
     await expect(page.getByRole("heading", { name: "Mes réservations" })).toBeVisible()
     const card = page.getByRole("link", { name: TEST_PRODUCT_TITLE }).locator("xpath=ancestor::section[1]")
     await card.waitFor({ timeout: 20000 })
+    // Créneau à venir : rangé sous « À venir », son jour et ses heures en tête de carte, le restant dans l'unité
+    await expect(page.getByRole("heading", { name: "À venir" })).toBeVisible()
+    const hours = `${SLOT_1.start.replace(":", "h")} – ${SLOT_1.end.replace(":", "h")}`
+    await expect(card.getByText(new RegExp(`^[A-Z][a-z]+ \\d+ \\S+ · ${hours}`))).toBeVisible()
+    await expect(card.getByText("Producteur :", { exact: true })).toBeVisible()
+    await expect(card.getByText("Consignes du producteur :", { exact: true })).toBeVisible()
+    await expect(card.getByText(/^Encore \d+ kg disponibles$/)).toBeVisible()
     // 2 réservés, 2 au plus par personne (addSlotReservation) : on descend à 1
     await card.locator('input[aria-label="Quantité"]').fill("1")
     await card.getByRole("button", { name: "Modifier" }).click()

@@ -1,14 +1,16 @@
 import { css, Global } from "@emotion/react"
 import styled from "@emotion/styled"
+import { ThemeProvider } from "@mui/material/styles"
 import { AppProps } from "next/app"
 import Head from "next/head"
 import { ErrorInfo } from "react"
 import CookieBanner from "src/components/CookieBanner"
 import "src/components/Nprogress"
-import { FONT, LAYOUT } from "src/constants"
+import { COLORS, FONT, LAYOUT, SIZES } from "src/constants"
 import { UserProvider } from "src/helpers/auth"
 import { ErrorBoundary } from "src/helpers/bugsnag"
 import { ConsentProvider } from "src/helpers/consent"
+import { theme } from "src/helpers/theme"
 
 const globalStyle = css`
   :root {
@@ -33,6 +35,8 @@ const globalStyle = css`
     padding: 0;
     margin: 0;
     font-weight: 300;
+    font-size: ${SIZES.regular}px;
+    color: ${COLORS.text};
   }
 
   * {
@@ -44,12 +48,12 @@ const globalStyle = css`
     text-decoration: none;
   }
   h1 {
-    font-size: 1.7em;
+    font-size: ${SIZES.title}px;
     font-weight: 500;
     margin: 0 0 24px;
   }
   h2 {
-    font-size: 1.2em;
+    font-size: ${SIZES.subtitle}px;
     font-weight: 400;
   }
 
@@ -70,12 +74,12 @@ const ErrorContainer = styled.div`
   font-family: ${FONT};
   padding: 2em 1em;
   h1 {
-    color: #e10f14;
+    color: ${COLORS.red};
   }
   code {
     display: block;
     margin-top: 8em;
-    color: #aaa;
+    color: ${COLORS.muted};
   }
 `
 
@@ -105,7 +109,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       <Head>
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap"
         />
         <link rel="icon" href="/favicon.ico" />
         <link rel="manifest" href="/site.webmanifest" />
@@ -114,12 +118,14 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no" />
       </Head>
-      <ConsentProvider>
-        <UserProvider>
-          <Component {...pageProps} />
-          <CookieBanner />
-        </UserProvider>
-      </ConsentProvider>
+      <ThemeProvider theme={theme}>
+        <ConsentProvider>
+          <UserProvider>
+            <Component {...pageProps} />
+            <CookieBanner />
+          </UserProvider>
+        </ConsentProvider>
+      </ThemeProvider>
     </>
   )
 

@@ -1,0 +1,104 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - textbox "Que recherchez-vous ?" [ref=e44]
+            - textbox "Où ?" [ref=e45]
+          - button [ref=e46] [cursor=pointer]
+          - generic [ref=e50] [cursor=pointer]:
+            - switch "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e53]
+            - generic [ref=e56]: Uniquement des produits Bio ou issus de l'Agriculture raisonnée
+        - link "Se connecter" [ref=e57] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=e59]:
+      - generic [ref=e61]:
+        - link "← Retour à l'aide" [ref=e62] [cursor=pointer]:
+          - /url: /aide
+        - heading "Gérer ses réservations" [level=1] [ref=e63]
+        - paragraph [ref=e64]:
+          - text: Dans le menu,
+          - strong [ref=e65]: Mes réservations
+          - text: "rassemble toutes vos réservations, rangées en deux parties :"
+          - strong [ref=e66]: À venir
+          - text: ", du créneau le plus proche au plus lointain, puis"
+          - strong [ref=e67]: Passées
+          - text: .
+        - paragraph [ref=e68]:
+          - text: En haut de chaque réservation, le créneau s'affiche en gros (par exemple « Samedi 8 novembre · 9h – 12h »), avec le repère
+          - strong [ref=e69]: Aujourd’hui
+          - text: ou
+          - strong [ref=e70]: Demain
+          - text: quand c'est le cas. En dessous, vous trouvez le produit, les coordonnées du producteur, ses consignes, l'adresse du retrait (cliquez dessus pour ouvrir la carte), le prix et le total à payer.
+        - heading "Changer la quantité" [level=2] [ref=e71]
+        - paragraph [ref=e72]:
+          - text: Saisissez la nouvelle quantité, puis cliquez sur
+          - strong [ref=e73]: Modifier
+          - text: . Le producteur est prévenu de la modification. Juste en dessous, vous voyez ce qu'il reste sur le créneau, par exemple « Encore 12 kg disponibles ».
+        - heading "Annuler une réservation" [level=2] [ref=e74]
+        - paragraph [ref=e75]:
+          - text: Cliquez sur
+          - strong [ref=e76]: Annuler
+          - text: ", puis sur"
+          - strong [ref=e77]: Confirmer l’annulation
+          - text: .
+        - heading "Annonce plus disponible" [level=2] [ref=e78]
+        - paragraph [ref=e79]:
+          - text: Si le producteur a supprimé l'annonce ou retiré le créneau, la réservation reste dans
+          - strong [ref=e80]: À venir
+          - text: avec le message « Annonce plus disponible, contactez le producteur ». Elle ne peut plus être modifiée, mais vous pouvez toujours l'annuler.
+        - heading "Réservations passées" [level=2] [ref=e81]
+        - paragraph [ref=e82]:
+          - text: Les réservations dont le créneau est passé restent affichées en gris sous
+          - strong [ref=e83]: Passées
+          - text: ", sans possibilité de les modifier."
+        - paragraph [ref=e84]:
+          - text: Vous ne trouvez pas la réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=e85] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=e86]:
+      - generic [ref=e87]:
+        - paragraph [ref=e88]:
+          - link "Notre charte" [ref=e89] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e90]:
+          - link "CGU" [ref=e91] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e92]:
+          - link "Mentions légales" [ref=e93] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e94]:
+          - link "À propos" [ref=e95] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e96]:
+        - paragraph [ref=e97]:
+          - link "Assistance" [ref=e98] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e99]:
+          - link "Actualité" [ref=e100] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e101]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e102] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e103]: © 2026 Les Choux d’à Côté
+      - generic [ref=e104]:
+        - link [ref=e105] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e108] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e111] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e114]:
+      - paragraph [ref=e115]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e116] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e117]:
+        - button "Refuser" [ref=e118] [cursor=pointer]
+        - button "Accepter" [ref=e119] [cursor=pointer]
+  - alert [ref=e120]

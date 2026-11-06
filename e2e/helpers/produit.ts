@@ -121,6 +121,25 @@ export function getTestProductCard(page: Page) {
     .locator("xpath=ancestor::div[3]")
 }
 
+// « Nombre de vues » de la carte de l'annonce de test sur « Mes annonces »
+export async function getTestProductViews(page: Page): Promise<number> {
+  const card = getTestProductCard(page)
+  await expect(card.getByText("Nombre de vues")).toBeVisible()
+  return Number((await card.locator("figure").innerText()).trim())
+}
+
+// Ouvre la fiche publique et attend que sa vue ait été traitée
+export async function viewProduct(page: Page, productId: string) {
+  const response = page.waitForResponse(
+    (res) =>
+      res.url().endsWith("/api/view") &&
+      res.request().method() === "POST" &&
+      res.request().postDataJSON()?.id === productId,
+  )
+  await page.goto(`/annonce/${productId}`)
+  expect((await response).ok()).toBe(true)
+}
+
 export async function findTestProductId(page: Page): Promise<string> {
   const href = await getTestProductCard(page)
     .locator("a[href*='/compte/producteur/annonce/']")

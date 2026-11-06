@@ -11,6 +11,7 @@ import {
   findTestProductId,
   getSlotCard,
   getTestProductCard,
+  getTestProductViews,
   gotoMyProducts,
   openProductForm,
   SLOT_1,
@@ -19,6 +20,7 @@ import {
   SLOT_LATE,
   slotHours,
   submitProductForm,
+  viewProduct,
 } from "../helpers/produit"
 
 // Parcours de publication (producteur) : création d'annonce avec créneau et réservation,
@@ -69,10 +71,29 @@ test.describe.serial("Publication d'annonce", () => {
     test.skip(!productId, "Annonce de test non créée")
     await page.goto(`/annonce/${productId}`)
     await expect(page.getByRole("heading", { name: TEST_PRODUCT_TITLE, exact: true })).toBeVisible()
-    await expect(page.getByText("Créneaux", { exact: true })).toBeVisible()
-    await expect(page.getByText(`de ${SLOT_1.start} à ${SLOT_1.end}`).first()).toBeVisible()
+    // Les créneaux n'apparaissent qu'après hydratation (créneaux à venir).
+    await expect(page.getByRole("heading", { name: "Créneaux de retrait" })).toBeVisible({ timeout: 20000 })
+    await expect(page.getByText(`${SLOT_1.start.replace(":", "h")} – ${SLOT_1.end.replace(":", "h")}`)).toBeVisible()
     // La section de réservation n'apparaît qu'après hydratation (créneaux à venir).
     await expect(page.getByRole("button", { name: "Réserver" })).toBeVisible({ timeout: 20000 })
+  })
+
+  test("une visite anonyme compte une vue, pas celle du producteur", async ({ page, browser }) => {
+    test.skip(!productId, "Annonce de test non créée")
+    const id = productId as string
+    await login(page, "producer")
+    await gotoMyProducts(page)
+    const before = await getTestProductViews(page)
+    // Visiteur anonyme arrivé par un lien direct : sa vue est comptée
+    const visitor = await browser.newPage()
+    await viewProduct(visitor, id)
+    await visitor.close()
+    await gotoMyProducts(page)
+    expect(await getTestProductViews(page)).toBe(before + 1)
+    // Le producteur connecté sur sa propre annonce : le chiffre ne bouge pas
+    await viewProduct(page, id)
+    await gotoMyProducts(page)
+    expect(await getTestProductViews(page)).toBe(before + 1)
   })
 
   test("modification de l'annonce", async ({ page }) => {

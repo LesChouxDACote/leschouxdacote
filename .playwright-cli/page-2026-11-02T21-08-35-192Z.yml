@@ -1,0 +1,56 @@
+- generic [active] [ref=f44e1]:
+  - generic [ref=f44e2]:
+    - banner [ref=f44e3]:
+      - generic [ref=f44e4]:
+        - button "Menu" [ref=f44e5] [cursor=pointer]:
+          - img "Menu" [ref=f44e6]
+        - link "Les Choux d’à Côté" [ref=f44e8] [cursor=pointer]:
+          - /url: /
+        - link "Recherche" [ref=f44e9] [cursor=pointer]:
+          - /url: /
+          - img "Recherche" [ref=f44e10]
+    - main [ref=f44e14]:
+      - heading "Erreur 404" [level=1] [ref=f44e15]
+      - paragraph [ref=f44e16]: Page introuvable
+    - contentinfo [ref=f44e17]:
+      - generic [ref=f44e18]:
+        - paragraph [ref=f44e19]:
+          - link "Notre charte" [ref=f44e20] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f44e21]:
+          - link "CGU" [ref=f44e22] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f44e23]:
+          - link "Mentions légales" [ref=f44e24] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f44e25]:
+          - link "À propos" [ref=f44e26] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f44e27]:
+        - paragraph [ref=f44e28]:
+          - link "Assistance" [ref=f44e29] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f44e30]:
+          - link "Actualité" [ref=f44e31] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=f44e32]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f44e33] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f44e34]: © 2026 Les Choux d’à Côté
+      - generic [ref=f44e35]:
+        - link [ref=f44e36] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f44e39] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f44e42] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f44e45]:
+      - paragraph [ref=f44e46]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f44e47] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f44e48]:
+        - button "Refuser" [ref=f44e49] [cursor=pointer]
+        - button "Accepter" [ref=f44e50] [cursor=pointer]
+  - alert [ref=f44e51]

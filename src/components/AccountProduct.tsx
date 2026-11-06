@@ -11,7 +11,7 @@ import Link, { ButtonLink } from "src/components/Link"
 import Modal from "src/components/Modal"
 import ProductEndDate from "src/components/ProductEndDate"
 import { SocialShareBar } from "src/components/SocialShareBar/SocialShareBar"
-import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, SIZES } from "src/constants"
+import { COLORS, LAYOUT, MAX_PUBLICATION_DAYS, RADIUS, SIZES } from "src/constants"
 import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import {
@@ -37,7 +37,7 @@ const Container = styled.div<{ $odd?: boolean }>`
   margin: 20px 0;
   background-color: ${({ $odd }) => ($odd ? COLORS.odd : COLORS.white)};
   padding: 20px;
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   transition: box-shadow 150ms;
   &:hover {
     box-shadow: 0 3px 8px ${COLORS.shadow.light};
@@ -76,7 +76,7 @@ const Image = styled.div`
     width: 200px;
     height: 120px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: ${RADIUS}px;
     @media (max-width: ${LAYOUT.mobile}px) {
       width: 80px;
       height: 80px;
@@ -87,7 +87,7 @@ const Infos = styled.div`
   grid-area: infos;
   min-width: 0;
   h4 {
-    font-size: 18px;
+    font-size: ${SIZES.subtitle}px;
     font-weight: normal;
     margin: 0 0 5px;
     @media (min-width: ${LAYOUT.mobile}px) {
@@ -103,7 +103,7 @@ const Infos = styled.div`
 const Days = styled.div`
   grid-area: days;
   margin: 8px 0 0;
-  color: ${COLORS.dark};
+  color: ${COLORS.text};
   font-size: ${SIZES.regular}px;
   @media (max-width: ${LAYOUT.mobile}px) {
     margin: 12px 0 0;
@@ -123,14 +123,14 @@ const SlotsTitle = styled.div`
 `
 const SlotItem = styled.li<{ $past: boolean }>`
   margin: 2px 0;
-  color: ${({ $past }) => ($past ? COLORS.grey : "inherit")};
+  color: ${({ $past }) => ($past ? COLORS.muted : "inherit")};
   span {
-    color: ${COLORS.grey};
+    color: ${COLORS.muted};
   }
 `
 const NoSlot = styled.p`
   margin: 4px 0 0;
-  color: ${COLORS.grey};
+  color: ${COLORS.muted};
 `
 const SlotsToggle = styled.button`
   ${aboveLink}
@@ -143,7 +143,7 @@ const Stats = styled.div`
   width: 120px;
   text-align: center;
   figure {
-    font-size: ${SIZES.large}px;
+    font-size: ${SIZES.subtitle}px;
     font-weight: 400;
     margin: 12px 8px 4px;
     svg {
@@ -153,7 +153,7 @@ const Stats = styled.div`
   }
   figcaption {
     font-size: ${SIZES.small}px;
-    color: ${COLORS.grey};
+    color: ${COLORS.muted};
   }
 `
 const Actions = styled.div`
@@ -169,7 +169,7 @@ const Actions = styled.div`
     right: 12px;
   }
   svg {
-    fill: ${COLORS.dark};
+    fill: ${COLORS.text};
     vertical-align: middle;
   }
 `
@@ -210,7 +210,7 @@ const Status = styled.div<{ $active: boolean }>`
   margin-bottom: 8px;
   color: ${({ $active }) => ($active ? COLORS.green : COLORS.red)};
   font-weight: 400;
-  font-size: ${SIZES.large}px;
+  font-size: ${SIZES.subtitle}px;
   &::before {
     content: "";
     background-color: ${({ $active }) => ($active ? COLORS.green : COLORS.red)};
@@ -361,7 +361,7 @@ const AccountProduct = ({ product, odd }: Props) => {
             <figure>
               <PointerIcon /> {product.views || 0}
             </figure>
-            <figcaption>Nombre de clics</figcaption>
+            <figcaption>Nombre de vues</figcaption>
           </Stats>
         </Infos>
       </Ad>

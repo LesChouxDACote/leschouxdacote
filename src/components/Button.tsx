@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import NextLink from "next/link"
 import { darken, lighten } from "polished"
 import React from "react"
-import { COLORS, SIZES } from "src/constants"
+import { COLORS, RADIUS, SIZES } from "src/constants"
 
 type ButtonVariant = "green" | "white" | "red"
 
@@ -14,17 +14,17 @@ export interface ButtonProps {
 // [background-color, color, border-color, focus]
 const BUTTON_VARIANT: Record<ButtonVariant, string[]> = {
   green: [COLORS.green, COLORS.white, COLORS.green, COLORS.green],
-  white: [COLORS.white, COLORS.input, COLORS.border, COLORS.grey],
+  white: [COLORS.white, COLORS.text, COLORS.border, COLORS.muted],
   red: [COLORS.red, COLORS.white, COLORS.red, COLORS.red],
 }
 
-const getButtonCss = ($variant: ButtonVariant) => css`
+export const getButtonCss = ($variant: ButtonVariant) => css`
   background-color: ${BUTTON_VARIANT[$variant][0]};
   color: ${BUTTON_VARIANT[$variant][1]};
   padding: 8px 16px;
   transition: background-color 150ms;
   border: 1px solid ${BUTTON_VARIANT[$variant][2]};
-  border-radius: 8px;
+  border-radius: ${RADIUS}px;
   position: relative;
   font-size: ${SIZES.regular}px;
   font-weight: 400;
@@ -41,8 +41,9 @@ const getButtonCss = ($variant: ButtonVariant) => css`
 
   &:disabled {
     cursor: not-allowed;
-    background-color: ${COLORS.grey};
-    border-color: ${COLORS.grey};
+    color: ${COLORS.white};
+    background-color: ${COLORS.muted};
+    border-color: ${COLORS.muted};
   }
 `
 
@@ -56,9 +57,7 @@ export const LinkButton = styled(NextLink)<ButtonProps>`
 `
 
 const StyledIconButton = styled.button`
-  border-radius: 5px;
-  box-shadow: 0px 3px 6px #00000029;
-  padding: 10px 30px;
+  ${getButtonCss("white")}
 `
 
 interface IconButtonProps {
