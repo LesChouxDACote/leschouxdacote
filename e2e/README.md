@@ -54,7 +54,7 @@ Ou directement dans `e2e/` : `yarn install`, `yarn run install-browsers`, puis `
 
 ## CI (GitHub Actions)
 
-`.github/workflows/e2e.yml` : déclenché à chaque push sur `develop` (pas sur les pull requests, conformément au ticket) + `workflow_dispatch`. Jobs : build Next avec les variables de l'environnement dev, installation des navigateurs Playwright, exécution, upload du rapport HTML en artefact en cas d'échec.
+`.github/workflows/e2e.yml` : déclenché sur chaque pull request vers `develop` (sauf depuis un fork, qui n'a pas les secrets), à chaque push sur `develop` et par `workflow_dispatch`. Une seule exécution à la fois (`concurrency: e2e-dev`) : les tests partagent les données du Firebase de dev. GitHub annule l'exécution qui attend quand une troisième arrive ; Kedalia la relance une fois (permission « Actions : lecture et écriture » de son App). Kedalia ouvre la pull request d'une version de test dès son premier envoi et lit ce run avec celui de `kedalia.yml` : un test rouge bloque « Publier ». Jobs : build Next avec les variables de l'environnement dev, installation des navigateurs Playwright, exécution, upload du rapport HTML en artefact en cas d'échec.
 
 Secrets GitHub à créer (en plus de ceux existants `FIREBASE_PROJECT_DEV`, `FIREBASE_EMAIL_DEV`, `FIREBASE_PRIVATE_KEY_DEV`, `ALGOLIA_APP_ID`, `ALGOLIA_API_KEY`, `ALGOLIA_ADMIN_KEY`, `ALGOLIA_INDEX_DEV`, `ALGOLIA_TAGS`, `MAILJET_PUBLIC_KEY`, `MAILJET_PRIVATE_KEY`, `INSEE_TOKEN`) :
 
