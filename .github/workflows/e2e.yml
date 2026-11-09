@@ -1,13 +1,25 @@
 name: E2E tests
 
+# Sur chaque pull request vers develop (dont celles de Kedalia, qui lit ce run avant de publier) et après chaque push
+# sur develop. Une seule exécution à la fois : les tests partagent l'annonce de test et les comptes du Firebase de dev,
+# deux exécutions en parallèle se marcheraient dessus.
 on:
   workflow_dispatch: {}
   push:
     branches:
       - develop
+  pull_request:
+    branches:
+      - develop
+
+concurrency:
+  group: e2e-dev
+  cancel-in-progress: false
 
 jobs:
   dev:
+    # une pull request venue d'un fork n'a pas les secrets : ses tests ne pourraient que tomber
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
 
     env:

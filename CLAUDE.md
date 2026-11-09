@@ -55,6 +55,11 @@ Petites annonces alimentaires (producteurs locaux). Next.js 16 (pages router), T
 
 - `scripts/verify.sh` est LE contrôle : install figée, `tsc`, ESLint sur `src/`. Kedalia le lance avant chaque
   livraison de son agent, la CI (`.github/workflows/kedalia.yml`) à chaque push. La dernière ligne dit le verdict.
+- Les tests e2e (`.github/workflows/e2e.yml`, Playwright contre le Firebase de dev) tournent sur chaque pull request
+  vers `develop` et après chaque push sur `develop`. Kedalia lit tous les runs `push` et `pull_request` du dernier
+  commit d'une branche : un e2e rouge bloque « Publier », et son assistant dit quels tests échouent. Ils ne tournent
+  pas dans l'Aperçu (les comptes de test sont des secrets GitHub). Une seule exécution à la fois (`concurrency`) :
+  GitHub annule celle qui attend quand une troisième arrive, et Kedalia la relance une fois.
 - Le yarn est celui du dépôt (`yarnPath`) : l'image de Kedalia (Node 26) n'a ni corepack ni binaire `yarn`, d'où le
   `node .yarn/releases/…` du script. L'agent de Kedalia n'ajoute pas de dépendance : son `atelier-add` ne parle que pnpm.
 - `docker-compose.yaml` + `Dockerfile` = l'application déployée par Kedalia ; `docker-compose.yml` = le watcher Trello.
