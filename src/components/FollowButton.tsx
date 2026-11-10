@@ -17,6 +17,11 @@ const Container = styled(Button)`
     &:hover {
       background-color: ${COLORS.white};
     }
+    &.Mui-disabled {
+      background-color: ${COLORS.white};
+      color: ${COLORS.red};
+      opacity: 0.5;
+    }
   }
 `
 
@@ -25,14 +30,17 @@ interface Props {
 }
 
 const FollowButton = ({ producer }: Props) => {
-  const { user, toggleFollow } = useUser()
+  const { loading, authUser, user, toggleFollow } = useUser()
   const followed = isFollowed(producer, user)
+  // Tant que la session ou le profil ne sont pas chargés, toggleFollow redirigerait vers la connexion
+  const pending = loading || (authUser !== null && user === null)
 
   return (
     // Bulle native (title) : elle décrit le bouton sans remplacer son nom accessible (« Suivre le producteur »)
     <Container
       onClick={() => toggleFollow(producer, !followed)}
       variant="contained"
+      disabled={pending}
       startIcon={followed ? <IconHeart /> : <IconHeartEmpty />}
       title={
         followed
