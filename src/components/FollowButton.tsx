@@ -1,19 +1,22 @@
 import styled from "@emotion/styled"
-import { Button } from "@mui/material"
+import { Button, Tooltip } from "@mui/material"
 import IconHeartEmpty from "src/assets/icon-heart-empty.svg"
 import IconHeart from "src/assets/icon-heart.svg"
 import { COLORS } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { isFollowed } from "src/helpers/user"
 
+// `&&` passe devant le fond vert du variant "contained" du thème MUI, quel que soit l'ordre d'injection des styles
 const Container = styled(Button)`
-  margin: 20px auto 10px;
-  background-color: ${COLORS.white};
-  color: ${COLORS.red};
-  text-transform: none;
-  font-weight: 300;
-  &:hover {
+  && {
+    margin: 20px auto 10px;
     background-color: ${COLORS.white};
+    color: ${COLORS.red};
+    text-transform: none;
+    font-weight: 300;
+    &:hover {
+      background-color: ${COLORS.white};
+    }
   }
 `
 
@@ -26,13 +29,21 @@ const FollowButton = ({ producer }: Props) => {
   const followed = isFollowed(producer, user)
 
   return (
-    <Container
-      onClick={() => toggleFollow(producer, !followed)}
-      variant="contained"
-      startIcon={followed ? <IconHeart /> : <IconHeartEmpty />}
+    <Tooltip
+      title={
+        followed
+          ? "Ne plus recevoir d'alerte pour les nouveaux produits de ce producteur."
+          : "Recevoir une alerte lorsque ce producteur a un nouveau produit."
+      }
     >
-      {followed ? "Ne plus suivre le producteur" : "Suivre le producteur"}
-    </Container>
+      <Container
+        onClick={() => toggleFollow(producer, !followed)}
+        variant="contained"
+        startIcon={followed ? <IconHeart /> : <IconHeartEmpty />}
+      >
+        {followed ? "Ne plus suivre le producteur" : "Suivre le producteur"}
+      </Container>
+    </Tooltip>
   )
 }
 

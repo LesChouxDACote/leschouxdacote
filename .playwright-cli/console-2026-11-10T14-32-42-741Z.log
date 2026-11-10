@@ -1,0 +1,74 @@
+[     248ms] [LOG] [Fast Refresh] rebuilding @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    1939ms] [LOG] [Fast Refresh] done in 1790ms @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    1954ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap:0
+[    2067ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:26066/_next/static/chunks/node_modules_react-dom_0kla17-._.js:15093
+[    2091ms] [WARNING] [bugsnag] Session not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    2099ms] [LOG] [HMR] connected @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    2153ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <Styled(header)>
+      <Insertion>
+      <header className="css-qq7x9l...">
+        <Styled(div)>
+          <Insertion>
+          <div className="css-1nr7g9...">
+            <Link>
+            <Styled(div)>
+              <Insertion>
+              <div className="css-d06m6k...">
+                <SearchBar compact={true}>
+                  <Styled(form) method="GET" action="/recherche" onSubmit={function handleSearch} className={undefined}>
+                    <Insertion>
+                    <form method="GET" action="/recherche" onSubmit={function handleSearch} className="css-xkbnsl...">
+                      <Styled(div)>
+                      <Styled(div)>
+                        <Insertion>
+                        <div className="css-gjuziq...">
+                          <Styled(Component) control={<Styled(Component)>} label={"Bio & ra..."} title={"Uniqueme..."} ...>
+                            <Insertion>
+                            <FormControlLabel control={<Styled(Component)>} label={"Bio & ra..."} title={"Uniqueme..."} ...>
+                              <MuiFormControlLabel-root className="MuiFormCon..." ownerState={{...}} ref={null} ...>
+                                <Insertion>
+                                <label
++                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd e4vvucv5 c..."
+-                                 className="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-1syaho..."
+                                  title={"Uniquement des produits Bio ou issus de l'Agriculture raisonnée"}
+                                >
+                                  <Styled(Component) name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                    <Insertion>
+                                    <Switch name="bio" disabled={undefined} required={undefined} checked={false} ...>
+                                      <MuiSwitch-root sx={undefined} className="MuiSwitch-..." ref={null} ...>
+                                        <Insertion>
+                                        <span
++                                         className="MuiSwitch-root MuiSwitch-sizeMedium ewajyds0 css-1e00ozh-MuiSwitc..."
+-                                         className="MuiSwitch-root MuiSwitch-sizeMedium css-1brv28p ewajyds0 css-rehy..."
+                                        >
+                                  ...
+            ...
+        ...
+ @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:1824
+[    2158ms] [WARNING] Do not add stylesheets using next/head (see <link rel="stylesheet"> tag with href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;700&display=swap"). Use Document instead. 
+See more info here: https://nextjs.org/docs/messages/no-stylesheets-in-head-component @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    2202ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://maps.googleapis.com/maps/api/js?key=AIzaSyBaQrdjYNDfc1vpwffQzpS6JTJlAC7qyiU&libraries=places&callback=initMap:0
+[    2238ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://rgbetvvumx-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(5.56.0)%3B%20Search%20(5.56.0)%3B%20Browser&x-algolia-api-key=3aec2fcb15a5addb256e7142b2fda0de&x-algolia-application-id=RGBETVVUMX:0
+[    2290ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://rgbetvvumx-1.algolianet.com/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(5.56.0)%3B%20Search%20(5.56.0)%3B%20Browser&x-algolia-api-key=3aec2fcb15a5addb256e7142b2fda0de&x-algolia-application-id=RGBETVVUMX:0
+[    2292ms] [WARNING] [bugsnag] unhandledrejection handler received a non-error: "object" @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    2292ms] [WARNING] [bugsnag] Event not sent due to releaseStage/enabledReleaseStages configuration @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:763
+[    2294ms] Event
+[    2294ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://rgbetvvumx-3.algolianet.com/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(5.56.0)%3B%20Search%20(5.56.0)%3B%20Browser&x-algolia-api-key=3aec2fcb15a5addb256e7142b2fda0de&x-algolia-application-id=RGBETVVUMX:0
+[    2309ms] [ERROR] Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector @ https://rgbetvvumx-2.algolianet.com/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(5.56.0)%3B%20Search%20(5.56.0)%3B%20Browser&x-algolia-api-key=3aec2fcb15a5addb256e7142b2fda0de&x-algolia-application-id=RGBETVVUMX:0
+[    2310ms] [ERROR] RetryError: Unreachable hosts - your application id may be incorrect. If the error persists, please visit our help center https://alg.li/support-unreachable-hosts or reach out to the Algolia Support team: https://alg.li/support
+    at retry (http://127.0.0.1:26066/_next/static/chunks/node_modules_%40algolia_06vl98k._.js:4088:23)
+    at retry (http://127.0.0.1:26066/_next/static/chunks/node_modules_%40algolia_06vl98k._.js:4120:24)
+    at async Object.search (http://127.0.0.1:26066/_next/static/chunks/%5Broot-of-the-server%5D__0n70pja._.js:2553:33) @ http://127.0.0.1:26066/_next/static/chunks/node_modules_next_dist_0jxatvg._.js:1824
