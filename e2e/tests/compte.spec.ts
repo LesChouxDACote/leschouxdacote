@@ -3,6 +3,7 @@ import { expect, type Page, test } from "@playwright/test"
 import { ACCOUNTS, hasAccounts } from "../helpers/config"
 import { login, logout, openUserMenu } from "../helpers/auth"
 import { acceptDialogs, expectAlertTimes } from "../helpers/dialogs"
+import { fillAddress, TEST_ADDRESS } from "../helpers/produit"
 
 // Parcours « compte » : profil acheteur/producteur et alertes.
 
@@ -54,6 +55,17 @@ test.describe("Compte", () => {
     await page.goto("/compte/profil")
     await expect(page.locator('input[name="name"]')).toBeVisible()
     await expect(page.locator('textarea[name="description"]')).toBeVisible()
+  })
+
+  test("l'adresse du producteur propose les suggestions Google, avec le code postal", async ({ page }) => {
+    await login(page, "producer")
+    await page.goto("/compte/profil")
+    const address = page.locator('input[name="address"]')
+    await expect(address).toBeVisible()
+    // Rien n'est enregistré : on vérifie seulement ce que la suggestion écrit dans le champ.
+    await fillAddress(page, TEST_ADDRESS, 'input[name="address"]')
+    await expect(address).toHaveValue(/\b\d{5} \S/)
+    await expect(address).not.toHaveValue(/France$/)
   })
 })
 
