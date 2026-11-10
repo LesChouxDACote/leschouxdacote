@@ -29,7 +29,9 @@ const FollowButton = ({ producer }: Props) => {
   const followed = isFollowed(producer, user)
 
   return (
+    // describeChild : la bulle décrit le bouton sans remplacer son nom accessible (« Suivre le producteur »)
     <Tooltip
+      describeChild
       title={
         followed
           ? "Ne plus recevoir d'alerte pour les nouveaux produits de ce producteur."
