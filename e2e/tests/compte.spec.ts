@@ -57,6 +57,29 @@ test.describe("Compte", () => {
     await expect(page.locator('textarea[name="description"]')).toBeVisible()
   })
 
+  test("le producteur enregistre son profil", async ({ page }) => {
+    const messages = acceptDialogs(page)
+    await login(page, "producer")
+    await page.goto("/compte/profil")
+    const description = page.locator('textarea[name="description"]')
+    await expect(description).not.toHaveValue("")
+    // Attend la réponse de chaque enregistrement : succès, et jamais « Une erreur est survenue »
+    const save = async (times: number) => {
+      await page.getByRole("button", { name: "Valider" }).click()
+      await expect.poll(() => messages.length).toBe(times)
+      expect(messages[times - 1]).toContain("Modifications effectuées")
+    }
+    // Sans rien modifier : l'enregistrement aboutit (le nom est recopié chez les abonnés et dans les annonces)
+    await save(1)
+    // Modification de la description, puis retour à la valeur d'origine (données de dev réelles).
+    const original = await description.inputValue()
+    await description.fill(`${original} (E2E)`)
+    await save(2)
+    await description.fill(original)
+    await save(3)
+    await expect(description).toHaveValue(original)
+  })
+
   test("l'adresse du producteur propose les suggestions Google, avec le code postal", async ({ page }) => {
     await login(page, "producer")
     await page.goto("/compte/profil")
