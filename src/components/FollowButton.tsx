@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { Button, Tooltip } from "@mui/material"
+import { Button } from "@mui/material"
 import IconHeartEmpty from "src/assets/icon-heart-empty.svg"
 import IconHeart from "src/assets/icon-heart.svg"
 import { COLORS } from "src/constants"
@@ -29,23 +29,19 @@ const FollowButton = ({ producer }: Props) => {
   const followed = isFollowed(producer, user)
 
   return (
-    // describeChild : la bulle décrit le bouton sans remplacer son nom accessible (« Suivre le producteur »)
-    <Tooltip
-      describeChild
+    // Bulle native (title) : elle décrit le bouton sans remplacer son nom accessible (« Suivre le producteur »)
+    <Container
+      onClick={() => toggleFollow(producer, !followed)}
+      variant="contained"
+      startIcon={followed ? <IconHeart /> : <IconHeartEmpty />}
       title={
         followed
           ? "Ne plus recevoir d'alerte pour les nouveaux produits de ce producteur."
           : "Recevoir une alerte lorsque ce producteur a un nouveau produit."
       }
     >
-      <Container
-        onClick={() => toggleFollow(producer, !followed)}
-        variant="contained"
-        startIcon={followed ? <IconHeart /> : <IconHeartEmpty />}
-      >
-        {followed ? "Ne plus suivre le producteur" : "Suivre le producteur"}
-      </Container>
-    </Tooltip>
+      {followed ? "Ne plus suivre le producteur" : "Suivre le producteur"}
+    </Container>
   )
 }
 
