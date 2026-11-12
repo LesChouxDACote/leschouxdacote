@@ -12,14 +12,18 @@ jobs:
         id: calc
         env:
           GH_PAT: ${{ secrets.ORG_BILLING_PAT }}
+          INCLUDED: ${{ vars.INCLUDED_MINUTES }}
         run: |
-          BILLING=$(curl -s -H "Authorization: Bearer $GH_PAT" \
-            https://api.github.com/orgs/LesChouxDACote/settings/billing/actions)
-          USED=$(echo "$BILLING" | jq -r '.minutes_used')
-          INCLUDED=$(echo "$BILLING" | jq -r '.included_minutes')
+          YEAR=$(date +%Y)
+          MONTH=$(date +%-m)
+          USAGE=$(curl -s -H "Authorization: Bearer $GH_PAT" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/organizations/LesChouxDACote/settings/billing/usage?year=$YEAR&month=$MONTH")
+          USED=$(echo "$USAGE" | jq --arg ym "$(date +%Y-%m)" \
+            '[.usageItems[] | select(.unitType=="Minutes" and (.product|ascii_downcase)=="actions" and (.date|startswith($ym))) | .quantity] | add // 0' | cut -d. -f1)
           REMAINING=$((INCLUDED - USED))
           if [ "$REMAINING" -lt 100 ]; then TARGET=e2e; else TARGET=ubuntu-latest; fi
-          echo "Quota: ${USED}/${INCLUDED} min, reste ${REMAINING} -> cible: ${TARGET}"
+          echo "Quota Actions du mois: ${USED}/${INCLUDED} min, reste ${REMAINING} -> cible: ${TARGET}"
           echo "target=$TARGET" >> "$GITHUB_OUTPUT"
 
       - name: Mise à jour de la variable
@@ -29,5 +33,5 @@ jobs:
           curl -s -X PATCH \
             -H "Authorization: Bearer $GH_PAT" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/LesChouxDACote/leschouxdacote/actions/variables/RUNNER_TARGET \
+            https://api.github.com/repos/LesChouxDACote/MON-REPO/actions/variables/RUNNER_TARGET \
             -d "{\"value\":\"${{ steps.calc.outputs.target }}\"}"
