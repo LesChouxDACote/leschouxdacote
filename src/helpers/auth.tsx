@@ -1,6 +1,6 @@
 import Bugsnag from "@bugsnag/js"
 import { signInWithEmailAndPassword } from "firebase/auth"
-import { doc, onSnapshot } from "firebase/firestore"
+import { doc, getDoc, onSnapshot } from "firebase/firestore"
 import { useRouter } from "next/router"
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { USER_ROLE } from "src/constants"
@@ -108,13 +108,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const wait = Boolean(redirectUrl) || (isPrivateRoute && !user)
 
+  // Profil de l'utilisateur connecté : celui en mémoire, ou lu directement s'il n'est pas encore
+  // chargé (clic sur « Suivre » juste après le chargement de la page, avant que le profil arrive)
+  const getUser = async (): Promise<User | null> => {
+    if (!authUser) {
+      return null
+    }
+    if (user) {
+      return user
+    }
+    return getObject(await getDoc(doc(firestore, "users", authUser.uid))) as User | null
+  }
+
   const toggleFollow = async (producerUid: string, follow: boolean) => {
-    if (!authUser || !user) {
+    const currentUser = await getUser()
+    if (!currentUser) {
       replace("/connexion?next=" + asPath)
       return
     }
-
-    const followedProducers = { ...user.followedProducers }
+    const followedProducers = { ...currentUser.followedProducers }
 
     if (follow) {
       followedProducers[producerUid] = { emailAlert: true } // the rest will be added by the backend
@@ -123,7 +135,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     setUser({
-      ...user,
+      ...currentUser,
       followedProducers,
     })
 
@@ -131,16 +143,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const toggleEmailAlert = async (producerUid: string, active: boolean) => {
-    if (!authUser || !user) {
+    const currentUser = await getUser()
+    if (!currentUser) {
       replace("/connexion?next=" + asPath)
       return
     }
 
-    const followedProducers = { ...user.followedProducers }
+    const followedProducers = { ...currentUser.followedProducers }
     followedProducers[producerUid].emailAlert = active
 
     setUser({
-      ...user,
+      ...currentUser,
       followedProducers,
     })
 

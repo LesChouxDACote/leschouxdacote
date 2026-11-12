@@ -1,0 +1,100 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - textbox "Que recherchez-vous ?" [ref=e45]
+              - textbox "Où ?" [ref=e46]
+            - button [ref=e47] [cursor=pointer]
+          - generic "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e51] [cursor=pointer]:
+            - switch "Bio & raisonné" [ref=e54]
+            - generic [ref=e57]: Bio & raisonné
+    - main [ref=e60]:
+      - generic [ref=e62]:
+        - heading "Aide en ligne" [level=1] [ref=e63]
+        - paragraph [ref=e64]:
+          - text: Producteurs et artisans,
+          - link "inscrivez-vous gratuitement ici" [ref=e65] [cursor=pointer]:
+            - /url: /inscription
+          - text: .
+        - searchbox "Rechercher un sujet" [ref=e66]
+        - generic [ref=e67]:
+          - heading "Pour tous" [level=2] [ref=e68]
+          - generic [ref=e69]:
+            - link "Créer son compte et se connecter" [ref=e70] [cursor=pointer]:
+              - /url: /aide/creer-son-compte
+            - link "Gérer ses favoris et ses alertes" [ref=e71] [cursor=pointer]:
+              - /url: /aide/favoris-et-alertes
+            - link "Réserver un produit" [ref=e72] [cursor=pointer]:
+              - /url: /aide/reserver
+            - link "Gérer ses réservations" [ref=e73] [cursor=pointer]:
+              - /url: /aide/mes-reservations
+        - generic [ref=e74]:
+          - heading "Pour les producteurs" [level=2] [ref=e75]
+          - generic [ref=e76]:
+            - link "Publier une annonce" [ref=e77] [cursor=pointer]:
+              - /url: /aide/publier-une-annonce
+            - link "Modifier ou republier une annonce" [ref=e78] [cursor=pointer]:
+              - /url: /aide/modifier-une-annonce
+            - link "Créer des créneaux de retrait" [ref=e79] [cursor=pointer]:
+              - /url: /aide/creneaux
+            - link "Suivre les réservations de ses clients" [ref=e80] [cursor=pointer]:
+              - /url: /aide/reservations-clients
+        - generic [ref=e81]:
+          - heading "En cas de souci" [level=2] [ref=e82]
+          - generic [ref=e83]:
+            - link "Les erreurs les plus fréquentes" [ref=e84] [cursor=pointer]:
+              - /url: /aide/erreurs-frequentes
+            - link "Foire aux questions" [ref=e85] [cursor=pointer]:
+              - /url: /aide/faq
+        - paragraph [ref=e86]:
+          - text: Une question sans réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=e87] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=e88]:
+      - generic [ref=e89]:
+        - paragraph [ref=e90]:
+          - link "Notre charte" [ref=e91] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e92]:
+          - link "CGU" [ref=e93] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e94]:
+          - link "Mentions légales" [ref=e95] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e96]:
+          - link "À propos" [ref=e97] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e98]:
+        - paragraph [ref=e99]:
+          - link "Assistance" [ref=e100] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e101]:
+          - link "Actualité" [ref=e102] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e103]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e104] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e105]: © 2026 Les Choux d’à Côté
+      - generic [ref=e106]:
+        - link [ref=e107] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e110] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e113] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e116]:
+      - paragraph [ref=e117]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e118] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e119]:
+        - button "Refuser" [ref=e120] [cursor=pointer]
+        - button "Accepter" [ref=e121] [cursor=pointer]
+  - alert [ref=e122]
