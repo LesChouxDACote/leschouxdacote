@@ -1,5 +1,6 @@
 import styled from "@emotion/styled"
 import { DefaultValues } from "react-hook-form"
+import AddressInput from "src/components/AddressInput"
 import { Button } from "src/components/Button"
 import { Form, SubmitButton, TextInput } from "src/components/Form"
 import { USER_ROLE } from "src/constants"
@@ -36,7 +37,7 @@ const MyAccountPage = () => {
         {user?.role === USER_ROLE.PRODUCER && (
           <>
             <TextInput name="name" label="Nom commercial" required maxLength={180} />
-            <TextInput name="address" label="Adresse" rows={3} required />
+            <AddressInput name="address" label="Adresse" required />
             <TextInput name="description" label="Description" rows={6} required minLength={15} maxLength={4000} />
             <TextInput name="phone" label="Téléphone" type="tel" required validate={validatePhoneNumber} />
           </>

@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - textbox "Que recherchez-vous ?" [ref=e45]
+              - textbox "Où ?" [ref=e46]
+            - button [ref=e47] [cursor=pointer]
+          - generic "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e51] [cursor=pointer]:
+            - switch "Bio & raisonné" [ref=e54]
+            - generic [ref=e57]: Bio & raisonné
+        - link "Se connecter" [ref=e58] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=e60]:
+      - generic [ref=e61]:
+        - heading "Création du compte" [level=1] [ref=e62]
+        - paragraph [ref=e63]: "* champs obligatoires"
+        - paragraph [ref=e64]:
+          - link "Besoin d'aide ?" [ref=e65] [cursor=pointer]:
+            - /url: /aide/creer-son-compte
+        - generic [ref=e66]:
+          - generic [ref=e67]: Je suis un producteur
+          - generic [ref=e69]: Je suis un acheteur
+        - generic [ref=e71]:
+          - text: SIRET *
+          - textbox "SIRET *" [ref=e73]
+        - generic [ref=e74]:
+          - text: Nom commercial *
+          - textbox "Nom commercial *" [ref=e76]
+        - generic [ref=e77]:
+          - text: Adresse *
+          - textbox "Adresse *" [ref=e79]
+        - generic [ref=e80]:
+          - text: Description *
+          - textbox "Description *" [ref=e82]
+        - generic [ref=e83]:
+          - text: Téléphone *
+          - textbox "Téléphone *" [ref=e85]
+        - generic [ref=e86]:
+          - text: Prénom *
+          - textbox "Prénom *" [ref=e88]
+        - generic [ref=e89]:
+          - text: Nom *
+          - textbox "Nom *" [ref=e91]
+        - generic [ref=e92]:
+          - text: E-mail *
+          - textbox "E-mail *" [ref=e94]
+        - generic [ref=e95]:
+          - text: Mot de passe *
+          - textbox "Mot de passe *" [ref=e97]
+        - paragraph [ref=e98]:
+          - text: En créant mon compte je reconnais avoir lu et accepté les
+          - link "Conditions Générales d’Utilisation" [ref=e99] [cursor=pointer]:
+            - /url: /cgu
+          - text: .
+        - button "Valider" [ref=e100] [cursor=pointer]
+    - contentinfo [ref=e101]:
+      - generic [ref=e102]:
+        - paragraph [ref=e103]:
+          - link "Notre charte" [ref=e104] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e105]:
+          - link "CGU" [ref=e106] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e107]:
+          - link "Mentions légales" [ref=e108] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e109]:
+          - link "À propos" [ref=e110] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e111]:
+        - paragraph [ref=e112]:
+          - link "Assistance" [ref=e113] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e114]:
+          - link "Actualité" [ref=e115] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e116]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e117] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e118]: © 2026 Les Choux d’à Côté
+      - generic [ref=e119]:
+        - link [ref=e120] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e123] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e126] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e129]:
+      - paragraph [ref=e130]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e131] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e132]:
+        - button "Refuser" [ref=e133] [cursor=pointer]
+        - button "Accepter" [ref=e134] [cursor=pointer]
+  - alert [ref=e135]
