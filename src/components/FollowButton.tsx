@@ -22,8 +22,13 @@ interface Props {
 }
 
 const FollowButton = ({ producer }: Props) => {
-  const { user, toggleFollow } = useUser()
+  const { authUser, user, loading, toggleFollow } = useUser()
   const followed = isFollowed(producer, user)
+
+  // Connecté mais profil pas encore chargé : un clic redirigerait à tort vers la connexion
+  if (loading || (authUser && !user)) {
+    return null
+  }
 
   return (
     <Container
