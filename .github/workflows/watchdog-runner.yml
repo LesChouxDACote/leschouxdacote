@@ -1,0 +1,33 @@
+name: Watchdog quota runner
+on:
+  schedule:
+    - cron: "0 */6 * * *"    # toutes les 6 h
+  workflow_dispatch: {}
+
+jobs:
+  bascule:
+    runs-on: [self-hosted, LXC]
+    steps:
+      - name: Calcul de la cible
+        id: calc
+        env:
+          GH_PAT: ${{ secrets.ORG_BILLING_PAT }}
+        run: |
+          BILLING=$(curl -s -H "Authorization: Bearer $GH_PAT" \
+            https://api.github.com/orgs/LesChouxDACote/settings/billing/actions)
+          USED=$(echo "$BILLING" | jq -r '.minutes_used')
+          INCLUDED=$(echo "$BILLING" | jq -r '.included_minutes')
+          REMAINING=$((INCLUDED - USED))
+          if [ "$REMAINING" -lt 100 ]; then TARGET=e2e; else TARGET=ubuntu-latest; fi
+          echo "Quota: ${USED}/${INCLUDED} min, reste ${REMAINING} -> cible: ${TARGET}"
+          echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+
+      - name: Mise à jour de la variable
+        env:
+          GH_PAT: ${{ secrets.ORG_BILLING_PAT }}
+        run: |
+          curl -s -X PATCH \
+            -H "Authorization: Bearer $GH_PAT" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/LesChouxDACote/MON-REPO/actions/variables/RUNNER_TARGET \
+            -d "{\"value\":\"${{ steps.calc.outputs.target }}\"}"
