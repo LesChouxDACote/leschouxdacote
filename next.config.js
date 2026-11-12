@@ -23,4 +23,7 @@ module.exports = {
   reactStrictMode: true,
   // BUILD_CPUS limite les workers de génération statique (RAM limitée sur Coolify) ; sans effet ailleurs
   ...(process.env.BUILD_CPUS ? { cpus: Number(process.env.BUILD_CPUS) } : {}),
+  // NEXT_OUTPUT=standalone : l'image Docker de Kedalia ne garde que ce que le serveur lit (cf. Dockerfile) ; Vercel et la
+  // CI n'ont pas la variable et construisent comme avant
+  ...(process.env.NEXT_OUTPUT === "standalone" ? { output: "standalone" } : {}),
 }
