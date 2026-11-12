@@ -29,5 +29,5 @@ jobs:
           curl -s -X PATCH \
             -H "Authorization: Bearer $GH_PAT" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/LesChouxDACote/MON-REPO/actions/variables/RUNNER_TARGET \
+            https://api.github.com/repos/LesChouxDACote/leschouxdacote/actions/variables/RUNNER_TARGET \
             -d "{\"value\":\"${{ steps.calc.outputs.target }}\"}"
