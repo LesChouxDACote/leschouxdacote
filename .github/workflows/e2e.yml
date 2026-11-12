@@ -20,7 +20,7 @@ jobs:
   dev:
     # une pull request venue d'un fork n'a pas les secrets : ses tests ne pourraient que tomber
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_TARGET || 'ubuntu-latest' }}
 
     env:
       # Environnement develop (cf. e2e/README.md pour les secrets à créer)
