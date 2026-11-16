@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react"
+
 const ID = "GMAPS"
 
 type Callback = () => void
@@ -31,6 +33,56 @@ export const loadGmaps = () =>
     tag.onerror = reject
     document.head.appendChild(tag)
   })
+
+// Suggestions d'adresses Google sur un champ texte : renvoie le callback de ref à poser sur l'input,
+// et appelle onPlace à chaque adresse choisie dans la liste
+export const usePlacesAutocomplete = (onPlace: (place: google.maps.places.PlaceResult) => void) => {
+  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
+  const bound = useRef<HTMLInputElement | null>(null)
+  const callback = useRef(onPlace)
+
+  useEffect(() => {
+    callback.current = onPlace
+  })
+
+  return (el: HTMLInputElement | null) => {
+    if (!el) {
+      return
+    }
+
+    void loadGmaps().then(() => {
+      // vérifié après le chargement : chaque rendu rappelle ce callback pendant que Google Maps charge,
+      // et sans cela chacun créait son Autocomplete — des listes de suggestions superposées sur le même champ.
+      // Un champ remonté (ex. inscription : changement de rôle) est un nouvel élément, à rebrancher.
+      if (bound.current === el) {
+        return
+      }
+      if (autocomplete.current) {
+        google.maps.event.clearInstanceListeners(autocomplete.current)
+      }
+      bound.current = el
+      const instance = new google.maps.places.Autocomplete(el, {
+        componentRestrictions: { country: "fr" },
+        fields: ["geometry", "address_components", "place_id", "formatted_address"],
+        // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
+      })
+      autocomplete.current = instance
+      instance.addListener("place_changed", () => {
+        callback.current(instance.getPlace())
+      })
+    })
+  }
+}
+
+// Adresse affichée avec son code postal, sans le pays : « 1 Pl. du Capitole, 31000 Toulouse »
+export const formatAddress = ({ formatted_address, address_components }: google.maps.places.PlaceResult) => {
+  if (!formatted_address) {
+    return null
+  }
+  const country = address_components?.find(({ types }) => types.includes("country"))
+  const suffix = `, ${country?.long_name || "France"}`
+  return formatted_address.endsWith(suffix) ? formatted_address.slice(0, -suffix.length) : formatted_address
+}
 
 export const getCity = ({ address_components }: google.maps.places.PlaceResult) => {
   if (!address_components) {

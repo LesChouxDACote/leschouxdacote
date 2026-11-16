@@ -45,6 +45,7 @@ interface InputProps {
   name: string
   register: any
   value?: string
+  inputRef?: (el: any) => void
 }
 
 export const Input: React.FC<InputProps & Record<string, any>> = ({
@@ -55,16 +56,23 @@ export const Input: React.FC<InputProps & Record<string, any>> = ({
   type = "text",
   name,
   register,
+  inputRef,
   ...rest
 }) => {
+  const { ref, ...registered } = register(name)
+  // ref de register chaînée avec celle de l'appelant (ex. suggestions d'adresses)
+  const handleRef = (el: HTMLInputElement | HTMLTextAreaElement | null) => {
+    ref(el)
+    inputRef?.(el)
+  }
   return (
     <Label $error={Boolean(error)}>
       {label} {required && "*"}
       <Row>
         {rest.rows ? (
-          <textarea name={name} {...register(name)} {...rest} />
+          <textarea name={name} ref={handleRef} {...registered} {...rest} />
         ) : (
-          <input type={type} name={name} {...register(name)} {...rest} />
+          <input type={type} name={name} ref={handleRef} {...registered} {...rest} />
         )}
 
         {suffix && <Suffix>{suffix}</Suffix>}

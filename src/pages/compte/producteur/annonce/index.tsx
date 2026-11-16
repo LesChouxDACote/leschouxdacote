@@ -4,6 +4,7 @@ import { Schema as Sc, SchemaTransformation } from "effect"
 import { useRouter } from "next/router"
 import { useEffect, useRef, useState } from "react"
 import { DefaultValues, useFormContext } from "react-hook-form"
+import AddressInput from "src/components/AddressInput"
 import { Form, Row, SelectInput, SubmitButton, TextInput, ValidationError } from "src/components/Form"
 import HelpLink from "src/components/HelpLink"
 import ProductEndDate from "src/components/ProductEndDate"
@@ -15,7 +16,7 @@ import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import { sortSlots } from "src/helpers/date"
 import { useObjectQuery } from "src/helpers/firebase"
-import { getCity, getDpt, loadGmaps } from "src/helpers/google"
+import { getCity, getDpt } from "src/helpers/google"
 import { formatPricePerUnit } from "src/helpers/text"
 import { useUnsavedChanges } from "src/helpers/useUnsavedChanges"
 import { validatePhoneNumber } from "src/helpers/validators"
@@ -215,50 +216,30 @@ const EditProductPage = () => {
     push("/compte/producteur/annonces") // TODO: confirmation message
   }
 
-  const autocomplete = useRef<google.maps.places.Autocomplete | null>(null)
-  const handleRef = (el: HTMLInputElement | null) => {
-    if (!el) {
+  const handlePlace = (res: google.maps.places.PlaceResult) => {
+    if (!res.geometry || !res.address_components || !res.place_id) {
+      setPlace(null)
       return
     }
 
-    void loadGmaps().then(() => {
-      // vérifié après le chargement, comme SearchBar : chaque rendu rappelle handleRef pendant que Google Maps charge,
-      // et sans cela chacun créait son Autocomplete — des listes de suggestions superposées sur le même champ
-      if (autocomplete.current) {
-        return
-      }
-      autocomplete.current = new google.maps.places.Autocomplete(el, {
-        componentRestrictions: { country: "fr" },
-        fields: ["geometry", "address_components", "place_id"], // TODO: get more infos?
-        // types: ["geocode", "establishment"], // https://developers.google.com/places/web-service/supported_types#table3
-      })
-      autocomplete.current.addListener("place_changed", () => {
-        const res = autocomplete.current?.getPlace()
-        if (!res || !res.geometry || !res.address_components || !res.place_id) {
-          setPlace(null)
-          return
-        }
+    const city = getCity(res)
+    const dpt = getDpt(res)
+    if (!city || !dpt) {
+      setPlace(null)
+      return
+    }
 
-        const city = getCity(res)
-        const dpt = getDpt(res)
-        if (!city || !dpt) {
-          setPlace(null)
-          return
-        }
-
-        const { location } = res.geometry
-        if (!location) {
-          setPlace(null)
-          return
-        }
-        setPlace({
-          id: res.place_id,
-          lat: location.lat(),
-          lng: location.lng(),
-          city,
-          dpt,
-        })
-      })
+    const { location } = res.geometry
+    if (!location) {
+      setPlace(null)
+      return
+    }
+    setPlace({
+      id: res.place_id,
+      lat: location.lat(),
+      lng: location.lng(),
+      city,
+      dpt,
     })
   }
 
@@ -291,13 +272,13 @@ const EditProductPage = () => {
             </Row>
             <TextInput name="price" label="Prix total" required type="number" min={0} step={0.01} suffix="euros" />
             <PriceInfos />
-            <TextInput
+            <AddressInput
               name="address"
               label="Adresse de la vente (ferme, magasin, marché, point de distribution…)"
               required
               placeholder=""
               id="place"
-              ref={handleRef}
+              onPlace={handlePlace}
             />
             <TextInput name="description" label="Description" required rows={8} maxLength={4000} />
             <TagsInput label="Mots-clés" required />

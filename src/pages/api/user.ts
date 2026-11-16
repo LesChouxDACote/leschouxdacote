@@ -139,21 +139,37 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
       user.phone = normalizeNumber(user.phone)
     }
 
-    const updates: Readonly<Promise<any>>[] = [userRef.update(user)]
+    // le profil d'abord : seul un échec de son enregistrement est une erreur pour le producteur
+    await userRef.update(user)
 
-    if (isProducer) {
+    if (isProducer && user.name) {
+      // data fan-out du nom : un abonné ou une annonce qui ne se met pas à jour (ex. compte supprimé)
+      // est journalisé, sans faire échouer l'enregistrement du profil
+      const targets: string[] = []
+      const updates: Readonly<Promise<any>>[] = []
       for (const uid in userData.followers) {
+        targets.push(`abonné ${uid}`)
         updates.push(usersCollection.doc(uid).update({ [`followedProducers.${token.uid}.name`]: user.name }))
       }
 
-      const products = await firestore.collection("products").where("uid", "==", token.uid).get()
-      products.forEach((doc) => {
-        updates.push(doc.ref.update({ producer: user.name }))
-        updates.push(productsIndex.partialUpdateObject({ objectID: doc.id, producer: user.name }))
+      try {
+        const products = await firestore.collection("products").where("uid", "==", token.uid).get()
+        products.forEach((doc) => {
+          targets.push(`annonce ${doc.id}`, `index de l'annonce ${doc.id}`)
+          updates.push(doc.ref.update({ producer: user.name }))
+          updates.push(productsIndex.partialUpdateObject({ objectID: doc.id, producer: user.name }))
+        })
+      } catch (error) {
+        console.error("user: échec de la mise à jour du nom", "annonces du producteur", error)
+      }
+
+      const results = await Promise.allSettled(updates)
+      results.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.error("user: échec de la mise à jour du nom", targets[i], result.reason)
+        }
       })
     }
-
-    await Promise.all(updates)
 
     return respond(res)
   }

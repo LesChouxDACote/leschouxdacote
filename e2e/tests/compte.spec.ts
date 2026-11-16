@@ -3,6 +3,7 @@ import { expect, type Page, test } from "@playwright/test"
 import { ACCOUNTS, hasAccounts } from "../helpers/config"
 import { login, logout, openUserMenu } from "../helpers/auth"
 import { acceptDialogs, expectAlertTimes } from "../helpers/dialogs"
+import { fillAddress, TEST_ADDRESS } from "../helpers/produit"
 
 // Parcours « compte » : profil acheteur/producteur et alertes.
 
@@ -54,6 +55,40 @@ test.describe("Compte", () => {
     await page.goto("/compte/profil")
     await expect(page.locator('input[name="name"]')).toBeVisible()
     await expect(page.locator('textarea[name="description"]')).toBeVisible()
+  })
+
+  test("le producteur enregistre son profil", async ({ page }) => {
+    const messages = acceptDialogs(page)
+    await login(page, "producer")
+    await page.goto("/compte/profil")
+    const description = page.locator('textarea[name="description"]')
+    await expect(description).not.toHaveValue("")
+    // Attend la réponse de chaque enregistrement : succès, et jamais « Une erreur est survenue »
+    const save = async (times: number) => {
+      await page.getByRole("button", { name: "Valider" }).click()
+      await expect.poll(() => messages.length).toBe(times)
+      expect(messages[times - 1]).toContain("Modifications effectuées")
+    }
+    // Sans rien modifier : l'enregistrement aboutit (le nom est recopié chez les abonnés et dans les annonces)
+    await save(1)
+    // Modification de la description, puis retour à la valeur d'origine (données de dev réelles).
+    const original = await description.inputValue()
+    await description.fill(`${original} (E2E)`)
+    await save(2)
+    await description.fill(original)
+    await save(3)
+    await expect(description).toHaveValue(original)
+  })
+
+  test("l'adresse du producteur propose les suggestions Google, avec le code postal", async ({ page }) => {
+    await login(page, "producer")
+    await page.goto("/compte/profil")
+    const address = page.locator('input[name="address"]')
+    await expect(address).toBeVisible()
+    // Rien n'est enregistré : on vérifie seulement ce que la suggestion écrit dans le champ.
+    await fillAddress(page, TEST_ADDRESS, 'input[name="address"]')
+    await expect(address).toHaveValue(/\b\d{5} \S/)
+    await expect(address).not.toHaveValue(/France$/)
   })
 })
 

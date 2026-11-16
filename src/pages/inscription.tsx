@@ -7,6 +7,7 @@ import { Input, Radio, Radios, Required, StyledForm, Title } from "src/component
 import { USER_ROLE } from "src/constants"
 import api from "src/helpers/api"
 import { handleError } from "src/helpers/errors"
+import { formatAddress, usePlacesAutocomplete } from "src/helpers/google"
 import { MIN_PASSWORD_LENGTH } from "src/helpers/validators"
 import { registerResolver } from "src/helpers/yup"
 import Layout from "src/layout"
@@ -31,6 +32,7 @@ const RegisterPage = () => {
     register,
     handleSubmit,
     setError,
+    setValue,
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -39,6 +41,13 @@ const RegisterPage = () => {
   })
 
   const role = watch("role")
+
+  const addressRef = usePlacesAutocomplete((place) => {
+    const address = formatAddress(place)
+    if (address) {
+      setValue("address", address, { shouldDirty: true, shouldValidate: true })
+    }
+  })
 
   interface FormRegisteringUser {
     address?: string | undefined
@@ -110,7 +119,15 @@ Nous espérons lever cette limitation dans les semaines à venir.`)
               register={register}
               maxLength={180}
             />
-            <Input label="Adresse" error={errors.name} required name="address" register={register} rows={3} />
+            <Input
+              label="Adresse"
+              error={errors.address}
+              required
+              name="address"
+              register={register}
+              inputRef={addressRef}
+              autoComplete="off"
+            />
             <Input
               label="Description"
               error={errors.description}

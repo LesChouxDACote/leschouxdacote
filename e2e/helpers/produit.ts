@@ -38,10 +38,10 @@ export async function gotoMyProducts(page: Page) {
   await page.goto("/compte/producteur/annonces")
 }
 
-// Champ « Adresse de la vente » : Google Places (réseau externe). On saisit l'adresse puis on
-// clique la première suggestion de la liste déroulante.
-export async function fillAddress(page: Page, address: string) {
-  await page.locator("#place").fill(address)
+// Champ d'adresse (par défaut « Adresse de la vente ») : Google Places (réseau externe). On saisit
+// l'adresse puis on clique la première suggestion de la liste déroulante.
+export async function fillAddress(page: Page, address: string, selector = "#place") {
+  await page.locator(selector).fill(address)
   const suggestion = page.locator(".pac-container:visible .pac-item").first()
   await suggestion.waitFor({ timeout: 20000 })
   await suggestion.click()
@@ -63,6 +63,8 @@ export async function fillProductForm(page: Page) {
   await page.locator('select[name="unit"]').selectOption("kg")
   await page.locator('input[name="price"]').fill(TEST_PRODUCT_PRICE)
   await fillAddress(page, TEST_ADDRESS)
+  // L'adresse choisie s'écrit avec son code postal, sans le pays
+  await expect(page.locator("#place")).toHaveValue(/31000 Toulouse$/)
   await page.locator('textarea[name="description"]').fill(TEST_PRODUCT_DESCRIPTION)
   await addTag(page, "légume")
   // Switch « Bio ou agriculture raisonnée » (décoché par défaut à la création)
