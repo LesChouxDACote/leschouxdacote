@@ -30,10 +30,19 @@ interface Props {
 }
 
 const FollowButton = ({ producer }: Props) => {
+<<<<<<< HEAD
   const { loading, authUser, user, toggleFollow } = useUser()
+=======
+  const { authUser, user, loading, toggleFollow } = useUser()
+>>>>>>> origin/develop
   const followed = isFollowed(producer, user)
   // Tant que la session ou le profil ne sont pas chargés, toggleFollow redirigerait vers la connexion
   const pending = loading || (authUser !== null && user === null)
+
+  // Connecté mais profil pas encore chargé : un clic redirigerait à tort vers la connexion
+  if (loading || (authUser && !user)) {
+    return null
+  }
 
   return (
     // Bulle native (title) : elle décrit le bouton sans remplacer son nom accessible (« Suivre le producteur »)

@@ -278,6 +278,9 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
 
   const unitLabel = unit ? UNIT_LABELS[unit] : ""
   const instructions = (selectedSlot ?? reservableSlots[0])?.reservation.instructions ?? null
+  const selectedKey = selectedSlot
+    ? getSlotKey(selectedSlot.date, selectedSlot.heureDebut, selectedSlot.heureFin)
+    : null
   const ownSlotUpcoming = booking != null && getSlotEnd(new Date(booking.slotDate), booking.heureFin) >= now
 
   const getSlotBooked = (slot: ReservableSlot) => booked[getSlotKey(slot.date, slot.heureDebut, slot.heureFin)] ?? 0
@@ -490,12 +493,14 @@ const ReservationSection = ({ productId, slots, unit }: ReservationSectionProps)
           <SlotsRow>
             {reservableSlots.map((slot) => {
               const full = isFull(slot)
-              const selected = slot === selectedSlot
+              const key = getSlotKey(slot.date, slot.heureDebut, slot.heureFin)
+              // Comparé par clé : la page redécode ses créneaux à chaque rendu, les objets changent
+              const selected = key === selectedKey
 
               // Créneau choisi : bouton plein avec une coche, les autres en contour
               return (
                 <Button
-                  key={getSlotKey(slot.date, slot.heureDebut, slot.heureFin)}
+                  key={key}
                   variant={selected ? "contained" : "outlined"}
                   startIcon={selected ? <Check /> : undefined}
                   aria-pressed={selected}
