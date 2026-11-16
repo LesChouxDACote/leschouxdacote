@@ -96,7 +96,7 @@ test.describe("Consultation", () => {
     await page.getByRole("link", { name: "Assistance" }).click()
     await expect(page).toHaveURL(/\/aide$/)
     await expect(page.getByRole("heading", { name: "Aide en ligne" })).toBeVisible()
-    // exact : « Modifier ou republier une annonce » contient aussi ce libellé
+    // exact : « Modifier ou republier une annonce » contient aussi « publier une annonce »
     await expect(page.getByRole("link", { name: "Publier une annonce", exact: true })).toBeVisible()
 
     // sans accent : « creneau » trouve « Créer des créneaux de retrait »

@@ -1,0 +1,71 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - banner [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - link [ref=f5e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f5e42]:
+          - generic [ref=f5e43]:
+            - generic [ref=f5e44]:
+              - textbox "Que recherchez-vous ?" [ref=f5e45]
+              - textbox "Où ?" [ref=f5e46]
+            - button [ref=f5e47] [cursor=pointer]
+          - generic "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=f5e51] [cursor=pointer]:
+            - switch "Bio & raisonné" [ref=f5e54]
+            - generic [ref=f5e57]: Bio & raisonné
+    - main [ref=f5e60]:
+      - generic [ref=f5e63]:
+        - heading "Connexion" [level=1] [ref=f5e64]
+        - generic [ref=f5e65]:
+          - text: Email *
+          - textbox "Email *" [ref=f5e67]
+        - generic [ref=f5e68]:
+          - text: Mot de passe *
+          - textbox "Mot de passe *" [ref=f5e70]
+        - link "Mot de passe oublié ?" [ref=f5e72] [cursor=pointer]:
+          - /url: /mot-de-passe-oublie
+        - button "Se connecter" [ref=f5e73] [cursor=pointer]
+        - link "Pas encore inscrit ? Créer un compte" [ref=f5e75] [cursor=pointer]:
+          - /url: /inscription
+    - contentinfo [ref=f5e76]:
+      - generic [ref=f5e77]:
+        - paragraph [ref=f5e78]:
+          - link "Notre charte" [ref=f5e79] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=f5e80]:
+          - link "CGU" [ref=f5e81] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=f5e82]:
+          - link "Mentions légales" [ref=f5e83] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=f5e84]:
+          - link "À propos" [ref=f5e85] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=f5e86]:
+        - paragraph [ref=f5e87]:
+          - link "Assistance" [ref=f5e88] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=f5e89]:
+          - link "Actualité" [ref=f5e90] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=f5e91]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=f5e92] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=f5e93]: © 2026 Les Choux d’à Côté
+      - generic [ref=f5e94]:
+        - link [ref=f5e95] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=f5e98] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=f5e101] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=f5e104]:
+      - paragraph [ref=f5e105]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=f5e106] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=f5e107]:
+        - button "Refuser" [ref=f5e108] [cursor=pointer]
+        - button "Accepter" [ref=f5e109] [cursor=pointer]
+  - alert [ref=f5e110]
