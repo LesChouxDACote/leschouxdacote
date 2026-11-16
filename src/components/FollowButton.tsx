@@ -30,11 +30,7 @@ interface Props {
 }
 
 const FollowButton = ({ producer }: Props) => {
-<<<<<<< HEAD
   const { loading, authUser, user, toggleFollow } = useUser()
-=======
-  const { authUser, user, loading, toggleFollow } = useUser()
->>>>>>> origin/develop
   const followed = isFollowed(producer, user)
   // Tant que la session ou le profil ne sont pas chargés, toggleFollow redirigerait vers la connexion
   const pending = loading || (authUser !== null && user === null)
