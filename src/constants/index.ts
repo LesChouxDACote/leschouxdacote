@@ -2,7 +2,7 @@ import { lighten, transparentize } from "polished"
 import type { Unit } from "src/types/model"
 
 export const CONTACT_EMAIL = "contact@leschouxdacote.fr"
-export const MAX_PUBLICATION_DAYS = 90
+export const MAX_PUBLICATION_DAYS = 365
 
 export const UNIT_LABELS: Record<Unit, string> = {
   g: "g",

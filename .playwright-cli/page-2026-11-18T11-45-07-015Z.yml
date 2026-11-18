@@ -1,0 +1,99 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - textbox "Que recherchez-vous ?" [ref=e45]
+              - textbox "Où ?" [ref=e46]
+            - button [ref=e47] [cursor=pointer]
+          - generic "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e51] [cursor=pointer]:
+            - switch "Bio & raisonné" [ref=e54]
+            - generic [ref=e57]: Bio & raisonné
+        - link "Se connecter" [ref=e58] [cursor=pointer]:
+          - /url: /connexion
+    - main [ref=e60]:
+      - generic [ref=e62]:
+        - link "← Retour à l'aide" [ref=e63] [cursor=pointer]:
+          - /url: /aide
+        - heading "Publier une annonce" [level=1] [ref=e64]
+        - paragraph [ref=e65]:
+          - text: Dans le menu, cliquez sur
+          - strong [ref=e66]: Créer une annonce
+          - text: ", puis renseignez :"
+        - list [ref=e67]:
+          - listitem [ref=e68]: un titre ;
+          - listitem [ref=e69]: la quantité et l'unité (g, kg, litre(s), pièce(s)) ;
+          - listitem [ref=e70]: "le prix total : le prix au kilo, au litre ou à la pièce est calculé automatiquement ;"
+          - listitem [ref=e71]:
+            - text: l'adresse de la vente (ferme, magasin, marché…),
+            - strong [ref=e72]: à choisir dans la liste qui s'affiche
+            - text: pendant la saisie ;
+          - listitem [ref=e73]: une description, des mots-clés et une photo ;
+          - listitem [ref=e74]: une adresse e-mail ou un téléphone (au moins l'un des deux).
+        - paragraph [ref=e75]:
+          - text: Choisissez enfin une durée de publication, de 1 à 365 jours, puis cliquez sur
+          - strong [ref=e76]: Enregistrer l'annonce
+          - text: . Avec une durée de 0 jour, l'annonce est enregistrée mais pas publiée.
+        - paragraph [ref=e77]: L'annonce apparaît en ligne quelques minutes après l'enregistrement.
+        - paragraph [ref=e78]:
+          - text: "Pour proposer des retraits sur réservation, ajoutez des créneaux dans la même page : voir"
+          - link "Créer des créneaux de retrait" [ref=e79] [cursor=pointer]:
+            - /url: /aide/creneaux
+          - text: .
+        - heading "Conseils pour une bonne annonce" [level=2] [ref=e80]
+        - list [ref=e81]:
+          - listitem [ref=e82]: Une photo nette et lumineuse de votre produit.
+          - listitem [ref=e83]: "Un titre précis : « Pommes Reinette bio – 1 kg » plutôt que « Pommes »."
+          - listitem [ref=e84]: "Dans la description : la variété, le mode de culture ou d'élevage, et les modalités de retrait."
+          - listitem [ref=e85]: Des mots-clés que vos clients taperaient pour vous trouver (« légumes », « fromage de chèvre »…).
+        - paragraph [ref=e86]:
+          - text: Vous ne trouvez pas la réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=e87] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=e88]:
+      - generic [ref=e89]:
+        - paragraph [ref=e90]:
+          - link "Notre charte" [ref=e91] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e92]:
+          - link "CGU" [ref=e93] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e94]:
+          - link "Mentions légales" [ref=e95] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e96]:
+          - link "À propos" [ref=e97] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e98]:
+        - paragraph [ref=e99]:
+          - link "Assistance" [ref=e100] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e101]:
+          - link "Actualité" [ref=e102] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e103]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e104] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e105]: © 2026 Les Choux d’à Côté
+      - generic [ref=e106]:
+        - link [ref=e107] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e110] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e113] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e116]:
+      - paragraph [ref=e117]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e118] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e119]:
+        - button "Refuser" [ref=e120] [cursor=pointer]
+        - button "Accepter" [ref=e121] [cursor=pointer]
+  - alert [ref=e122]

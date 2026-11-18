@@ -1,0 +1,103 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - textbox "Que recherchez-vous ?" [ref=e45]
+              - textbox "Où ?" [ref=e46]
+            - button [ref=e47] [cursor=pointer]
+          - generic "Uniquement des produits Bio ou issus de l'Agriculture raisonnée" [ref=e51] [cursor=pointer]:
+            - switch "Bio & raisonné" [ref=e54]
+            - generic [ref=e57]: Bio & raisonné
+    - main [ref=e60]:
+      - generic [ref=e62]:
+        - link "← Retour à l'aide" [ref=e63] [cursor=pointer]:
+          - /url: /aide
+        - heading "Modifier ou republier une annonce" [level=1] [ref=e64]
+        - heading "Modifier une annonce" [level=2] [ref=e65]
+        - list [ref=e66]:
+          - listitem [ref=e67]:
+            - text: Dans le menu, ouvrez
+            - strong [ref=e68]: Mes annonces
+            - text: .
+          - listitem [ref=e69]:
+            - text: Cliquez sur
+            - strong [ref=e70]: Modifier
+            - text: sous l'annonce.
+          - listitem [ref=e71]:
+            - text: Faites vos changements, puis cliquez sur
+            - strong [ref=e72]: Enregistrer l'annonce
+            - text: .
+        - paragraph [ref=e73]:
+          - text: Tant que vos changements ne sont pas enregistrés, le message
+          - strong [ref=e74]: Modifications non enregistrées
+          - text: s'affiche en rouge. La modification est visible en ligne quelques minutes après l'enregistrement.
+        - heading "Prolonger ou republier une annonce" [level=2] [ref=e75]
+        - list [ref=e76]:
+          - listitem [ref=e77]:
+            - text: "Annonce en ligne : dans"
+            - strong [ref=e78]: Mes annonces
+            - text: ", cliquez sur"
+            - strong [ref=e79]: Ajouter des jours
+            - text: .
+          - listitem [ref=e80]:
+            - text: "Annonce terminée ou désactivée : cliquez sur"
+            - strong [ref=e81]: Publier l’annonce
+            - text: et choisissez une durée (jusqu'à 365 jours).
+        - heading "Désactiver ou supprimer une annonce" [level=2] [ref=e82]
+        - list [ref=e83]:
+          - listitem [ref=e84]:
+            - strong [ref=e85]: Désactiver l’annonce
+            - text: la retire du site ; vous pourrez la republier plus tard.
+          - listitem [ref=e86]: La corbeille la supprime définitivement. Si des clients ont réservé un créneau à venir, vous en êtes averti avant de confirmer.
+        - paragraph [ref=e87]:
+          - text: Vous ne trouvez pas la réponse ? Écrivez-nous à
+          - link "contact@leschouxdacote.fr" [ref=e88] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+          - text: .
+    - contentinfo [ref=e89]:
+      - generic [ref=e90]:
+        - paragraph [ref=e91]:
+          - link "Notre charte" [ref=e92] [cursor=pointer]:
+            - /url: /charte
+        - paragraph [ref=e93]:
+          - link "CGU" [ref=e94] [cursor=pointer]:
+            - /url: /cgu
+        - paragraph [ref=e95]:
+          - link "Mentions légales" [ref=e96] [cursor=pointer]:
+            - /url: /mentions-legales
+        - paragraph [ref=e97]:
+          - link "À propos" [ref=e98] [cursor=pointer]:
+            - /url: /a-propos
+      - generic [ref=e99]:
+        - paragraph [ref=e100]:
+          - link "Assistance" [ref=e101] [cursor=pointer]:
+            - /url: /aide
+        - paragraph [ref=e102]:
+          - link "Actualité" [ref=e103] [cursor=pointer]:
+            - /url: /actualite
+        - paragraph [ref=e104]:
+          - text: "Contact :"
+          - link "contact@leschouxdacote.fr" [ref=e105] [cursor=pointer]:
+            - /url: mailto:contact@leschouxdacote.fr
+        - paragraph [ref=e106]: © 2026 Les Choux d’à Côté
+      - generic [ref=e107]:
+        - link [ref=e108] [cursor=pointer]:
+          - /url: https://www.facebook.com/leschouxdacote
+        - link [ref=e111] [cursor=pointer]:
+          - /url: https://twitter.com/leschouxdacote
+        - link [ref=e114] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/les-choux-d-%C3%A0-c%C3%B4t%C3%A9/
+    - region "Cookies" [ref=e117]:
+      - paragraph [ref=e118]:
+        - text: Nous utilisons Google Analytics pour mesurer la fréquentation du site et l'améliorer. Ces cookies ne sont déposés qu'avec votre accord. Votre refus n'empêche pas l'utilisation du site.
+        - link "En savoir plus" [ref=e119] [cursor=pointer]:
+          - /url: /charte
+      - generic [ref=e120]:
+        - button "Refuser" [ref=e121] [cursor=pointer]
+        - button "Accepter" [ref=e122] [cursor=pointer]
+  - alert [ref=e123]
