@@ -35,6 +35,60 @@ test.describe("Consultation", () => {
     await expect(page.getByRole("heading", { name: "Les producteurs près de chez vous" })).toBeVisible()
   })
 
+  test("la recherche sans mot-clé n'affiche pas d'erreur quand une annonce n'a pas de position", async ({ page }) => {
+    await page.route("**/1/indexes/*/queries*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          results: [
+            {
+              hits: [
+                {
+                  objectID: "avec-geoloc",
+                  created: 1700000000000,
+                  uid: "prod-1",
+                  title: "Pommes du verger",
+                  price: 500,
+                  address: "1 Place du Capitole, 31000 Toulouse",
+                  _geoloc: { lat: 43.6047, lng: 1.4442 },
+                  placeId: "place-1",
+                  city: "Toulouse",
+                  dpt: "31",
+                  description: "Pommes croquantes",
+                  photo: "/logo.svg",
+                  producer: "Verger du Sud",
+                },
+                {
+                  objectID: "sans-geoloc",
+                  created: 1700000000000,
+                  uid: "prod-2",
+                  title: "Miel de montagne",
+                  price: 800,
+                  address: "Place de la Mairie",
+                  placeId: "place-2",
+                  city: "Foix",
+                  dpt: "09",
+                  description: "Miel toutes fleurs",
+                  photo: "/logo.svg",
+                  producer: "Rucher d'Ariège",
+                },
+              ],
+            },
+          ],
+        }),
+      })
+    })
+    const markerLoaded = page.waitForResponse((res) => res.url().endsWith("/marker.png"))
+    await page.goto("/recherche?what=")
+    await expect(page.getByRole("heading", { name: "Les producteurs près de chez vous" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Pommes du verger" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Miel de montagne" })).toBeVisible()
+    await markerLoaded
+    await expect(page.getByRole("heading", { name: "Les producteurs près de chez vous" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /Une erreur est survenue/ })).toHaveCount(0)
+  })
+
   test("le filtre bio n'affiche que des annonces bio", async ({ page }) => {
     await page.goto(`${SEARCH_URL}&bio=1`)
     await expect(page.getByRole("heading", { name: "Les producteurs près de chez vous" })).toBeVisible()
