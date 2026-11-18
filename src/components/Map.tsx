@@ -209,6 +209,10 @@ const Mapbox = ({ products }: MapProps) => {
 
     const places: Places = {}
     products.forEach((product) => {
+      // Certaines annonces anciennes n'ont pas de coordonnées : on les laisse dans la liste sans repère
+      if (!product._geoloc) {
+        return
+      }
       const id = getPlaceId(product)
       if (!places[id]) {
         places[id] = {
