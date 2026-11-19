@@ -1,0 +1,67 @@
+name: Production
+
+# La branche production suit develop : dès que Verify et E2E tests sont verts sur un même commit poussé sur develop,
+# production avance jusqu'à ce commit. Le Coolify de prod (application sur la branche production, webhook GitHub
+# vers deploy.kedalia.com) déploie alors ce push. Un push fait avec GITHUB_TOKEN ne relance aucun workflow, mais les
+# webhooks du dépôt le reçoivent bien.
+#
+# L'avance se fait sans forcer : si quelqu'un pousse sur production un commit absent de develop, ce workflow tombe
+# au rouge au lieu de l'écraser. Un commit déjà contenu dans production (un ancien run qui finit après un plus récent)
+# est ignoré.
+on:
+  workflow_run:
+    workflows:
+      - Verify
+      - E2E tests
+    types:
+      - completed
+    branches:
+      - develop
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  promote:
+    if: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Les deux workflows sont-ils verts sur ce commit ?
+        id: green
+        run: |
+          for wf in kedalia.yml e2e.yml; do
+            conclusion=$(gh api "repos/${{ github.repository }}/actions/workflows/$wf/runs?head_sha=$SHA&event=push&branch=develop&per_page=1" \
+              --jq '.workflow_runs[0].conclusion // "absent"')
+            echo "$wf : $conclusion"
+            if [ "$conclusion" != "success" ]; then
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: steps.green.outputs.ready == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Avancer production
+        if: steps.green.outputs.ready == 'true'
+        run: |
+          git fetch origin production
+          if git merge-base --is-ancestor "$SHA" origin/production; then
+            echo "production contient déjà $SHA"
+            exit 0
+          fi
+          git push origin "$SHA:refs/heads/production"
+          echo "production avancée à $SHA" >> "$GITHUB_STEP_SUMMARY"
