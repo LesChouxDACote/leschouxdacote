@@ -1,11 +1,11 @@
 import styled from "@emotion/styled"
 import FavoriteIcon from "@mui/icons-material/FavoriteBorder"
 import { useCallback, useState } from "react"
-import AccountProduct from "src/components/AccountProduct"
+import AccountProduct, { AccountProductVariant } from "src/components/AccountProduct"
 import FollowersModal from "src/components/FollowersModal"
 import { ButtonLink } from "src/components/Link"
 import { Loading } from "src/components/Loader"
-import { COLORS, LAYOUT, SIZES } from "src/constants"
+import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import { useUser } from "src/helpers/auth"
 import { useQuery } from "src/helpers/firebase"
 import { s } from "src/helpers/text"
@@ -14,6 +14,13 @@ import { ProductEncoded } from "src/models/Product"
 import type { Producer } from "src/types/model"
 
 type Tab = "all" | "online" | "disabled"
+
+const LAYOUT_OPTIONS: { id: AccountProductVariant; label: string; description: string }[] = [
+  { id: "v1", label: "Proposition 1", description: "3 colonnes (Photo · Infos · Créneaux)" },
+  { id: "v2", label: "Proposition 2", description: "Pilotage et vues regroupés à droite" },
+  { id: "v3", label: "Proposition 3", description: "Créneaux en étiquettes et vues à droite" },
+  { id: "current", label: "Actuel", description: "Affichage d’origine" },
+]
 
 const Title = styled.h1`
   text-align: center;
@@ -69,6 +76,49 @@ const Empty = styled.div`
     margin-bottom: 20px;
   }
 `
+const LayoutSwitcher = styled.div`
+  margin: 24px 0 -16px;
+  padding: 14px 16px;
+  background-color: ${COLORS.odd};
+  border: 1px solid ${COLORS.border};
+  border-radius: ${RADIUS}px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+`
+const LayoutSwitcherLabel = styled.div`
+  font-size: ${SIZES.regular}px;
+  font-weight: 400;
+  span {
+    display: block;
+    font-size: ${SIZES.small}px;
+    font-weight: 300;
+    color: ${COLORS.muted};
+  }
+`
+const LayoutButtons = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`
+const LayoutOption = styled.button<{ $active: boolean }>`
+  padding: 8px 14px;
+  border-radius: ${RADIUS}px;
+  border: 1px solid ${({ $active }) => ($active ? COLORS.green : COLORS.border)};
+  background-color: ${({ $active }) => ($active ? COLORS.green : COLORS.white)};
+  color: ${({ $active }) => ($active ? COLORS.white : COLORS.text)};
+  font-size: ${SIZES.small}px;
+  font-weight: ${({ $active }) => ($active ? 400 : 300)};
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms;
+  &:hover {
+    border-color: ${COLORS.green};
+  }
+`
 
 const TABS: { id: Tab; title: string; empty: string }[] = [
   { id: "all", title: "Toutes mes annonces", empty: "Aucune annonce pour le moment." },
@@ -79,6 +129,7 @@ const TABS: { id: Tab; title: string; empty: string }[] = [
 const MyAdsPage = () => {
   const { user } = useUser<Producer>()
   const [tab, setTab] = useState<Tab>("all")
+  const [layout, setLayout] = useState<AccountProductVariant>("v1")
   const [followersOpen, setFollowersOpen] = useState(false)
   const closeFollowers = useCallback(() => setFollowersOpen(false), [])
 
@@ -92,6 +143,8 @@ const MyAdsPage = () => {
     online: data.filter(({ expires }) => expires && expires > now),
     disabled: data.filter(({ expires }) => !expires || expires <= now),
   }
+
+  const currentLayoutOption = LAYOUT_OPTIONS.find(({ id }) => id === layout)
 
   const renderContent = () => {
     if (loading || !user) {
@@ -109,6 +162,25 @@ const MyAdsPage = () => {
     }
     return (
       <>
+        <LayoutSwitcher>
+          <LayoutSwitcherLabel>
+            Présentation des cartes
+            {currentLayoutOption && <span>{currentLayoutOption.description}</span>}
+          </LayoutSwitcherLabel>
+          <LayoutButtons role="group" aria-label="Présentation des cartes">
+            {LAYOUT_OPTIONS.map(({ id, label }) => (
+              <LayoutOption
+                key={id}
+                type="button"
+                aria-pressed={id === layout}
+                $active={id === layout}
+                onClick={() => setLayout(id)}
+              >
+                {label}
+              </LayoutOption>
+            ))}
+          </LayoutButtons>
+        </LayoutSwitcher>
         <Tabs role="tablist">
           {TABS.map(({ id, title }) => (
             <Tab key={id} role="tab" aria-selected={id === tab} $active={id === tab} onClick={() => setTab(id)}>
@@ -118,7 +190,7 @@ const MyAdsPage = () => {
         </Tabs>
         {tabsData[tab].length === 0 && <Empty>{TABS.find(({ id }) => id === tab)?.empty}</Empty>}
         {tabsData[tab].map((product, index) => (
-          <AccountProduct key={product.objectID} product={product} odd={index % 2 === 0} />
+          <AccountProduct key={product.objectID} product={product} odd={index % 2 === 0} variant={layout} />
         ))}
       </>
     )
