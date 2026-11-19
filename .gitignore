@@ -65,3 +65,6 @@ litellm_config.yaml
 # claude code (réglages personnels, worktrees)
 .claude/settings.local.json
 .claude/worktrees/
+
+# traces de playwright-cli (agent Kedalia)
+.playwright-cli/
