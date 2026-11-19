@@ -32,9 +32,7 @@ import type { Booking } from "src/types/model"
 // Nombre de créneaux à venir affichés avant « Voir tous les créneaux »
 const VISIBLE_SLOTS = 3
 
-export type AccountProductVariant = "current" | "v1" | "v2" | "v3"
-
-const Container = styled.div<{ $odd?: boolean; $variant: AccountProductVariant }>`
+const Container = styled.div<{ $odd?: boolean }>`
   position: relative;
   margin: 20px 0;
   background-color: ${({ $odd }) => ($odd ? COLORS.odd : COLORS.white)};
@@ -44,16 +42,6 @@ const Container = styled.div<{ $odd?: boolean; $variant: AccountProductVariant }
   &:hover {
     box-shadow: 0 3px 8px ${COLORS.shadow.light};
   }
-  ${({ $variant }) =>
-    $variant === "v2" &&
-    css`
-      @media (min-width: ${LAYOUT.mobile}px) {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 310px;
-        grid-template-rows: auto 1fr;
-        column-gap: 24px;
-      }
-    `}
   @media (max-width: ${LAYOUT.mobile}px) {
     margin: 0 -24px;
     border-radius: 0;
@@ -64,55 +52,19 @@ const aboveLink = css`
   position: relative;
   z-index: 1;
 `
-const Ad = styled.div<{ $variant: AccountProductVariant }>`
+const Ad = styled.div`
   display: grid;
-  grid-template-columns: 200px 1fr;
-  grid-template-areas: "image infos" "days infos";
-  grid-template-rows: auto 1fr;
+  grid-template-columns: 200px 1fr auto;
+  grid-template-areas: "image infos days";
   column-gap: 20px;
   @media (min-width: ${LAYOUT.mobile}px) {
     margin-bottom: 15px;
     padding-bottom: 20px;
     border-bottom: 1px solid ${COLORS.border};
-    ${({ $variant }) =>
-      $variant === "v1" &&
-      css`
-        grid-template-columns: 200px minmax(200px, 1fr) minmax(260px, 1.15fr);
-        grid-template-areas:
-          "image infos slots"
-          "days infos slots";
-        column-gap: 24px;
-        align-items: start;
-      `}
-    ${({ $variant }) =>
-      $variant === "v2" &&
-      css`
-        grid-column: 1;
-        grid-row: 1 / span 2;
-        margin-bottom: 0;
-        padding-bottom: 0;
-        padding-right: 24px;
-        border-bottom: none;
-        border-right: 1px solid ${COLORS.border};
-      `}
-    ${({ $variant }) =>
-      $variant === "v3" &&
-      css`
-        grid-template-columns: 200px minmax(0, 1fr) 150px;
-        grid-template-areas:
-          "image infos stats"
-          "days slots slots";
-        column-gap: 20px;
-        row-gap: 12px;
-      `}
   }
   @media (max-width: ${LAYOUT.mobile}px) {
     grid-template-columns: 80px 1fr;
-    grid-template-areas:
-      "image infos"
-      "days days"
-      "stats stats"
-      "slots slots";
+    grid-template-areas: "image infos" "days days";
     column-gap: 12px;
   }
 `
@@ -130,16 +82,13 @@ const Image = styled.div`
     }
   }
 `
-const Infos = styled.div<{ $variant: AccountProductVariant }>`
+const Infos = styled.div`
   grid-area: infos;
   min-width: 0;
   h4 {
     font-size: ${SIZES.subtitle}px;
     font-weight: normal;
     margin: 0 0 5px;
-    @media (min-width: ${LAYOUT.mobile}px) {
-      padding-right: ${({ $variant }) => ($variant === "current" ? "160px" : "0")};
-    }
     a::after {
       content: "";
       position: absolute;
@@ -147,74 +96,35 @@ const Infos = styled.div<{ $variant: AccountProductVariant }>`
     }
   }
 `
-const ProductMeta = styled.div<{ $variant: AccountProductVariant }>`
-  color: ${({ $variant }) => ($variant === "current" ? COLORS.text : COLORS.muted)};
-`
 const Days = styled.div`
   grid-area: days;
-  margin: 8px 0 0;
   color: ${COLORS.text};
   font-size: ${SIZES.regular}px;
+  @media (min-width: ${LAYOUT.mobile}px) {
+    margin: 44px 0 0;
+    text-align: right;
+  }
   @media (max-width: ${LAYOUT.mobile}px) {
     margin: 12px 0 0;
   }
 `
-const SlotsBlock = styled.div<{ $variant: AccountProductVariant; $odd?: boolean }>`
+const SlotsBlock = styled.div`
   margin: 15px 0 0;
-  ${({ $variant }) =>
-    ($variant === "v1" || $variant === "v3") &&
-    css`
-      grid-area: slots;
-    `}
   ul {
     list-style: none;
     margin: 4px 0 0;
     padding: 0;
-  }
-  @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant, $odd }) =>
-      $variant === "v1" &&
-      css`
-        margin: 44px 0 0;
-        padding: 12px 16px;
-        background-color: ${$odd ? COLORS.white : COLORS.odd};
-        border: 1px solid ${COLORS.border};
-        border-radius: ${RADIUS}px;
-      `}
-    ${({ $variant }) =>
-      $variant === "v3" &&
-      css`
-        margin: 4px 0 0;
-        ul {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 8px;
-        }
-      `}
   }
 `
 const SlotsTitle = styled.div`
   font-size: ${SIZES.regular}px;
   font-weight: 400;
 `
-const SlotItem = styled.li<{ $past: boolean; $variant: AccountProductVariant; $odd?: boolean }>`
+const SlotItem = styled.li<{ $past: boolean }>`
   margin: 2px 0;
   color: ${({ $past }) => ($past ? COLORS.muted : "inherit")};
   span {
     color: ${COLORS.muted};
-  }
-  @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant, $odd }) =>
-      $variant === "v3" &&
-      css`
-        margin: 0;
-        padding: 6px 12px;
-        background-color: ${$odd ? COLORS.white : COLORS.odd};
-        border: 1px solid ${COLORS.border};
-        border-radius: ${RADIUS}px;
-        font-size: ${SIZES.small}px;
-      `}
   }
 `
 const NoSlot = styled.p`
@@ -228,14 +138,9 @@ const SlotsToggle = styled.button`
   color: ${COLORS.green};
   text-decoration: underline;
 `
-const Stats = styled.div<{ $variant: AccountProductVariant; $odd?: boolean }>`
+const Stats = styled.div`
   width: 120px;
   text-align: center;
-  ${({ $variant }) =>
-    $variant === "v3" &&
-    css`
-      grid-area: stats;
-    `}
   figure {
     font-size: ${SIZES.subtitle}px;
     font-weight: 400;
@@ -249,60 +154,8 @@ const Stats = styled.div<{ $variant: AccountProductVariant; $odd?: boolean }>`
     font-size: ${SIZES.small}px;
     color: ${COLORS.muted};
   }
-  @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant }) =>
-      $variant === "v1" &&
-      css`
-        width: auto;
-        display: inline-flex;
-        align-items: baseline;
-        gap: 8px;
-        margin-top: 16px;
-        text-align: left;
-        figure {
-          margin: 0;
-        }
-      `}
-    ${({ $variant, $odd }) =>
-      $variant === "v2" &&
-      css`
-        width: auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 14px;
-        margin: 12px 0 8px;
-        background-color: ${$odd ? COLORS.white : COLORS.odd};
-        border: 1px solid ${COLORS.border};
-        border-radius: ${RADIUS}px;
-        figure {
-          margin: 0;
-          order: 2;
-        }
-        figcaption {
-          order: 1;
-          font-size: ${SIZES.regular}px;
-          color: ${COLORS.text};
-        }
-      `}
-    ${({ $variant, $odd }) =>
-      $variant === "v3" &&
-      css`
-        justify-self: end;
-        align-self: start;
-        width: 140px;
-        margin-top: 44px;
-        padding: 8px 12px;
-        background-color: ${$odd ? COLORS.white : COLORS.odd};
-        border: 1px solid ${COLORS.border};
-        border-radius: ${RADIUS}px;
-        figure {
-          margin: 0 0 2px;
-        }
-      `}
-  }
 `
-const Actions = styled.div<{ $variant: AccountProductVariant }>`
+const Actions = styled.div`
   ${aboveLink}
   display: flex;
   align-items: center;
@@ -313,17 +166,6 @@ const Actions = styled.div<{ $variant: AccountProductVariant }>`
     position: absolute;
     top: 12px;
     right: 12px;
-    ${({ $variant }) =>
-      $variant === "v2" &&
-      css`
-        position: relative;
-        top: auto;
-        right: auto;
-        grid-column: 2;
-        grid-row: 1;
-        justify-content: flex-end;
-        margin-bottom: 8px;
-      `}
   }
   svg {
     fill: ${COLORS.text};
@@ -333,90 +175,16 @@ const Actions = styled.div<{ $variant: AccountProductVariant }>`
 const End = styled.div`
   font-weight: 400;
 `
-const Bottom = styled.div<{ $variant: AccountProductVariant }>`
+const Bottom = styled.div`
   position: relative;
   em {
     font-size: ${SIZES.regular}px;
   }
-  @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant }) =>
-      ($variant === "v1" || $variant === "v3") &&
-      css`
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 16px;
-      `}
-    ${({ $variant }) =>
-      $variant === "v2" &&
-      css`
-        grid-column: 2;
-        grid-row: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      `}
-  }
 `
-const BottomInfo = styled.div<{ $variant: AccountProductVariant }>`
-  ${({ $variant }) =>
-    ($variant === "v1" || $variant === "v3") &&
-    css`
-      @media (min-width: ${LAYOUT.mobile}px) {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-    `}
-`
-const BottomRight = styled.div<{ $variant: AccountProductVariant }>`
-  ${({ $variant }) =>
-    ($variant === "v1" || $variant === "v3") &&
-    css`
-      @media (min-width: ${LAYOUT.mobile}px) {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-      }
-    `}
-`
-const BottomActions = styled.div<{ $variant: AccountProductVariant }>`
+const BottomActions = styled.div`
   ${aboveLink}
   button {
     margin: 10px 10px 0 0;
-  }
-  @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant }) =>
-      ($variant === "v1" || $variant === "v3") &&
-      css`
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-        button {
-          margin: 0;
-        }
-      `}
-    ${({ $variant }) =>
-      $variant === "v2" &&
-      css`
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        margin-top: 12px;
-        button {
-          margin: 0;
-          width: 100%;
-        }
-        em {
-          text-align: center;
-          color: ${COLORS.muted};
-          font-size: ${SIZES.small}px;
-        }
-      `}
   }
   @media (max-width: ${LAYOUT.mobile}px) {
     display: flex;
@@ -432,17 +200,13 @@ const BottomActions = styled.div<{ $variant: AccountProductVariant }>`
     }
   }
 `
-const Status = styled.div<{ $active: boolean; $variant: AccountProductVariant }>`
+const Status = styled.div<{ $active: boolean }>`
   @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant }) =>
-      $variant === "current" &&
-      css`
-        position: absolute;
-        top: 0;
-        right: 0;
-      `}
+    position: absolute;
+    top: 0;
+    right: 0;
   }
-  margin-bottom: ${({ $variant }) => ($variant === "current" ? "8px" : "4px")};
+  margin-bottom: 8px;
   color: ${({ $active }) => ($active ? COLORS.green : COLORS.red)};
   font-weight: 400;
   font-size: ${SIZES.subtitle}px;
@@ -462,34 +226,22 @@ const Input = styled(BasicInput)`
   padding: 10px;
 `
 
-const StyledSocialBar = styled(SocialShareBar)<{ $variant: AccountProductVariant }>`
+const StyledSocialBar = styled(SocialShareBar)`
   position: absolute;
   z-index: 1;
   right: -10px;
   top: -12px;
   @media (min-width: ${LAYOUT.mobile}px) {
-    ${({ $variant }) =>
-      $variant === "current"
-        ? css`
-            top: 26px;
-          `
-        : css`
-            position: relative;
-            right: auto;
-            top: auto;
-            padding: 0;
-            justify-content: flex-start;
-          `}
+    top: 26px;
   }
 `
 
 interface Props {
   product: ProductEncoded
   odd?: boolean
-  variant?: AccountProductVariant
 }
 
-const AccountProduct = ({ product, odd, variant = "current" }: Props) => {
+const AccountProduct = ({ product, odd }: Props) => {
   const { loading } = useUser()
   const [modal, setModal] = useState<null | "publish" | "disable" | "delete">(null)
   const [showAllSlots, setShowAllSlots] = useState(false)
@@ -561,131 +313,105 @@ const AccountProduct = ({ product, odd, variant = "current" }: Props) => {
     url: `${process.env.NEXT_PUBLIC_URL}/annonce/${product.objectID}`,
   }
 
-  const slotsSection =
-    slots.length > 0 ? (
-      <SlotsBlock $variant={variant} $odd={odd}>
-        <SlotsTitle>Créneaux</SlotsTitle>
-        {upcomingSlots.length === 0 && !showAllSlots && <NoSlot>Aucun créneau à venir</NoSlot>}
-        <ul>
-          {visibleSlots.map(({ date, heureDebut, heureFin, reservation }) => {
-            const key = getSlotKey(date, heureDebut, heureFin)
-            const count = bookingsBySlot[key] ?? 0
-            return (
-              <SlotItem key={key} $past={getSlotEnd(date, heureFin) < now} $variant={variant} $odd={odd}>
-                {formatSlotDate(date, heureDebut, heureFin)}
-                {reservation != null && (
-                  <span>
-                    {" "}
-                    · {count} réservation{s(count)}
-                  </span>
-                )}
-              </SlotItem>
-            )
-          })}
-        </ul>
-        {slots.length > Math.min(upcomingSlots.length, VISIBLE_SLOTS) && (
-          <SlotsToggle type="button" onClick={() => setShowAllSlots(!showAllSlots)}>
-            {showAllSlots ? "Voir moins" : `Voir tous les créneaux (${slots.length})`}
-          </SlotsToggle>
-        )}
-      </SlotsBlock>
-    ) : variant === "v1" ? (
-      <SlotsBlock $variant={variant} $odd={odd}>
-        <SlotsTitle>Créneaux</SlotsTitle>
-        <NoSlot>Aucun créneau renseigné</NoSlot>
-      </SlotsBlock>
-    ) : null
-
-  const statsSection = (
-    <Stats $variant={variant} $odd={odd}>
-      <figure>
-        <PointerIcon /> {product.views || 0}
-      </figure>
-      <figcaption>Nombre de vues</figcaption>
-    </Stats>
-  )
-
   return (
-    <Container $odd={odd} $variant={variant}>
-      <Ad $variant={variant}>
+    <Container $odd={odd}>
+      <Ad>
         <Image>
           <img src={product.photo} alt="" />
         </Image>
         <Days>
           Annonce créée le {formatDate(product.created)}
-          {product.updated && <> et modifiée le {formatDate(product.updated)}</>}
+          {product.updated && (
+            <>
+              <br />
+              et modifiée le {formatDate(product.updated)}
+            </>
+          )}
         </Days>
-        <Infos $variant={variant}>
+        <Infos>
           <h4>
             <Link href={`/annonce/${product.objectID}`}>{product.title}</Link>
           </h4>
-          <ProductMeta $variant={variant}>{infos.filter((info) => info).join(" | ")}</ProductMeta>
-          {(variant === "current" || variant === "v2") && slotsSection}
-          {(variant === "current" || variant === "v1") && statsSection}
+          <div>{infos.filter((info) => info).join(" | ")}</div>
+          {slots.length > 0 && (
+            <SlotsBlock>
+              <SlotsTitle>Créneaux</SlotsTitle>
+              {upcomingSlots.length === 0 && !showAllSlots && <NoSlot>Aucun créneau à venir</NoSlot>}
+              <ul>
+                {visibleSlots.map(({ date, heureDebut, heureFin, reservation }) => {
+                  const key = getSlotKey(date, heureDebut, heureFin)
+                  const count = bookingsBySlot[key] ?? 0
+                  return (
+                    <SlotItem key={key} $past={getSlotEnd(date, heureFin) < now}>
+                      {formatSlotDate(date, heureDebut, heureFin)}
+                      {reservation != null && (
+                        <span>
+                          {" "}
+                          · {count} réservation{s(count)}
+                        </span>
+                      )}
+                    </SlotItem>
+                  )
+                })}
+              </ul>
+              {slots.length > Math.min(upcomingSlots.length, VISIBLE_SLOTS) && (
+                <SlotsToggle type="button" onClick={() => setShowAllSlots(!showAllSlots)}>
+                  {showAllSlots ? "Voir moins" : `Voir tous les créneaux (${slots.length})`}
+                </SlotsToggle>
+              )}
+            </SlotsBlock>
+          )}
+          <Stats>
+            <figure>
+              <PointerIcon /> {product.views || 0}
+            </figure>
+            <figcaption>Nombre de vues</figcaption>
+          </Stats>
         </Infos>
-        {variant === "v3" && statsSection}
-        {(variant === "v1" || variant === "v3") && slotsSection}
       </Ad>
-      <Actions $variant={variant}>
+      <Actions>
         <ButtonLink href={`/compte/producteur/annonce/${product.objectID}`}>Modifier</ButtonLink>
         <IconButton aria-label="Supprimer l’annonce" onClick={() => setModal("delete")}>
           <DeleteIcon />
         </IconButton>
       </Actions>
       {active ? (
-        <Bottom $variant={variant}>
-          <BottomInfo $variant={variant}>
-            <Status $active={true} $variant={variant}>
-              Annonce en ligne
-            </Status>
-            {variant === "current" && <StyledSocialBar $variant={variant} shareData={productShareData} />}
-            <End>
-              La publication se termine le {formatDateTime(product.expires)} ({daysFromNow(product.expires)})
-            </End>
-          </BottomInfo>
-          {variant === "v2" && statsSection}
-          <BottomRight $variant={variant}>
-            {variant !== "current" && <StyledSocialBar $variant={variant} shareData={productShareData} />}
-            <BottomActions $variant={variant}>
-              <Button $variant="green" onClick={() => setModal("publish")}>
-                Ajouter des jours
-              </Button>
-              <Button onClick={() => setModal("disable")}>Désactiver l’annonce</Button>
-              <em>Vous pourrez la réactiver</em>
-            </BottomActions>
-          </BottomRight>
+        <Bottom>
+          <Status $active={true}>Annonce en ligne</Status>
+          <StyledSocialBar shareData={productShareData} />
+          <End>
+            La publication se termine le {formatDateTime(product.expires)} ({daysFromNow(product.expires)})
+          </End>
+          <BottomActions>
+            <Button $variant="green" onClick={() => setModal("publish")}>
+              Ajouter des jours
+            </Button>
+            <Button onClick={() => setModal("disable")}>Désactiver l’annonce</Button>
+            <em>Vous pourrez la réactiver</em>
+          </BottomActions>
         </Bottom>
       ) : (
-        <Bottom $variant={variant}>
-          <BottomInfo $variant={variant}>
-            {product.expires ? (
-              <>
-                <Status $active={false} $variant={variant}>
-                  Annonce terminée
-                </Status>
-                <End>La publication s’est terminée le {formatDateTime(product.expires)}</End>
-              </>
-            ) : (
-              <>
-                <Status $active={false} $variant={variant}>
-                  Annonce désactivée
-                </Status>
-                <End>
-                  {product.disabled
-                    ? `La publication a été désactivée le ${formatDateTime(product.disabled)}`
-                    : "La publication est désactivée"}
-                </End>
-              </>
-            )}
-          </BottomInfo>
-          {variant === "v2" && statsSection}
-          <BottomRight $variant={variant}>
-            <BottomActions $variant={variant}>
-              <Button $variant="green" onClick={() => setModal("publish")}>
-                Publier l’annonce
-              </Button>
-            </BottomActions>
-          </BottomRight>
+        <Bottom>
+          {product.expires ? (
+            <>
+              <Status $active={false}>Annonce terminée</Status>
+              <End>La publication s’est terminée le {formatDateTime(product.expires)}</End>
+            </>
+          ) : (
+            <>
+              <Status $active={false}>Annonce désactivée</Status>
+              <End>
+                {product.disabled
+                  ? `La publication a été désactivée le ${formatDateTime(product.disabled)}`
+                  : "La publication est désactivée"}
+              </End>
+            </>
+          )}
+          <BottomActions>
+            <Button $variant="green" onClick={() => setModal("publish")}>
+              Publier l’annonce
+            </Button>
+          </BottomActions>
         </Bottom>
       )}
       {modal && (
