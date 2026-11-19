@@ -29,6 +29,7 @@ Les suites `publication` et `reservations` sont `describe.serial` et partagent l
 2. `e2e/.env` (non versionné, cf. `e2e/.env.example`) avec les comptes de test fournis par le PO :
    - `TEST_BUYER_EMAIL` / `TEST_BUYER_PASSWORD` (compte acheteur)
    - `TEST_PRODUCER_EMAIL` / `TEST_PRODUCER_PASSWORD` (compte producteur)
+   - optionnel `MAILTRAP_TOKEN` / `MAILTRAP_INBOX_ID` pour recevoir et lire dans une boîte de réception de test Mailtrap les e-mails déclenchés pendant les tests (« mot de passe oublié », notifications de réservation)
    - optionnel `E2E_BASE_URL` (ex. `https://develop.leschouxdacote.fr`) pour exécuter contre le dev au lieu du build local — dans ce cas le `webServer` local est désactivé et ni build ni `yarn serve` ne sont nécessaires.
 3. Les comptes doivent exister côté Firebase **dev** (le producteur doit avoir le rôle producteur, pas simplement un compte auth).
 
@@ -45,7 +46,7 @@ Ou directement dans `e2e/` : `yarn install`, `yarn run install-browsers`, puis `
 
 ## Points de vigilance
 
-- **Vraies données dev** : les tests créent/modifient/suppriment des documents Firestore réels et déclenchent de vrais e-mails (Mailjet) — notamment « mot de passe oublié » et notifications de réservation. N'utiliser que l'environnement de développement.
+- **Vraies données dev, e-mails bloqués ou capturés dans Mailtrap** : les tests créent/modifient/suppriment des documents Firestore réels, mais n'envoient plus de vrais e-mails via Mailjet (`E2E_DISABLE_REAL_MAIL=1` passé au serveur local). Si `MAILTRAP_TOKEN` et `MAILTRAP_INBOX_ID` sont renseignés, les e-mails (« mot de passe oublié » et notifications de réservation) sont envoyés dans la boîte de test Mailtrap. N'utiliser que l'environnement de développement.
 - **Sélecteurs sans `data-testid`** : l'application n'en comporte pas ; les tests s'appuient sur `input[name=…]`, les labels MUI (`getByLabel`), les rôles ARIA et des textes français. Attention aux apostrophes typographiques (U+2019) dans certains libellés (« Désactiver l’annonce », « Confirmez-vous l’annulation… ») contre des apostrophes droites ailleurs.
 - **Dépendances réseau externes** : Google Places (adresse de l'annonce, champ « Où ? ») et Mapbox (carte). Les tests de recherche contournent Places via l'URL directe (`ll=…`), mais la création d'annonce dépend réellement de Places — des retries (2 en CI) sont configurés pour absorber la variabilité.
 - **ISR** : les fiches annonces sont revalidées toutes les 60 s ; les tests attendent explicitement les textes concernés (timeout généreux).
