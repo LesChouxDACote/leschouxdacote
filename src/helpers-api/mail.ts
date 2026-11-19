@@ -13,11 +13,14 @@ type Message = Omit<SendEmailV3_1.Message, "From">
 // Dans l'Aperçu de Kedalia (`scripts/kedalia-mail-relay`), MAIL_RELAY_URL pointe vers son capteur : le mail y est
 // gardé, jamais envoyé. Partout ailleurs (Coolify, Vercel), la variable est absente et Mailjet envoie. Un modèle
 // Mailjet n'a pas de rendu hors de Mailjet : le capteur en reçoit le numéro et les variables.
-const relay = async (message: Message) => {
-  const to = message.To[0]
-  const text = message.TemplateID
+const getMessageText = (message: Message) =>
+  message.TemplateID
     ? `Modèle Mailjet ${message.TemplateID}\n\n${JSON.stringify(message.Variables ?? {}, null, 2)}`
     : (message.TextPart ?? "")
+
+const relay = async (message: Message) => {
+  const to = message.To[0]
+  const text = getMessageText(message)
   const res = await fetch(process.env.MAIL_RELAY_URL as string, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.MAIL_RELAY_TOKEN ?? ""}` },
@@ -34,8 +37,30 @@ const relay = async (message: Message) => {
   return { to: to.Email, status: "success" }
 }
 
+const mailtrap = async (message: Message) => {
+  const to = message.To[0]
+  const res = await fetch(`https://sandbox.api.mailtrap.io/api/send/${process.env.MAILTRAP_INBOX_ID}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.MAILTRAP_TOKEN}`,
+    },
+    body: JSON.stringify({
+      from: { email: CONTACT_EMAIL, name: SENDER_NAME },
+      to: [{ email: to.Email, ...(to.Name ? { name: to.Name } : {}) }],
+      subject: message.Subject ?? `Modèle Mailjet ${message.TemplateID ?? ""}`.trim(),
+      text: getMessageText(message),
+      ...(message.HTMLPart ? { html: message.HTMLPart } : {}),
+    }),
+  })
+  if (!res.ok) throw new Error(`Mailtrap : ${res.status}`)
+  return { to: to.Email, status: "success" }
+}
+
 const send = async (message: Message) => {
   if (process.env.MAIL_RELAY_URL) return relay(message)
+  if (process.env.MAILTRAP_TOKEN && process.env.MAILTRAP_INBOX_ID) return mailtrap(message)
+  if (process.env.E2E_DISABLE_REAL_MAIL === "1") return { to: message.To[0].Email, status: "success" }
 
   const mailjet = new Mailjet({
     apiKey: process.env.MAILJET_PUBLIC_KEY as string,

@@ -56,6 +56,12 @@ const config: PlaywrightTestConfig = {
           url: baseURL,
           reuseExistingServer: true,
           timeout: 120000,
+          env: {
+            ...(Object.fromEntries(
+              Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
+            ) as Record<string, string>),
+            E2E_DISABLE_REAL_MAIL: "1",
+          },
         },
       }),
 }
