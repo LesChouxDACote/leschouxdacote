@@ -54,8 +54,8 @@ const aboveLink = css`
 `
 const Ad = styled.div`
   display: grid;
-  grid-template-columns: 200px 1fr auto;
-  grid-template-areas: "image infos days";
+  grid-template-columns: 200px minmax(200px, 1fr) 120px minmax(200px, 1fr);
+  grid-template-areas: "image infos stats days";
   column-gap: 20px;
   @media (min-width: ${LAYOUT.mobile}px) {
     margin-bottom: 15px;
@@ -64,7 +64,10 @@ const Ad = styled.div`
   }
   @media (max-width: ${LAYOUT.mobile}px) {
     grid-template-columns: 80px 1fr;
-    grid-template-areas: "image infos" "days days";
+    grid-template-areas:
+      "image infos"
+      "stats stats"
+      "days days";
     column-gap: 12px;
   }
 `
@@ -102,6 +105,7 @@ const Days = styled.div`
   font-size: ${SIZES.regular}px;
   @media (min-width: ${LAYOUT.mobile}px) {
     margin: 44px 0 0;
+    justify-self: end;
     text-align: right;
   }
   @media (max-width: ${LAYOUT.mobile}px) {
@@ -139,12 +143,17 @@ const SlotsToggle = styled.button`
   text-decoration: underline;
 `
 const Stats = styled.div`
+  grid-area: stats;
   width: 120px;
   text-align: center;
+  align-self: start;
   figure {
     font-size: ${SIZES.subtitle}px;
     font-weight: 400;
-    margin: 12px 8px 4px;
+    margin: 0 8px 4px;
+    @media (max-width: ${LAYOUT.mobile}px) {
+      margin: 12px 8px 4px;
+    }
     svg {
       vertical-align: -4px;
       margin-right: 4px;
@@ -361,13 +370,13 @@ const AccountProduct = ({ product, odd }: Props) => {
               )}
             </SlotsBlock>
           )}
-          <Stats>
-            <figure>
-              <PointerIcon /> {product.views || 0}
-            </figure>
-            <figcaption>Nombre de vues</figcaption>
-          </Stats>
         </Infos>
+        <Stats>
+          <figure>
+            <PointerIcon /> {product.views || 0}
+          </figure>
+          <figcaption>Nombre de vues</figcaption>
+        </Stats>
       </Ad>
       <Actions>
         <ButtonLink href={`/compte/producteur/annonce/${product.objectID}`}>Modifier</ButtonLink>
