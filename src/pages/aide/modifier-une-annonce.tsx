@@ -23,7 +23,8 @@ const EditHelpPage = () => (
     <h2>Prolonger ou republier une annonce</h2>
     <ul>
       <li>
-        Annonce en ligne : dans <Ui>Mes annonces</Ui>, cliquez sur <Ui>Ajouter des jours</Ui>.
+        Annonce en ligne : dans <Ui>Mes annonces</Ui>, cliquez sur <Ui>Ajouter des jours</Ui> (dans la limite de{" "}
+        {MAX_PUBLICATION_DAYS} jours au total).
       </li>
       <li>
         Annonce terminée ou désactivée : cliquez sur <Ui>Publier l’annonce</Ui> et choisissez une durée (jusqu&apos;à{" "}

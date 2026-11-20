@@ -1,5 +1,6 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { MAX_PUBLICATION_DAYS } from "src/constants"
 
 export const formatDate = (ts: number | Date | null, pattern = "do MMMM yyyy") => {
   if (!ts) {
@@ -74,6 +75,15 @@ export const getSlotDayLabel = (date: Date | number, now = new Date()): "Aujourd
 
 // Annonce en ligne : publiée jusqu'à une date à venir (expires à null = désactivée), comme dans « Mes annonces ».
 export const isProductActive = (expires: number | null | undefined, now: number) => (expires ? expires > now : false)
+
+// Nombre de jours pouvant encore être ajoutés à une annonce sans dépasser MAX_PUBLICATION_DAYS jours au total.
+export const getMaxAdditionalDays = (expires: number | null | undefined, now: number = Date.now()) => {
+  if (!isProductActive(expires, now)) {
+    return MAX_PUBLICATION_DAYS
+  }
+  const remainingDays = Math.max(0, differenceInCalendarDays(expires as number, now))
+  return Math.max(0, MAX_PUBLICATION_DAYS - remainingDays)
+}
 
 // Créneaux du plus proche au plus lointain (date, puis heure de début).
 export const sortSlots = <T extends { date: Date; heureDebut: string }>(slots: readonly T[]): T[] =>

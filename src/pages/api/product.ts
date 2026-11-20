@@ -1,6 +1,7 @@
 import { addDays } from "date-fns"
 import { Schema as Sc } from "effect"
 import type { NextApiRequest, NextApiResponse } from "next"
+import { MAX_PUBLICATION_DAYS } from "src/constants"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
 import { firestore, GeoPoint, getObject, getToken } from "src/helpers-api/firebase"
@@ -19,7 +20,7 @@ const checkRequired = (data: Record<string, any>, fields: string[]) => {
   }
 }
 
-const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<RegisteringProduct>>) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<RegisteringProduct & ProductPayload>>) => {
   if (req.method === "POST" || req.method === "PUT") {
     const [fields, files] = await getFormData<ProductPayload>(req)
 
@@ -46,6 +47,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
     if (isNaN(price) || price < 0 || !Number.isInteger(price)) {
       return respond(res, {
         price: "Prix invalide",
+      })
+    }
+    const days = Number(fields.days)
+    if (isNaN(days) || !Number.isInteger(days) || days < 0 || days > MAX_PUBLICATION_DAYS) {
+      return respond(res, {
+        days: `Une annonce ne peut pas dépasser ${MAX_PUBLICATION_DAYS} jours de publication`,
       })
     }
 

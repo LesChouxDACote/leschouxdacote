@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { badRequest, respond } from "src/helpers-api"
 import { productsIndex } from "src/helpers-api/algolia"
 import { firestore, getObject, getToken } from "src/helpers-api/firebase"
+import { getMaxAdditionalDays } from "src/helpers/date"
 import type { Product, RegisteringProduct } from "src/types/model"
 
 const getDate = (ts?: number | null) => (ts ? new Date(ts) : null)
@@ -31,7 +32,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<ApiResponse<Reg
   // add days
   if (req.method === "POST") {
     console.log("days", days)
-    if (!days) {
+    const maxAdditionalDays = getMaxAdditionalDays(product.expires, now.getTime())
+    if (!days || !Number.isInteger(days) || days < 1 || days > maxAdditionalDays) {
       return badRequest(res, 400)
     }
     const online = product.expires != null && product.expires > now.getTime()

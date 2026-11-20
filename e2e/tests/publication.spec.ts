@@ -215,9 +215,16 @@ test.describe.serial("Publication d'annonce", () => {
     await card.waitFor()
     await card.getByRole("button", { name: "Ajouter des jours" }).click()
     await page.getByText(/jour\(s\) supplémentaires/).waitFor()
-    await page.locator('input[name="days"]').fill("5")
+    const daysInput = page.locator('input[name="days"]')
+    // Déjà publiée pour 1 jour : on ne peut ajouter au maximum que 364 jours (365 au total)
+    await expect(daysInput).toHaveAttribute("max", "364")
+    await daysInput.fill("364")
     await page.getByRole("button", { name: "Valider" }).first().click()
-    await expect(card.getByText(/La publication se termine le .* \(dans 6 jours\)/)).toBeVisible({ timeout: 20000 })
+    await expect(card.getByText(/La publication se termine le .* \(dans 365 jours\)/)).toBeVisible({ timeout: 20000 })
+    // À 365 jours : la modale indique que le plafond est atteint et grise « Valider »
+    await card.getByRole("button", { name: "Ajouter des jours" }).click()
+    await expect(page.getByText(/durée maximale de publication de 365 jours/)).toBeVisible()
+    await expect(page.getByRole("button", { name: "Valider" }).first()).toBeDisabled()
   })
 
   test("« Mes annonces » : 3 prochains créneaux, carte cliquable et bouton Modifier", async ({ page }) => {

@@ -19,6 +19,7 @@ import {
   formatDate,
   formatDateTime,
   formatSlotDate,
+  getMaxAdditionalDays,
   getSlotEnd,
   getSlotKey,
   sortSlots,
@@ -258,6 +259,7 @@ const AccountProduct = ({ product, odd }: Props) => {
   const infos = [formatAmount(product.price), formatQuantity(product), product.city]
   const now = Date.now()
   const active = product.expires ? product.expires > now : false
+  const maxAdditionalDays = getMaxAdditionalDays(product.expires, now)
 
   const slots = useMemo(
     () => sortSlots(product.slots ? Sc.decodeUnknownSync(Sc.Array(SlotSchemaFirestore))(product.slots) : []),
@@ -427,13 +429,42 @@ const AccountProduct = ({ product, odd }: Props) => {
         <Modal onClose={handleClose}>
           {modal === "publish" && (
             <Form title={product.title} onSubmit={handlePublish}>
-              <p>
-                Publier l’annonce pour une durée de{" "}
-                <Input type="number" name="days" min={0} max={MAX_PUBLICATION_DAYS} step={1} defaultValue={0} /> jour(s)
-                supplémentaires
-              </p>
-              <ProductEndDate start={active ? product.expires : null} />
-              <SubmitButton />
+              {maxAdditionalDays === 0 ? (
+                <>
+                  <p>
+                    Une annonce ne peut pas dépasser {MAX_PUBLICATION_DAYS} jours de publication. Cette annonce a déjà
+                    atteint la durée maximale de publication de {MAX_PUBLICATION_DAYS} jours. Vous pourrez ajouter un
+                    jour supplémentaire à partir de demain.
+                  </p>
+                  <SubmitButton disabled />
+                </>
+              ) : (
+                <>
+                  <p>
+                    Publier l’annonce pour une durée de{" "}
+                    <Input
+                      type="number"
+                      name="days"
+                      min={0}
+                      max={maxAdditionalDays}
+                      step={1}
+                      defaultValue={0}
+                      onInvalid={(event) => {
+                        const input = event.currentTarget
+                        if (input.validity.rangeOverflow) {
+                          input.setCustomValidity(
+                            `Une annonce ne peut pas dépasser ${MAX_PUBLICATION_DAYS} jours de publication (maximum ajoutable : ${maxAdditionalDays} jour${s(maxAdditionalDays)}).`,
+                          )
+                        }
+                      }}
+                      onInput={(event) => event.currentTarget.setCustomValidity("")}
+                    />{" "}
+                    jour(s) supplémentaires
+                  </p>
+                  <ProductEndDate start={active ? product.expires : null} />
+                  <SubmitButton />
+                </>
+              )}
             </Form>
           )}
           {modal === "disable" && (
