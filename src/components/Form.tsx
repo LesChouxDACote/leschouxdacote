@@ -223,14 +223,15 @@ export const StyledButton = styled(Button)<{ $fullWidth?: boolean }>`
 
 interface SubmitButtonProps {
   fullWidth?: boolean
+  disabled?: boolean
   children?: string
 }
 
-export const SubmitButton: FC<SubmitButtonProps> = ({ fullWidth = false, children = "Valider" }) => {
+export const SubmitButton: FC<SubmitButtonProps> = ({ fullWidth = false, disabled = false, children = "Valider" }) => {
   const { formState } = useFormContext()
 
   return (
-    <StyledButton type="submit" $variant="green" disabled={formState.isSubmitting} $fullWidth={fullWidth}>
+    <StyledButton type="submit" $variant="green" disabled={disabled || formState.isSubmitting} $fullWidth={fullWidth}>
       {formState.isSubmitting ? "Chargement…" : children}
     </StyledButton>
   )
@@ -238,9 +239,10 @@ export const SubmitButton: FC<SubmitButtonProps> = ({ fullWidth = false, childre
 
 interface BasicInputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string
+  validate?: (value: string) => true | string
 }
 
-export const BasicInput = ({ name, ...props }: BasicInputProps) => {
+export const BasicInput = ({ name, validate, ...props }: BasicInputProps) => {
   const { register } = useFormContext()
-  return <input {...register(name)} {...props} />
+  return <input {...register(name, { validate })} {...props} />
 }

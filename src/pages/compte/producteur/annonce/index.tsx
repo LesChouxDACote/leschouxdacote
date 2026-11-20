@@ -307,6 +307,15 @@ const EditProductPage = () => {
               step={1}
               defaultValue={0}
               suffix="jour(s)"
+              onInvalid={(event) => {
+                const input = event.currentTarget as HTMLInputElement
+                if (input.validity.rangeOverflow) {
+                  input.setCustomValidity(
+                    `Une annonce ne peut pas dépasser ${MAX_PUBLICATION_DAYS} jours de publication.`,
+                  )
+                }
+              }}
+              onInput={(event) => (event.currentTarget as HTMLInputElement).setCustomValidity("")}
             />
             <ProductEndDate />
           </LeftColumn>
