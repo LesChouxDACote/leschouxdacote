@@ -46,6 +46,8 @@ jobs:
       TEST_BUYER_PASSWORD: ${{ secrets.TEST_BUYER_PASSWORD }}
       TEST_PRODUCER_EMAIL: ${{ secrets.TEST_PRODUCER_EMAIL }}
       TEST_PRODUCER_PASSWORD: ${{ secrets.TEST_PRODUCER_PASSWORD }}
+      MAILTRAP_TOKEN: ${{ secrets.MAILTRAP_TOKEN }}
+      MAILTRAP_INBOX_ID: ${{ secrets.MAILTRAP_INBOX_ID }}
 
     steps:
       - name: Checkout repository
