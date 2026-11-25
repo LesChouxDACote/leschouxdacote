@@ -208,4 +208,40 @@ test.describe("Consultation", () => {
     await expect(page.locator(".mapboxgl-canvas").first()).toBeVisible({ timeout: 20000 })
     await expect(page.getByRole("button", { name: "Liste" })).toBeVisible()
   })
+
+  test("la page Actualité met en avant l'article sur la réservation et permet de le lire", async ({ page }) => {
+    await page.goto("/actualite")
+    const firstArticle = page.locator("a[href^='/actualite/']").first()
+    await expect(firstArticle).toHaveAttribute("href", "/actualite/reservation-et-nouveautes-2026")
+    await firstArticle.click()
+    await expect(page).toHaveURL(/\/actualite\/reservation-et-nouveautes-2026$/)
+    await expect(
+      page.getByRole("heading", {
+        name: "Nouveau : réservez vos produits locaux sur créneaux, et découvrez toutes les nouveautés !",
+      }),
+    ).toBeVisible()
+    await expect(page.getByText(/commission/i)).toHaveCount(0)
+    await expect(page.getByRole("link", { name: /créer des créneaux/i })).toHaveAttribute("href", "/aide/creneaux")
+  })
+
+  test("la page plan de communication est non indexée et regroupe réseaux sociaux et newsletter", async ({ page }) => {
+    await page.goto("/plan-de-communication")
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/)
+    await expect(page.getByRole("heading", { name: /Plan de communication/ })).toBeVisible()
+    for (const channel of ["Facebook", "Instagram", "X", "LinkedIn"]) {
+      await expect(page.getByRole("heading", { name: channel, exact: true })).toBeVisible()
+    }
+    await expect(page.getByRole("heading", { name: /Modèle de newsletter/ })).toBeVisible()
+    await expect(page.locator('iframe[title="Aperçu de la newsletter"]')).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "Envoyer la newsletter aux utilisateurs des Choux d'à Côté" }),
+    ).toBeVisible()
+  })
+
+  test("la page de désinscription newsletter s'affiche sans indexation", async ({ page }) => {
+    await page.goto("/desinscription-newsletter?uid=exemple&token=jeton")
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/)
+    await expect(page.getByRole("heading", { name: "Désinscription des actualités" })).toBeVisible()
+    await expect(page.getByRole("button", { name: "Confirmer ma désinscription" })).toBeVisible()
+  })
 })

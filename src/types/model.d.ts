@@ -48,6 +48,7 @@ interface BaseUser extends Identified {
   followedProducers: Record<string, FollowedProducer>
   role: USER_ROLE
   isAdmin?: boolean
+  newsletterUnsubscribed?: boolean
 }
 interface Buyer extends BaseUser {
   role: USER_ROLE.BUYER

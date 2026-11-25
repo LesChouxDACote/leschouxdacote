@@ -27,6 +27,122 @@ const CallToAction = () => (
 
 export const ARTICLES: Article[] = [
   {
+    slug: "reservation-et-nouveautes-2026",
+    title: "Nouveau : réservez vos produits locaux sur créneaux, et découvrez toutes les nouveautés !",
+    date: "2026-11-23",
+    author: "Anthony Nguyen",
+    image: "/actualite/reservation-nouveautes.jpg",
+    summary:
+      "Après quelques années plus calmes, Les Choux d'à Côté reprend son élan avec la réservation sur créneaux, une interface rafraîchie et de nombreuses améliorations pour producteurs et acheteurs.",
+    body: (
+      <>
+        <p>
+          Cela faisait plusieurs années que nous n&apos;avions pas pris la parole ici : la reprise d&apos;une activité
+          professionnelle « classique » m&apos;avait laissé beaucoup moins de temps pour faire évoluer{" "}
+          <Link href="/">Les Choux d&apos;à Côté</Link>. Bonne nouvelle : la plateforme reprend vie cette année avec de
+          nombreuses évolutions déjà en ligne, et une grande nouveauté très attendue :{" "}
+          <strong>la réservation de produits sur créneaux</strong> !
+        </p>
+
+        <h2>Réserver ses produits locaux en quelques clics, toujours en vente directe</h2>
+        <p>
+          Les Choux d&apos;à Côté reste fidèle à son ADN : <strong>la vente directe, sans intermédiaire</strong>. La
+          réservation a été pensée pour simplifier l&apos;organisation de la vente à la ferme, au marché ou en point de
+          retrait, tout en laissant le paiement et la rencontre se faire directement entre le producteur et son client.
+        </p>
+
+        <h3>Côté producteurs</h3>
+        <ul>
+          <li>
+            <strong>Définissez vos créneaux de retrait</strong> (date, heure de début et heure de fin) directement sur
+            vos annonces.
+          </li>
+          <li>
+            <strong>Maîtrisez vos quantités</strong> en indiquant le stock disponible par créneau et, si vous le
+            souhaitez, une quantité maximale par personne.
+          </li>
+          <li>
+            <strong>Ajoutez vos consignes pratiques</strong> (lieu précis, sac à prévoir, modalités de règlement sur
+            place…).
+          </li>
+          <li>
+            <strong>Suivez vos réservations</strong> en un coup d&apos;œil depuis votre espace producteur.
+          </li>
+        </ul>
+        <p>
+          👉 <Link href="/aide/creneaux">Découvrir comment créer des créneaux et activer les réservations</Link>
+        </p>
+
+        <h3>Côté acheteurs</h3>
+        <ul>
+          <li>
+            <strong>Choisissez le créneau qui vous arrange</strong> directement sur l&apos;annonce du producteur (les
+            créneaux complets sont signalés automatiquement).
+          </li>
+          <li>
+            <strong>Réservez la quantité souhaitée</strong> et retrouvez, modifiez ou annulez vos réservations à tout
+            moment depuis l&apos;espace « Mes réservations ».
+          </li>
+          <li>
+            <strong>Réglez directement auprès du producteur</strong> lors du retrait, en toute simplicité.
+          </li>
+        </ul>
+        <p>
+          👉 <Link href="/aide/reserver">Voir comment réserver un produit sur une annonce</Link>
+        </p>
+
+        <h2>Les autres nouveautés déployées cette année</h2>
+        <p>
+          Au-delà de la réservation, toute la plateforme a bénéficié d&apos;une série d&apos;améliorations pour rendre
+          la navigation plus fluide et le quotidien des producteurs plus simple :
+        </p>
+        <ul>
+          <li>
+            <strong>Une interface rafraîchie et plus lisible</strong> : nouvelles polices, contrastes plus nets et mise
+            en page plus claire sur ordinateur comme sur mobile.
+          </li>
+          <li>
+            <strong>Une aide en ligne intégrée au site</strong> : guides pas à pas, recherche par mot-clé et réponses
+            aux questions fréquentes sur <Link href="/aide">la page Assistance</Link>.
+          </li>
+          <li>
+            <strong>Une rubrique Actualité intégrée</strong> : nos articles et conseils sur le circuit court sont
+            désormais réunis directement sur le site.
+          </li>
+          <li>
+            <strong>Plus de visibilité pour les producteurs</strong> : affichage du nombre de vues sur chaque annonce et
+            accès direct à la liste de vos abonnés depuis « Mes annonces ».
+          </li>
+          <li>
+            <strong>Des annonces publiées jusqu&apos;à un an (365 jours)</strong> : moins de republications répétitives
+            pour vos produits disponibles sur la durée.
+          </li>
+          <li>
+            <strong>Un parcours de mot de passe oublié simplifié</strong> : l&apos;e-mail et la page de réinitialisation
+            se font désormais directement sur Les Choux d&apos;à Côté.
+          </li>
+        </ul>
+
+        <h2>Une reprise rendue possible grâce à Kedalia</h2>
+        <p>
+          Si le projet peut à nouveau avancer régulièrement malgré un emploi du temps chargé, c&apos;est grâce à{" "}
+          <a href="https://kedalia.com" {...ext}>
+            Kedalia
+          </a>
+          , développé par Charles Ilieff, qui permet de concevoir et mettre en ligne de nouvelles fonctionnalités à
+          partir de besoins décrits simplement. Vous pouvez en savoir plus sur la page{" "}
+          <Link href="/a-propos">À propos</Link>.
+        </p>
+
+        <p>
+          Producteurs, c&apos;est le moment idéal pour publier ou mettre à jour vos annonces avec vos prochains
+          créneaux. Acheteurs, partez à la découverte des produits locaux près de chez vous !
+        </p>
+        <CallToAction />
+      </>
+    ),
+  },
+  {
     slug: "la-presse-en-parle-maddyness",
     title: "La presse en parle : Maddyness",
     date: "2022-01-11",
