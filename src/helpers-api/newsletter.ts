@@ -29,6 +29,71 @@ export const buildUnsubscribeUrl = (baseUrl: string, uid: string) => {
   return `${cleanBase}/desinscription-newsletter?uid=${encodeURIComponent(uid)}&token=${encodeURIComponent(token)}`
 }
 
+// Suivi des envois de newsletter : un document par campagne et par destinataire, dans une collection de premier
+// niveau (refusée par défaut dans firestore.rules, lue et écrite uniquement par le SDK admin).
+export const NEWSLETTER_DELIVERIES = "newsletterDeliveries"
+
+export type DeliverySource = "send" | "history"
+
+const deliveryDocId = (campaignId: string, uid: string) => `${campaignId}_${uid}`
+const historyMarkerId = (campaignId: string) => `${campaignId}__history`
+
+export const getDeliveredUids = async (campaignId: string) => {
+  const snapshot = await firestore.collection(NEWSLETTER_DELIVERIES).where("campaignId", "==", campaignId).get()
+  const uids = new Set<string>()
+  snapshot.forEach((doc) => {
+    const uid = doc.get("uid")
+    if (typeof uid === "string" && uid) {
+      uids.add(uid)
+    }
+  })
+  return uids
+}
+
+export const isDelivered = async (campaignId: string, uid: string) =>
+  (await firestore.collection(NEWSLETTER_DELIVERIES).doc(deliveryDocId(campaignId, uid)).get()).exists
+
+export const markDelivered = (campaignId: string, uid: string, email: string, source: DeliverySource) =>
+  firestore.collection(NEWSLETTER_DELIVERIES).doc(deliveryDocId(campaignId, uid)).set({
+    campaignId,
+    uid,
+    email,
+    sentAt: new Date(),
+    source,
+  })
+
+// Écriture groupée (lots de 400, sous la limite de 500 opérations par lot de Firestore).
+export const markDeliveredMany = async (
+  campaignId: string,
+  entries: { uid: string; email: string }[],
+  source: DeliverySource,
+) => {
+  for (let index = 0; index < entries.length; index += 400) {
+    const batch = firestore.batch()
+    entries.slice(index, index + 400).forEach(({ uid, email }) => {
+      batch.set(firestore.collection(NEWSLETTER_DELIVERIES).doc(deliveryDocId(campaignId, uid)), {
+        campaignId,
+        uid,
+        email,
+        sentAt: new Date(),
+        source,
+      })
+    })
+    await batch.commit()
+  }
+}
+
+// Le marqueur n'a pas de champ « uid » : il n'est jamais compté comme un destinataire servi.
+export const isHistoryImported = async (campaignId: string) =>
+  (await firestore.collection(NEWSLETTER_DELIVERIES).doc(historyMarkerId(campaignId)).get()).exists
+
+export const markHistoryImported = (campaignId: string, matched: number) =>
+  firestore.collection(NEWSLETTER_DELIVERIES).doc(historyMarkerId(campaignId)).set({
+    campaignId,
+    historyImportedAt: new Date(),
+    matched,
+  })
+
 export const isNewsletterAdminAuthorized = async (req: NextApiRequest) => {
   // Dans l'Aperçu Kedalia, les e-mails sont capturés localement et ne partent jamais vers Mailjet
   if (process.env.MAIL_RELAY_URL) {
