@@ -3,6 +3,11 @@ import { COLORS, CONTACT_EMAIL } from "src/constants"
 export const ARTICLE_PATH = "/actualite/reservation-et-nouveautes-2026"
 export const DEFAULT_SITE_URL = "https://leschouxdacote.fr"
 
+// Campagne de la newsletter « réservation » : sert à noter qui l'a déjà reçue (pas de doublon à la relance).
+export const NEWSLETTER_CAMPAIGN_ID = "reservation-2026"
+// Premier envoi en production : l'historique de l'envoi (Mailjet) est relu à partir de ce jour.
+export const NEWSLETTER_CAMPAIGN_START = "2026-11-24"
+
 export interface ScheduleStep {
   day: string
   channel: string

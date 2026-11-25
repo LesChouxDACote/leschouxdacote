@@ -238,6 +238,16 @@ test.describe("Consultation", () => {
     ).toBeVisible()
   })
 
+  test("l'envoi de la newsletter aux utilisateurs est refusé sans compte administrateur", async ({ request }) => {
+    const summary = await request.get("/api/newsletter-send?audience=all")
+    expect(summary.status()).toBe(403)
+
+    // Plusieurs destinataires d'un coup : toujours refusé sans administrateur, et rien n'est envoyé.
+    const send = await request.post("/api/newsletter-send", { data: { uids: ["exemple-1", "exemple-2"] } })
+    expect(send.status()).toBe(403)
+    expect(await send.json()).not.toHaveProperty("sent")
+  })
+
   test("la page de désinscription newsletter s'affiche sans indexation", async ({ page }) => {
     await page.goto("/desinscription-newsletter?uid=exemple&token=jeton")
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/)

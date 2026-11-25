@@ -15,7 +15,11 @@ import api from "src/helpers/api"
 import { useUser } from "src/helpers/auth"
 import Layout from "src/layout"
 import { Column, Page } from "src/layout/content"
-import type { NewsletterAudience } from "src/pages/api/newsletter-send"
+import type {
+  NewsletterAudienceSummary as AudienceSummary,
+  NewsletterAudience,
+  NewsletterSendResult,
+} from "src/pages/api/newsletter-send"
 import HttpError from "standard-http-error"
 
 const IntroCard = styled.section`
@@ -297,17 +301,16 @@ interface Props {
   isPreview: boolean
 }
 
-interface AudienceSummary {
-  audience: NewsletterAudience
-  count: number
-  unsubscribedCount: number
-  recipientUids: string[]
-}
-
-interface BatchResult {
+interface BroadcastProgress {
+  total: number
+  processed: number
   sent: number
   skipped: number
   failed: number
+  stopped: boolean
+  // Arrêt automatique après trop d'échecs consécutifs
+  aborted: boolean
+  lastError: string | null
 }
 
 const AUDIENCE_OPTIONS: { value: NewsletterAudience; label: string }[] = [
@@ -316,7 +319,14 @@ const AUDIENCE_OPTIONS: { value: NewsletterAudience; label: string }[] = [
   { value: "buyers", label: "Acheteurs uniquement" },
 ]
 
-const BATCH_SIZE = 10
+// Un e-mail par appel, avec une courte pause : rien n'est coupé faute de temps et le service d'envoi n'est pas saturé.
+const BATCH_SIZE = 1
+const PAUSE_BETWEEN_SENDS_MS = 500
+const MAX_CONSECUTIVE_FAILURES = 5
+
+const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms))
+
+const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`
 
 const copyTextToClipboard = async (value: string) => {
   if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
@@ -350,14 +360,9 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
   const [audienceError, setAudienceError] = useState<string | null>(null)
   const [confirmingBroadcast, setConfirmingBroadcast] = useState(false)
   const [broadcasting, setBroadcasting] = useState(false)
-  const [broadcastProgress, setBroadcastProgress] = useState<{
-    total: number
-    processed: number
-    sent: number
-    skipped: number
-    failed: number
-    stopped: boolean
-  } | null>(null)
+  const [broadcastProgress, setBroadcastProgress] = useState<BroadcastProgress | null>(null)
+  const [failedUids, setFailedUids] = useState<string[]>([])
+  const [audienceReloadKey, setAudienceReloadKey] = useState(0)
   const cancelBroadcastRef = useRef(false)
 
   const canBroadcast = isPreview || Boolean(user?.isAdmin)
@@ -406,7 +411,7 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
     return () => {
       cancelled = true
     }
-  }, [audience, canBroadcast])
+  }, [audience, canBroadcast, audienceReloadKey])
 
   useEffect(
     () => () => {
@@ -471,52 +476,97 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
     }
   }
 
-  const handleStartBroadcast = async () => {
-    if (!audienceSummary || audienceSummary.recipientUids.length === 0) {
+  const runBroadcast = async (uids: string[]) => {
+    if (uids.length === 0) {
       return
     }
 
-    const uids = audienceSummary.recipientUids
     cancelBroadcastRef.current = false
     setConfirmingBroadcast(false)
     setBroadcasting(true)
     setAudienceError(null)
 
-    let processed = 0
-    let sent = 0
-    let skipped = 0
-    let failed = 0
+    const progress: BroadcastProgress = {
+      total: uids.length,
+      processed: 0,
+      sent: 0,
+      skipped: 0,
+      failed: 0,
+      stopped: false,
+      aborted: false,
+      lastError: null,
+    }
+    const failedNow: string[] = []
+    let consecutiveFailures = 0
 
-    setBroadcastProgress({ total: uids.length, processed: 0, sent: 0, skipped: 0, failed: 0, stopped: false })
+    setBroadcastProgress({ ...progress })
+    setFailedUids([])
 
     for (let index = 0; index < uids.length; index += BATCH_SIZE) {
       if (cancelBroadcastRef.current) {
-        setBroadcastProgress({ total: uids.length, processed, sent, skipped, failed, stopped: true })
-        setBroadcasting(false)
-        return
+        progress.stopped = true
+        break
       }
 
       const batch = uids.slice(index, index + BATCH_SIZE)
+      let batchFailed = 0
       try {
-        const result = (await api.post("newsletter-send", { uids: batch })) as unknown as BatchResult
-        sent += result.sent || 0
-        skipped += result.skipped || 0
-        failed += result.failed || 0
+        const result = (await api.post("newsletter-send", { uids: batch })) as unknown as NewsletterSendResult
+        progress.sent += result.sent || 0
+        progress.skipped += result.skipped || 0
+        batchFailed = result.failed || 0
+        if (batchFailed > 0) {
+          progress.lastError = result.error || "erreur inconnue du service d'envoi"
+        }
       } catch (error) {
-        failed += batch.length
         if (error instanceof HttpError && error.code === 403) {
           setAudienceError("L'envoi aux utilisateurs est réservé aux comptes administrateurs.")
-          setBroadcastProgress({ total: uids.length, processed, sent, skipped, failed, stopped: true })
-          setBroadcasting(false)
-          return
+          progress.stopped = true
+          break
         }
+        batchFailed = batch.length
+        progress.lastError =
+          error instanceof HttpError
+            ? `le site n'a pas répondu correctement (erreur ${error.code})`
+            : "la connexion au site a été perdue"
       }
 
-      processed += batch.length
-      setBroadcastProgress({ total: uids.length, processed, sent, skipped, failed, stopped: false })
+      progress.processed += batch.length
+      if (batchFailed > 0) {
+        progress.failed += batchFailed
+        failedNow.push(...batch)
+        consecutiveFailures += batchFailed
+      } else {
+        consecutiveFailures = 0
+      }
+
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        progress.stopped = true
+        progress.aborted = true
+        setBroadcastProgress({ ...progress })
+        break
+      }
+
+      setBroadcastProgress({ ...progress })
+      if (index + BATCH_SIZE < uids.length) {
+        await wait(PAUSE_BETWEEN_SENDS_MS)
+      }
     }
 
+    setBroadcastProgress({ ...progress })
+    setFailedUids(failedNow)
     setBroadcasting(false)
+    setAudienceReloadKey((key) => key + 1)
+  }
+
+  const handleStartBroadcast = () => {
+    if (audienceSummary) {
+      runBroadcast(audienceSummary.recipientUids)
+    }
+  }
+
+  const handleRetryFailed = () => {
+    runBroadcast(failedUids)
   }
 
   const selectedAudienceLabel =
@@ -708,6 +758,7 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                         onClick={() => {
                           setAudience(option.value)
                           setBroadcastProgress(null)
+                          setFailedUids([])
                         }}
                       >
                         {option.label}
@@ -720,12 +771,17 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                       <p>Calcul du nombre de destinataires…</p>
                     ) : audienceSummary ? (
                       <p>
+                        Pour « {selectedAudienceLabel} » :{" "}
                         <strong>
-                          {audienceSummary.count} destinataire{audienceSummary.count > 1 ? "s" : ""}
-                        </strong>{" "}
-                        pour « {selectedAudienceLabel} »
+                          {plural(audienceSummary.alreadySentCount, "personne")} l&apos;
+                          {audienceSummary.alreadySentCount > 1 ? "ont" : "a"} déjà reçue
+                        </strong>
+                        ,{" "}
+                        <strong>
+                          {audienceSummary.count} l&apos;{audienceSummary.count > 1 ? "attendent" : "attend"} encore
+                        </strong>
                         {audienceSummary.unsubscribedCount > 0 &&
-                          ` (${audienceSummary.unsubscribedCount} personne${audienceSummary.unsubscribedCount > 1 ? "s" : ""} désinscrite${audienceSummary.unsubscribedCount > 1 ? "s" : ""} exclue${audienceSummary.unsubscribedCount > 1 ? "s" : ""})`}
+                          ` (${plural(audienceSummary.unsubscribedCount, "personne")} ${audienceSummary.unsubscribedCount > 1 ? "désinscrites exclues" : "désinscrite exclue"})`}
                         .
                       </p>
                     ) : (
@@ -743,9 +799,13 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                         disabled={loadingAudience || !audienceSummary || audienceSummary.count === 0}
                         onClick={() => setConfirmingBroadcast(true)}
                       >
-                        {audienceSummary
-                          ? `Envoyer la newsletter à ${audienceSummary.count} destinataire${audienceSummary.count > 1 ? "s" : ""}`
-                          : "Envoyer la newsletter"}
+                        {!audienceSummary
+                          ? "Envoyer la newsletter"
+                          : audienceSummary.count === 0
+                            ? "Tout le monde a déjà reçu la newsletter"
+                            : audienceSummary.count > 1
+                              ? `Envoyer la newsletter aux ${audienceSummary.count} personnes qui ne l'ont pas encore reçue`
+                              : "Envoyer la newsletter à la personne qui ne l'a pas encore reçue"}
                       </Button>
                     </InputGroup>
                   )}
@@ -760,8 +820,15 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                         ({selectedAudienceLabel}).{" "}
                         {isPreview
                           ? "Dans l'Aperçu, tous les e-mails sont capturés localement sous « E-mails » et ne partent jamais vers les utilisateurs."
-                          : "Une fois confirmé, les e-mails seront envoyés progressivement aux destinataires."}
+                          : "Une fois confirmé, les e-mails partiront un par un : gardez cette page ouverte pendant l'envoi. Vous pourrez l'interrompre et le reprendre plus tard sans doublon."}
                       </p>
+                      {!audienceSummary.historyChecked && (
+                        <StatusNotice $tone="error">
+                          Attention : l&apos;historique du service d&apos;envoi n&apos;a pas pu être lu. Les personnes
+                          qui auraient reçu la newsletter lors de l&apos;envoi précédent ne sont donc pas connues, et
+                          pourraient la recevoir une seconde fois.
+                        </StatusNotice>
+                      )}
                       <ActionRow>
                         <Button type="button" $variant="green" onClick={handleStartBroadcast}>
                           Confirmer l&apos;envoi
@@ -801,17 +868,32 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                           </Button>
                         </ActionRow>
                       ) : (
-                        <StatusNotice
-                          $tone={broadcastProgress.failed > 0 || broadcastProgress.stopped ? "error" : "success"}
-                        >
-                          {broadcastProgress.stopped ? "Envoi interrompu : " : "Envoi terminé : "}
-                          {broadcastProgress.sent} e-mail{broadcastProgress.sent > 1 ? "s" : ""} envoyé
-                          {broadcastProgress.sent > 1 ? "s" : ""}
-                          {broadcastProgress.skipped > 0 &&
-                            `, ${broadcastProgress.skipped} ignoré${broadcastProgress.skipped > 1 ? "s" : ""}`}
-                          {broadcastProgress.failed > 0 && `, ${broadcastProgress.failed} en échec`}.
-                          {isPreview ? " Consultez-les sous le bouton « E-mails » de l'Aperçu." : ""}
-                        </StatusNotice>
+                        <>
+                          <StatusNotice
+                            $tone={broadcastProgress.failed > 0 || broadcastProgress.stopped ? "error" : "success"}
+                          >
+                            {broadcastProgress.aborted
+                              ? `Envoi arrêté après ${MAX_CONSECUTIVE_FAILURES} échecs de suite : ${broadcastProgress.lastError}. `
+                              : broadcastProgress.stopped
+                                ? "Envoi interrompu : "
+                                : "Envoi terminé : "}
+                            {plural(broadcastProgress.sent, "e-mail")} envoyé{broadcastProgress.sent > 1 ? "s" : ""}
+                            {broadcastProgress.skipped > 0 &&
+                              `, ${broadcastProgress.skipped} ignoré${broadcastProgress.skipped > 1 ? "s" : ""}`}
+                            {broadcastProgress.failed > 0 && `, ${broadcastProgress.failed} en échec`}.
+                            {!broadcastProgress.aborted &&
+                              broadcastProgress.lastError &&
+                              ` Raison du dernier échec : ${broadcastProgress.lastError}.`}
+                            {isPreview ? " Consultez-les sous le bouton « E-mails » de l'Aperçu." : ""}
+                          </StatusNotice>
+                          {failedUids.length > 0 && (
+                            <ActionRow>
+                              <Button type="button" $variant="green" onClick={handleRetryFailed}>
+                                Relancer les échecs
+                              </Button>
+                            </ActionRow>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
