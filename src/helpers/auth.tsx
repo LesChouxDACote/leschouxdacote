@@ -106,7 +106,10 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [redirectUrl]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const wait = Boolean(redirectUrl) || (isPrivateRoute && !user)
+  // Page d'administration : rien n'est affiché tant que le compte n'est pas confirmé administrateur
+  // (sinon la page apparaît le temps de vérifier la connexion, avant la redirection).
+  const isAdminRoute = ADMIN_ROUTES.includes(pathname)
+  const wait = Boolean(redirectUrl) || (isPrivateRoute && !user) || (isAdminRoute && !user?.isAdmin)
 
   // Profil de l'utilisateur connecté : celui en mémoire, ou lu directement s'il n'est pas encore
   // chargé (clic sur « Suivre » juste après le chargement de la page, avant que le profil arrive)

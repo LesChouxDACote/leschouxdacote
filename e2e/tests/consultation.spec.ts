@@ -231,6 +231,17 @@ test.describe("Consultation", () => {
     await expect(page.getByRole("heading", { name: /Modèle de newsletter/ })).toHaveCount(0)
   })
 
+  test("les pages d'administration ne livrent pas leur contenu avant la vérification du compte", async ({
+    request,
+  }) => {
+    // La page envoyée au navigateur ne contient que le chargement : rien n'apparaît le temps de la redirection.
+    const plan = await (await request.get("/plan-de-communication")).text()
+    expect(plan).not.toContain("Modèle de newsletter")
+    expect(plan).not.toContain("Calendrier de publication")
+    const csv = await (await request.get("/csv-export")).text()
+    expect(csv).not.toContain("Export des CSVs</h1>")
+  })
+
   test("l'envoi de la newsletter aux utilisateurs est refusé sans compte administrateur", async ({ request }) => {
     const summary = await request.get("/api/newsletter-send?audience=all")
     expect(summary.status()).toBe(403)
