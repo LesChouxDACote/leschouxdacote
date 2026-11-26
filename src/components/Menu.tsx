@@ -1,7 +1,9 @@
 import styled from "@emotion/styled"
 import AddCircleIcon from "@mui/icons-material/AddCircle"
+import CampaignIcon from "@mui/icons-material/Campaign"
 import CollectionsIcon from "@mui/icons-material/Collections"
 import EventNoteIcon from "@mui/icons-material/EventNote"
+import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import LoginIcon from "@mui/icons-material/Login"
 import LogoutIcon from "@mui/icons-material/Logout"
 import PersonIcon from "@mui/icons-material/Person"
@@ -52,6 +54,13 @@ const Container = styled.nav`
       background-color: ${transparentize(0.8, COLORS.white)};
     }
   }
+`
+const AdminTitle = styled.div`
+  padding: 8px 16px 0;
+  color: ${COLORS.muted};
+  font-size: ${SIZES.small}px;
+  font-weight: 500;
+  text-transform: uppercase;
 `
 const Center = styled.div`
   text-align: center;
@@ -121,6 +130,21 @@ const Menu = () => {
           </>
         )}
       </List>
+      {user?.isAdmin && (
+        <>
+          <Divider />
+          <List subheader={<AdminTitle>Admin</AdminTitle>}>
+            <ListItemLink href="/plan-de-communication">
+              <CampaignIcon />
+              <ListItemText>Plan de communication</ListItemText>
+            </ListItemLink>
+            <ListItemLink href="/csv-export">
+              <FileDownloadIcon />
+              <ListItemText>Export des CSVs</ListItemText>
+            </ListItemLink>
+          </List>
+        </>
+      )}
       <Divider />
       <List>
         {authUser ? (

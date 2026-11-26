@@ -224,18 +224,11 @@ test.describe("Consultation", () => {
     await expect(page.getByRole("link", { name: /créer des créneaux/i })).toHaveAttribute("href", "/aide/creneaux")
   })
 
-  test("la page plan de communication est non indexée et regroupe réseaux sociaux et newsletter", async ({ page }) => {
+  test("la page plan de communication est réservée aux administrateurs", async ({ page }) => {
     await page.goto("/plan-de-communication")
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/)
-    await expect(page.getByRole("heading", { name: /Plan de communication/ })).toBeVisible()
-    for (const channel of ["Facebook", "Instagram", "X", "LinkedIn"]) {
-      await expect(page.getByRole("heading", { name: channel, exact: true })).toBeVisible()
-    }
-    await expect(page.getByRole("heading", { name: /Modèle de newsletter/ })).toBeVisible()
-    await expect(page.locator('iframe[title="Aperçu de la newsletter"]')).toBeVisible()
-    await expect(
-      page.getByRole("heading", { name: "Envoyer la newsletter aux utilisateurs des Choux d'à Côté" }),
-    ).toBeVisible()
+    // Visiteur anonyme : renvoyé vers la connexion, le contenu du plan n'est jamais affiché.
+    await expect(page).toHaveURL(/\/connexion\?next=\/plan-de-communication/)
+    await expect(page.getByRole("heading", { name: /Modèle de newsletter/ })).toHaveCount(0)
   })
 
   test("l'envoi de la newsletter aux utilisateurs est refusé sans compte administrateur", async ({ request }) => {

@@ -58,6 +58,16 @@ const Entry = styled(Link)`
   ${entryCss}
 `
 
+const SectionTitle = styled.div`
+  padding: 8px 16px 4px;
+  border-top: 1px solid ${COLORS.border};
+  color: ${COLORS.muted};
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-align: left;
+`
+
 const Logout = styled.a`
   ${entryCss}
   border-top: 1px solid ${COLORS.border};
@@ -89,10 +99,16 @@ const UserZone = () => {
         {open && (
           <Menu>
             {user?.role === USER_ROLE.PRODUCER && <Entry href="/compte/producteur/annonces">Mes annonces</Entry>}
-            {user?.isAdmin && <Entry href="/csv-export">Export des CSVs</Entry>}
             <Entry href="/compte/reservations">Mes réservations</Entry>
             <Entry href="/compte/profil">Mon profil</Entry>
             <Entry href="/compte/alertes">Mes alertes</Entry>
+            {user?.isAdmin && (
+              <>
+                <SectionTitle>Admin</SectionTitle>
+                <Entry href="/plan-de-communication">Plan de communication</Entry>
+                <Entry href="/csv-export">Export des CSVs</Entry>
+              </>
+            )}
             <Logout onClick={signout}>Se déconnecter</Logout>
           </Menu>
         )}

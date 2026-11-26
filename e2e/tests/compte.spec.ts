@@ -33,6 +33,15 @@ test.describe("Compte", () => {
     await expect(firstname).toHaveValue(original)
   })
 
+  test("un compte non administrateur ne voit pas la rubrique Admin ni le plan de communication", async ({ page }) => {
+    await login(page, "buyer")
+    await openUserMenu(page)
+    await expect(page.getByText("Admin", { exact: true })).toHaveCount(0)
+    await expect(page.getByRole("link", { name: "Plan de communication" })).toHaveCount(0)
+    await page.goto("/plan-de-communication")
+    await expect(page).toHaveURL(/\/$/)
+  })
+
   test("les alertes de l'acheteur listent ses producteurs favoris", async ({ page }) => {
     await login(page, "buyer")
     await page.goto("/compte/alertes")
