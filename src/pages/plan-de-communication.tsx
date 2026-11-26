@@ -584,8 +584,8 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
           <IntroCard>
             <h1>Plan de communication — Lancement de la réservation</h1>
             <p>
-              Cette page dédiée (absente des menus et non indexée par les moteurs de recherche) regroupe votre
-              calendrier de diffusion sur une semaine, les textes prêts à copier pour Facebook, Instagram, X et
+              Cette page dédiée (réservée aux administrateurs et non indexée par les moteurs de recherche) regroupe
+              votre calendrier de diffusion sur une semaine, les textes prêts à copier pour Facebook, Instagram, X et
               LinkedIn, ainsi que le modèle complet de votre newsletter.
             </p>
             <ActionRow>
