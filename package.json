@@ -70,7 +70,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hook-form": "^7.85.0",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.5",
     "standard-http-error": "^2.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
