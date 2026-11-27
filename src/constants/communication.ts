@@ -22,15 +22,48 @@ export interface SocialPostVariant {
   text: string
 }
 
+// Image à télécharger pour une publication : dessinée dans le navigateur, à la taille attendue par le réseau.
+export interface SocialVisual {
+  id: string
+  fileName: string
+  label: string
+  width: number
+  height: number
+  // "photo" : photo de légumes sous un voile vert, texte blanc ; "plain" : fond vert pâle, texte vert
+  variant: "photo" | "plain"
+  title: string
+  subtitle?: string
+  lines?: string[]
+}
+
 export interface SocialPost {
   id: string
   channel: string
   audience: string
   angle: string
   visualIdea: string
+  visuals?: SocialVisual[]
   variants: SocialPostVariant[]
   hashtags?: string
 }
+
+export const VISUAL_PHOTO_PATH = "/actualite/reservation-nouveautes.jpg"
+export const VISUAL_LOGO_PATH = "/logo.svg"
+export const VISUAL_SITE_LABEL = "leschouxdacote.fr"
+
+const COMEBACK_TITLE = "Les Choux d'à Côté est de retour"
+const COMEBACK_SUBTITLE = "Nouveauté : la réservation de vos produits locaux sur créneaux"
+
+const comebackVisual = (id: string, label: string, width: number, height: number): SocialVisual => ({
+  id,
+  fileName: id,
+  label,
+  width,
+  height,
+  variant: "photo",
+  title: COMEBACK_TITLE,
+  subtitle: COMEBACK_SUBTITLE,
+})
 
 export interface NewsletterEmail {
   subject: string
@@ -98,7 +131,8 @@ export const getSocialPosts = (baseUrl: string): SocialPost[] => {
       audience: "Producteurs et acheteurs locaux",
       angle: "Reprise chaleureuse, arrivée de la réservation en vente directe et tour d'horizon des nouveautés.",
       visualIdea:
-        "La photo de légumes de l'article Actualité ou un montage avant/après montrant une annonce avec ses créneaux et le bouton « Réserver ».",
+        "Image horizontale à télécharger ci-dessous : « Les Choux d'à Côté est de retour + nouveauté Réservation » sur fond vert avec la photo de légumes de l'article, dans le style de la première image du carrousel Instagram.",
+      visuals: [comebackVisual("facebook", "Image de la publication", 1200, 630)],
       variants: [
         {
           id: "facebook-annonce",
@@ -156,6 +190,39 @@ export const getSocialPosts = (baseUrl: string): SocialPost[] => {
       angle: "Format visuel court, rythmé et facile à parcourir, avec appel à l'action vers le lien en bio / story.",
       visualIdea:
         "Carrousel 4 slides : 1) « Les Choux d'à Côté est de retour + nouveauté Réservation » sur fond vert avec photo de légumes ; 2) « Côté acheteurs : choisissez un créneau et réservez en 3 clics » ; 3) « Côté producteurs : maîtrisez vos stocks et créneaux en vente directe » ; 4) « Et aussi cette année : nouveau design, aide en ligne, annonces 1 an, vues & abonnés ».",
+      visuals: [
+        comebackVisual("instagram-1", "Image 1 sur 4", 1080, 1080),
+        {
+          id: "instagram-2",
+          fileName: "instagram-2",
+          label: "Image 2 sur 4",
+          width: 1080,
+          height: 1080,
+          variant: "plain",
+          title: "Côté acheteurs",
+          subtitle: "Choisissez un créneau et réservez en 3 clics",
+        },
+        {
+          id: "instagram-3",
+          fileName: "instagram-3",
+          label: "Image 3 sur 4",
+          width: 1080,
+          height: 1080,
+          variant: "plain",
+          title: "Côté producteurs",
+          subtitle: "Maîtrisez vos stocks et créneaux en vente directe",
+        },
+        {
+          id: "instagram-4",
+          fileName: "instagram-4",
+          label: "Image 4 sur 4",
+          width: 1080,
+          height: 1080,
+          variant: "plain",
+          title: "Et aussi cette année",
+          lines: ["Nouveau design", "Aide en ligne", "Annonces valables 1 an", "Vues & abonnés"],
+        },
+      ],
       variants: [
         {
           id: "instagram-carrousel",
@@ -193,7 +260,8 @@ export const getSocialPosts = (baseUrl: string): SocialPost[] => {
       angle:
         "Deux options au choix : un message court direct, ou un fil en 3 messages pour détailler la nouveauté et la relance.",
       visualIdea:
-        "Une capture d'écran épurée d'une fiche annonce montrant les créneaux de retrait et le bouton « Réserver ».",
+        "Image horizontale à télécharger ci-dessous : « Les Choux d'à Côté est de retour + nouveauté Réservation » sur fond vert avec la photo de légumes de l'article, dans le style de la première image du carrousel Instagram.",
+      visuals: [comebackVisual("x", "Image du message", 1600, 900)],
       variants: [
         {
           id: "x-court",

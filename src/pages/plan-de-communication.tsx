@@ -3,6 +3,7 @@ import type { GetServerSideProps } from "next"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Button, LinkButton } from "src/components/Button"
 import { ValidationError } from "src/components/Form"
+import SocialVisual from "src/components/SocialVisual"
 import { COLORS, LAYOUT, RADIUS, SIZES } from "src/constants"
 import {
   ARTICLE_PATH,
@@ -126,6 +127,25 @@ const InfoList = styled.div`
   font-size: ${SIZES.small}px;
   p {
     margin: 4px 0;
+  }
+`
+
+const VisualsBlock = styled.div`
+  margin-bottom: 16px;
+  h4 {
+    margin: 0 0 12px;
+    font-size: ${SIZES.regular}px;
+    color: ${COLORS.text};
+  }
+`
+
+// Carrés côte à côte par deux ; une image horizontale seule occupe toute la largeur
+const VisualsGrid = styled.div<{ $square: boolean }>`
+  display: grid;
+  grid-template-columns: ${({ $square }) => ($square ? "repeat(2, 1fr)" : "minmax(0, 720px)")};
+  gap: 16px;
+  @media (max-width: ${LAYOUT.mobile}px) {
+    grid-template-columns: 1fr;
   }
 `
 
@@ -637,6 +657,16 @@ const CommunicationPlanPage = ({ isPreview }: Props) => {
                   </p>
                 )}
               </InfoList>
+              {post.visuals && post.visuals.length > 0 && (
+                <VisualsBlock>
+                  <h4>Visuels à télécharger</h4>
+                  <VisualsGrid $square={post.visuals[0].width === post.visuals[0].height}>
+                    {post.visuals.map((visual) => (
+                      <SocialVisual key={visual.id} visual={visual} />
+                    ))}
+                  </VisualsGrid>
+                </VisualsBlock>
+              )}
               {post.variants.map((variant) => (
                 <VariantBlock key={variant.id}>
                   <VariantHeader>
